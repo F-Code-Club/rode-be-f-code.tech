@@ -12,6 +12,9 @@ import { SubmitHistoryService } from 'submit-history/submit-history.service';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
+import { Room } from '@rooms/entities/room.entity';
+import { Question } from '@rooms/entities/question.entity';
+import { Account } from '@accounts/entities/account.entity';
 
 @Module({
   controllers: [ScoringController],
@@ -29,7 +32,7 @@ import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
   imports: [
     RoomsModule,
     LocalFilesModule,
-    TypeOrmModule.forFeature([SubmitHistory]),
+    TypeOrmModule.forFeature([SubmitHistory, Room, Question, Account]),
   ],
 })
 export class ScoringModule {

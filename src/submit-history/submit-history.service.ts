@@ -79,7 +79,14 @@ export class SubmitHistoryService {
         'lastSubmits',
         'lastSubmits.account = submitHistory.account AND lastSubmits.question = submitHistory.question AND lastSubmits.submittedAt = submitHistory.submittedAt',
       )
-      .innerJoinAndSelect('submitHistory.account', 'account')
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
       .innerJoin('account.userRooms', 'userRoom')
       .where('userRoom.room = :roomId', { roomId: roomId })
       .addSelect('userRoom.finishTime', 'finishTime')
@@ -94,11 +101,6 @@ export class SubmitHistoryService {
     const getRawMany = await query.getRawMany();
     let i = 0;
     const submits = getMany.map((item) => {
-      delete item.id;
-      delete item.account.phone;
-      delete item.account.dob;
-      delete item.account.role;
-      delete item.account.isActive;
       delete item.account.userRooms;
       item.totalScore = getRawMany[i].totalScore;
       item.totalTime = getRawMany[i].totalTime;
