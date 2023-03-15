@@ -39,7 +39,14 @@ export class SubmitHistoryService {
         'lastSubmits',
         'lastSubmits.account = submitHistory.account AND lastSubmits.submittedAt = submitHistory.submittedAt',
       )
-      .innerJoinAndSelect('submitHistory.account', 'account')
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
       .andWhere('account.isActive = true')
       .orderBy({
         'submitHistory.score': 'DESC',
