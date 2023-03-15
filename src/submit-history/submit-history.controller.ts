@@ -5,9 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  Post,
   UseGuards,
-  Body,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -76,14 +74,13 @@ export class SubmitHistoryController {
   ) {
     let submits: string | SubmitHistory[];
     let err;
+    console.log(curAccount);
     if (roomId) {
-      console.log('run 1');
       [submits, err] = await this.submitHistoryService.showUserHistoryByRoom(
         curAccount.id,
         roomId,
       );
     } else {
-      console.log('run 2');
       [submits, err] =
         await this.submitHistoryService.showUserHistoryByQuestion(
           curAccount.id,
