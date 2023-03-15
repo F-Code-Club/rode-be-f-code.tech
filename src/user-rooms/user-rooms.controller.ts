@@ -19,6 +19,7 @@ import { Account } from '@accounts/entities/account.entity';
 import CurrentAccount from '@decorators/current-account.decorator';
 import ResponseObject from '@etc/response-object';
 import { JoinRoomDto } from './dtos/join-room.dto';
+import { CheckAttendanceDto } from './dtos/check-attendance.dto';
 
 @Controller('user-rooms')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -95,6 +96,35 @@ export class UserRoomsController {
       HttpStatus.OK,
       'Get all rooms that user joined success!',
       rooms,
+      null,
+    );
+  }
+
+  @Post('check-attendance/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Check Attendance for Users' })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN)
+  async checkAttendance(@Body() info: CheckAttendanceDto) {
+    let results = [];
+    for (var i = 0; i < info.id.length; i++) {
+      const [check, err] = await this.userRoomsService.checkAttendance(
+        info.id[i],
+      );
+      results.push([check, err]);
+    }
+    if (!results) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Check Attendance failed!',
+        null,
+        results,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Check Attendance success!',
+      results,
       null,
     );
   }
