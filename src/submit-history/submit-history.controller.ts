@@ -16,6 +16,8 @@ import { RoleGuard } from '@auth/role.guard';
 import Roles from '@decorators/roles.decorator';
 import { RoleEnum } from '@etc/enums';
 import { SubmitHistory } from './entities/submit-history.entity';
+import CurrentAccount from '@decorators/current-account.decorator';
+import { Account } from '@accounts/entities/account.entity';
 
 @Controller('submit-history')
 @UseGuards(JwtAuthGuard)
@@ -65,11 +67,10 @@ export class SubmitHistoryController {
   }
 
   @Get('get-user-history')
-  @ApiQuery({ name: 'userId', required: true })
   @ApiQuery({ name: 'roomId', required: false })
   @ApiQuery({ name: 'questionId', required: false })
   async showUserHistory(
-    @Query('userId') userId: string,
+    @CurrentAccount() curAccount: Account,
     @Query('roomId') roomId: string,
     @Query('questionId') questionId: string,
   ) {
@@ -78,51 +79,16 @@ export class SubmitHistoryController {
     if (roomId) {
       console.log('run 1');
       [submits, err] = await this.submitHistoryService.showUserHistoryByRoom(
-        userId,
+        curAccount.id,
         roomId,
       );
     } else {
       console.log('run 2');
       [submits, err] =
         await this.submitHistoryService.showUserHistoryByQuestion(
-          userId,
+          curAccount.id,
           questionId,
         );
-    }
-    if (!submits)
-      return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Get submits failed',
-        null,
-        err,
-      );
-    return new ResponseObject(
-      HttpStatus.OK,
-      'Get all submits success!',
-      submits,
-      null,
-    );
-  }
-
-  @Get('get-users-history')
-  @ApiQuery({ name: 'roomId', required: false })
-  @ApiQuery({ name: 'questionId', required: false })
-  @UseGuards(RoleGuard)
-  @Roles(RoleEnum.ADMIN)
-  async showAllSubmits(
-    @Query('roomId') roomId: string,
-    @Query('questionId') questionId: string,
-  ) {
-    let submits: string | SubmitHistory[];
-    let err;
-    if (roomId) {
-      [submits, err] = await this.submitHistoryService.showAllSubmitsByRoom(
-        roomId,
-      );
-    } else {
-      [submits, err] = await this.submitHistoryService.showAllSubmitsByQuestion(
-        questionId,
-      );
     }
     if (!submits)
       return new ResponseObject(
