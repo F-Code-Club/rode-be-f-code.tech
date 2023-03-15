@@ -67,11 +67,7 @@ export class SubmitHistoryService {
     if (!room) return [null, 'Room not exist'];
     const query = this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
-      .select([
-        'submitHistory.id',
-        'submitHistory.language',
-        'submitHistory.submittedAt',
-      ])
+      .select('submitHistory.id')
       .addSelect('SUM(submitHistory.score)', 'totalScore')
       .addSelect('SUM(submitHistory.time)', 'totalTime')
       .addSelect('SUM(submitHistory.space)', 'totalSpace')
@@ -91,15 +87,36 @@ export class SubmitHistoryService {
         'lastSubmits',
         'lastSubmits.account = submitHistory.account AND lastSubmits.question = submitHistory.question AND lastSubmits.submittedAt = submitHistory.submittedAt',
       )
-      .innerJoinAndSelect('submitHistory.account', 'account')
-      .where('account.isActive = true')
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
+      .innerJoin('account.userRooms', 'userRoom')
+      .where('userRoom.room = :roomId', { roomId: roomId })
+      .addSelect('userRoom.finishTime', 'finishTime')
+      .andWhere('account.isActive = true')
       .groupBy('submitHistory.account.id')
       .orderBy({
-        totalscore: 'DESC',
+        totalScore: 'DESC',
         totalTime: 'ASC',
         totalSpace: 'ASC',
       });
     const getMany: any = await query.getMany();
-    return [getMany, null];
+    const getRawMany = await query.getRawMany();
+    let i = 0;
+    const submits = getMany.map((item) => {
+      delete item.account.userRooms;
+      item.totalScore = getRawMany[i].totalScore;
+      item.totalTime = getRawMany[i].totalTime;
+      item.totalSpace = getRawMany[i].totalSpace;
+      item.finishTime = getRawMany[i].finishTime;
+      i++;
+      return item;
+    });
+    return [submits, null];
   }
 }
