@@ -9,7 +9,6 @@ import { JavaService } from './compile-and-execute-services/java.service';
 import { PixelMatchService } from './pixel-match.service';
 import { LocalFilesModule } from '@local-files/local-files.module';
 import { SubmitHistoryService } from 'submit-history/submit-history.service';
-import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';

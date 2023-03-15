@@ -3,10 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
+import { Log } from '@logger/logger.decorator';
+import { LogService } from '@logger/logger.service';
+import { SubmitTimesDto } from './dtos/submit-times';
 
 @Injectable()
 export class SubmitHistoryService {
   constructor(
+    @Log('SubmitHistoryService') private readonly logger: LogService,
+
     @InjectRepository(SubmitHistory)
     private readonly submitHistoryRepository: Repository<SubmitHistory>,
 
@@ -111,10 +116,49 @@ export class SubmitHistoryService {
     });
     return [submits, null];
   }
-  async createSubmit(submission: SubmitHistory) {
-    //Handle number of submission here
-
-    const submit = await this.submitHistoryRepository.save(submission);
-    return [submit, null];
+  async createSubmit(
+    submission: SubmitHistory,
+    maxSubmitTimes: number,
+  ): Promise<[SubmitTimesDto, string]> {
+    this.logger.log('createSubmit: ' + submission.account.id);
+    let count = await this.countNumberOfSubmissions(
+      submission.account.id,
+      submission.question.id,
+    );
+    if (count < maxSubmitTimes) {
+      const submitTimes = new SubmitTimesDto(++count, maxSubmitTimes);
+      await this.submitHistoryRepository.save(submission);
+      this.logger.log(
+        'createSubmit: ' +
+          'Submit success. Number Of Submissions: ' +
+          submitTimes.current +
+          '/' +
+          submitTimes.current,
+      );
+      return [submitTimes, null];
+    } else {
+      this.logger.log(
+        'createSubmit: ' + 'You have reached the maximum number of submissions',
+      );
+      return [null, 'You have reached the maximum number of submissions'];
+    }
+  }
+  async countNumberOfSubmissions(accountId: string, questionId: string) {
+    this.logger.log(
+      'countNumberOfSubmissions: ' + accountId + ', ' + questionId,
+    );
+    const count = await this.submitHistoryRepository.count({
+      where: {
+        account: {
+          id: accountId,
+          isActive: true,
+        },
+        question: {
+          id: questionId,
+        },
+      },
+    });
+    this.logger.log('countNumberOfSubmissions: ' + count);
+    return count;
   }
 }

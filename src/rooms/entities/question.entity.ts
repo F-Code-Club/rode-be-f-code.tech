@@ -17,7 +17,7 @@ export class Question {
   @Column()
   questionImage: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'integer', default: 5 })
   maxSubmitTimes: number;
 
   @Column({ nullable: true })

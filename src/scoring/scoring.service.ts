@@ -11,10 +11,13 @@ import { FeResultDto } from './dtos/fe-result.dto';
 import { Account } from '@accounts/entities/account.entity';
 import { SubmitHistoryService } from 'submit-history/submit-history.service';
 import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
+import { Log } from '@logger/logger.decorator';
+import { LogService } from '@logger/logger.service';
 
 @Injectable()
 export class ScoringService {
   constructor(
+    @Log('ScoringService') private readonly logger: LogService,
     private readonly roomsService: RoomsService,
     private readonly c_cppService: C_CPPService,
     private readonly javaService: JavaService,
@@ -26,6 +29,7 @@ export class ScoringService {
     submitDto: SubmitDto,
     account: Account,
   ): Promise<[BeResultDto | FeResultDto, any]> {
+    this.logger.log('submit: ' + submitDto.roomId + ' ' + submitDto.questionId);
     const [room, err] = await this.roomsService.findOneById(submitDto.roomId);
     if (err) {
       return [null, err];
@@ -38,7 +42,7 @@ export class ScoringService {
     }
 
     //result for return to client
-    let submitResult: BeResultDto | FeResultDto;
+    const submitResult: BeResultDto | FeResultDto = undefined;
 
     //entity for save submission to database
     const submission = new SubmitHistory();
@@ -47,6 +51,7 @@ export class ScoringService {
     submission.submissions = submitDto.code;
     submission.language = submitDto.language;
 
+    this.logger.log('submit: languageSubmission ' + submitDto.language);
     switch (room.type) {
       case RoomTypeEnum.BE: {
         switch (submitDto.language) {
@@ -93,7 +98,14 @@ export class ScoringService {
         return [null, 'Room type not supported'];
       }
     }
-    await this.submitHistoryService.createSubmit(submission);
+    this.logger.log('submit: Saving submission...');
+    const [submitTimes, error] = await this.submitHistoryService.createSubmit(
+      submission,
+      question.maxSubmitTimes,
+    );
+    this.logger.log('submit: Saved submission!!!');
+    if (error) return [null, error];
+    Object.assign(submitResult, submitTimes);
     return [submitResult, null];
   }
 
