@@ -13,9 +13,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
 
 @Controller('submit-history')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('SubmitHistory')
-//@ApiBearerAuth()
+@ApiBearerAuth()
 export class SubmitHistoryController {
   constructor(private readonly submitHistoryService: SubmitHistoryService) {}
 
