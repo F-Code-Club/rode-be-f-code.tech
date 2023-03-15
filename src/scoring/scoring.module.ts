@@ -4,10 +4,17 @@ import { ScoringController } from './scoring.controller';
 import { RoomsModule } from '../rooms/rooms.module';
 import * as path from 'path';
 import * as fs from 'fs';
-import { C_CPPSevice } from './compile-and-execute-services/c_cpp.service';
+import { C_CPPService } from './compile-and-execute-services/c_cpp.service';
 import { JavaService } from './compile-and-execute-services/java.service';
 import { PixelMatchService } from './pixel-match.service';
 import { LocalFilesModule } from '@local-files/local-files.module';
+import { SubmitHistoryService } from 'submit-history/submit-history.service';
+import { SubmitHistoryModule } from 'submit-history/submit-history.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
+import { Room } from '@rooms/entities/room.entity';
+import { Question } from '@rooms/entities/question.entity';
+import { Account } from '@accounts/entities/account.entity';
 
 @Module({
   controllers: [ScoringController],
@@ -17,11 +24,16 @@ import { LocalFilesModule } from '@local-files/local-files.module';
       useValue: path.resolve(__dirname + '/../../scoring'),
     },
     ScoringService,
-    C_CPPSevice,
+    C_CPPService,
     JavaService,
     PixelMatchService,
+    SubmitHistoryService,
   ],
-  imports: [RoomsModule, LocalFilesModule],
+  imports: [
+    RoomsModule,
+    LocalFilesModule,
+    TypeOrmModule.forFeature([SubmitHistory, Room, Question, Account]),
+  ],
 })
 export class ScoringModule {
   constructor(@Inject('SCORING_PATH') private scoringPath: string) {}

@@ -6,7 +6,7 @@ import * as cp from 'child_process';
 import { BeResultDto } from '@scoring/dtos/be-result.dto';
 
 @Injectable()
-export class C_CPPSevice {
+export class C_CPPService {
   constructor(
     @Inject('SCORING_PATH')
     private scoringPath: string,

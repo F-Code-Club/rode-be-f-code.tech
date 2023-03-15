@@ -25,6 +25,6 @@ export class UserRoom {
   @Column({ nullable: true })
   finishTime: Date;
 
-  @Column({ default: false })
+  @Column({ default: false, select: false })
   attendance: boolean;
 }

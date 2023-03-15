@@ -1,10 +1,8 @@
-import { Account } from '@accounts/entities/account.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
-import { Question } from '@rooms/entities/question.entity';
 
 @Injectable()
 export class SubmitHistoryService {
@@ -12,14 +10,8 @@ export class SubmitHistoryService {
     @InjectRepository(SubmitHistory)
     private readonly submitHistoryRepository: Repository<SubmitHistory>,
 
-    @InjectRepository(Question)
-    private readonly questionRepository: Repository<Question>,
-
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
   ) {}
 
   async getByQuestion(question: string) {
@@ -118,5 +110,11 @@ export class SubmitHistoryService {
       return item;
     });
     return [submits, null];
+  }
+  async createSubmit(submission: SubmitHistory) {
+    //Handle number of submission here
+
+    const submit = await this.submitHistoryRepository.save(submission);
+    return [submit, null];
   }
 }

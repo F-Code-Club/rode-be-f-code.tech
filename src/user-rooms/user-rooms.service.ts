@@ -2,28 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from '@accounts/entities/account.entity';
 import { RoleEnum } from '@etc/enums';
-import { Room } from '@rooms/entities/room.entity';
 import { Repository } from 'typeorm';
 import { UserRoom } from './entities/user-room.entity';
+import { Log } from '@logger/logger.decorator';
+import { LogService } from '@logger/logger.service';
+import { JoinRoomDto } from './dtos/join-room.dto';
+import { RoomsService } from '@rooms/rooms.service';
 
 @Injectable()
 export class UserRoomsService {
   constructor(
+    @Log('UserRoomsService') private readonly logger: LogService,
     @InjectRepository(UserRoom)
     private readonly userRoomsRepository: Repository<UserRoom>,
+    private readonly roomsService: RoomsService,
   ) {}
 
-  async join(room: Room, account: Account) {
-    if (room.openTime < new Date() && room.closeTime > new Date()) {
-      const userRoom = await this.userRoomsRepository.save({
-        account,
-        room,
-      });
-      return [userRoom, null];
-    } else return [null, 'Room is not opened!'];
-  }
-
-  async isJoined(roomId: string, accountId: string) {
+  async isUserHadJoined(roomId: string, accountId: string) {
     const userRoom = await this.userRoomsRepository.findOne({
       where: {
         room: {
@@ -38,7 +33,47 @@ export class UserRoomsService {
     return userRoom ? true : false;
   }
 
+  async join(joinRoomDto: JoinRoomDto, account: Account) {
+    this.logger.log(
+      `User ${account.email} is joining room ${joinRoomDto.roomId}`,
+    );
+    const [room, error] = await this.roomsService.findOneById(
+      joinRoomDto.roomId,
+    );
+    if (error) {
+      return [null, 'Room not correct!'];
+    }
+    this.logger.log(`Room ${joinRoomDto.roomId} has been found`);
+
+    this.logger.log('Check if user already joined room');
+    const isJoined = await this.isUserHadJoined(room.id, account.id);
+    if (isJoined) {
+      return [null, 'You already joined this room!'];
+    }
+
+    this.logger.log('Check if private room: user must enter code to join');
+    if (room.isPrivate && room.code !== joinRoomDto.code) {
+      return [null, 'Room Number or Code not correct!'];
+    }
+
+    this.logger.log('Check if room is opened and then join');
+    if (room.openTime < new Date() && room.closeTime > new Date()) {
+      const userRoom = await this.userRoomsRepository.save({
+        account,
+        room,
+      });
+      return [userRoom.id, null];
+    } else return [null, 'Room is not opened!'];
+  }
+
   async findAllUsersInRoom(roomId: string) {
+    this.logger.log(`Get all users in room ${roomId}`);
+    const isExisted = await this.roomsService.isExisted(roomId);
+    if (!isExisted) {
+      return [null, 'Room not existed!'];
+    }
+    this.logger.log('Room is existed!');
+
     const users = await this.userRoomsRepository.find({
       where: {
         room: {
@@ -66,14 +101,15 @@ export class UserRoomsService {
         attendance: true,
       },
     });
-    return users;
+    return [users, null];
   }
 
-  async findAllRoomsOfUser(accountId: string) {
+  async findAllRoomsOfUser(account: Account) {
+    this.logger.log(`Get all rooms that user ${account.email} joined`);
     const users = await this.userRoomsRepository.find({
       where: {
         account: {
-          id: accountId,
+          id: account.id,
           role: RoleEnum.USER,
         },
       },

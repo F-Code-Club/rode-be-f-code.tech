@@ -13,6 +13,11 @@ import { SubmitDto } from './dtos/submit.dto';
 import ResponseObject from '@etc/response-object';
 import { RenderImageDto } from './dtos/render-image.dto';
 import { Response } from 'express';
+import { RoleGuard } from '@auth/role.guard';
+import Roles from '@decorators/roles.decorator';
+import { RoleEnum } from '@etc/enums';
+import { Account } from '@accounts/entities/account.entity';
+import CurrentAccount from '@decorators/current-account.decorator';
 
 @Controller('scoring')
 @UseGuards(JwtAuthGuard)
@@ -20,20 +25,6 @@ import { Response } from 'express';
 @ApiTags('Scoring')
 export class ScoringController {
   constructor(private readonly scoringService: ScoringService) {}
-
-  @Post('test-submit')
-  async testSubmit(@Body() body: SubmitDto) {
-    const [result, err] = await this.scoringService.submit(body);
-    if (err) {
-      return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Submit failed!',
-        null,
-        err,
-      );
-    }
-    return new ResponseObject(HttpStatus.OK, 'Submit success!', result, null);
-  }
 
   @Post('render-image')
   async renderImage(@Body() body: RenderImageDto, @Res() res: Response) {
@@ -47,5 +38,21 @@ export class ScoringController {
     const [result, err] = await this.scoringService.renderDiffImage(body);
     res.header('Content-Type', 'image/png');
     return res.send(result);
+  }
+
+  @Post('submit')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.USER)
+  async submit(@Body() body: SubmitDto, @CurrentAccount() curAccount: Account) {
+    const [result, err] = await this.scoringService.submit(body, curAccount);
+    if (err) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Submit failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(HttpStatus.OK, 'Submit success!', result, null);
   }
 }

@@ -17,6 +17,7 @@
       "@decorators/*": ["decorators/*"],
       "@etc/*": ["etc/*"],
       "@local-files/*": ["local-files/*"],
+      "@logger/*": ["logger/*"],
       "@rooms/*": ["rooms/*"],
       "@scoring/*": ["scoring/*"],
       "@user-rooms": ["user-rooms/*"]

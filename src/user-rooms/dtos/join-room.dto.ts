@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
-export class JoinRoomDTO {
+export class JoinRoomDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsUUID()
