@@ -8,6 +8,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   Min,
   MinDate,
   ValidateNested,
@@ -32,11 +33,13 @@ export class CreateRoomDto {
     message: 'Close time must be greater than open time',
   })
   @Type(() => Date)
+  @IsOptional()
   closeTime: Date;
 
   @ApiProperty()
   @IsNumber()
   @Min(1)
+  @IsOptional()
   duration: number;
 
   @ApiProperty({ enum: RoomTypeEnum })
