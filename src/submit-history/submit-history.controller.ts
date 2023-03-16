@@ -72,21 +72,11 @@ export class SubmitHistoryController {
     @Query('roomId') roomId: string,
     @Query('questionId') questionId: string,
   ) {
-    let submits: string | SubmitHistory[];
-    let err;
-    console.log(curAccount);
-    if (roomId) {
-      [submits, err] = await this.submitHistoryService.showUserHistoryByRoom(
-        curAccount.id,
-        roomId,
-      );
-    } else {
-      [submits, err] =
-        await this.submitHistoryService.showUserHistoryByQuestion(
-          curAccount.id,
-          questionId,
-        );
-    }
+    const [submits, err] = await this.submitHistoryService.showUserHistory(
+      '69f1276e-d4ae-42c5-84ea-7d528a9c031d',
+      roomId,
+      questionId,
+    );
     if (!submits)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,

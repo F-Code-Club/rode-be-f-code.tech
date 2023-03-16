@@ -5,6 +5,7 @@ import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
+import { find } from 'rxjs';
 
 @Injectable()
 export class SubmitHistoryService {
@@ -126,28 +127,12 @@ export class SubmitHistoryService {
     return [submit, null];
   }
 
-  async showUserHistoryByRoom(userId: string, roomId: string) {
-    const room = await this.roomRepository.findOne({
-      where: {
-        id: roomId,
-      },
-    });
-    if (!room) return [null, 'Room not exist'];
-    const user = await this.accountRepository.findOne({
-      where: {
-        id: userId,
-        isActive: true,
-      },
-    });
-    if (!user) return [null, 'User not exist'];
-    const submits = await this.submitHistoryRepository.find({
+  async showUserHistory(userId: string, roomId?: string, questionId?: string) {
+    let submits: SubmitHistory[] = [];
+    const findCondition = {
       relations: {
         account: true,
         question: true,
-      },
-      where: {
-        account: { id: userId },
-        question: { room: { id: roomId } },
       },
       select: {
         account: {
@@ -165,55 +150,42 @@ export class SubmitHistoryService {
         language: true,
         question: { id: true },
       },
-      order: {
-        submittedAt: 'DESC',
-      },
-    });
-    return [submits, null];
-  }
-
-  async showUserHistoryByQuestion(userId: string, questionId: string) {
-    const user = await this.accountRepository.findOne({
-      where: {
-        id: userId,
-        isActive: true,
-      },
-    });
-    if (!user) return [null, 'User not exist'];
-    const question = await this.questionRepository.findOne({
-      where: {
-        id: questionId,
-      },
-    });
-    if (!question) return [null, 'Question not exist'];
-    const submits = await this.submitHistoryRepository.find({
-      relations: {
-        account: true,
-        question: true,
-      },
-      where: {
-        account: { id: userId },
-        question: { id: questionId },
-      },
-      select: {
-        account: {
-          id: true,
-          fname: true,
-          lname: true,
-          email: true,
-          studentId: true,
+    };
+    if (roomId) {
+      const room = await this.roomRepository.findOne({
+        where: {
+          id: roomId,
         },
-        id: true,
-        score: true,
-        time: true,
-        space: true,
-        submittedAt: true,
-        language: true,
-      },
-      order: {
-        submittedAt: 'DESC',
-      },
-    });
+      });
+      if (!room) return [null, 'Room not exist'];
+      submits = await this.submitHistoryRepository.find({
+        ...findCondition,
+        where: {
+          account: { id: userId },
+          question: { room: { id: roomId } },
+        },
+        order: {
+          submittedAt: 'DESC', // can not push order submmittedAt into findCondition because it is error
+        },
+      });
+    } else {
+      const question = await this.questionRepository.findOne({
+        where: {
+          id: questionId,
+        },
+      });
+      if (!question) return [null, 'Question not exist'];
+      submits = await this.submitHistoryRepository.find({
+        ...findCondition,
+        where: {
+          account: { id: userId },
+          question: { id: questionId },
+        },
+        order: {
+          submittedAt: 'DESC',
+        },
+      });
+    }
     return [submits, null];
   }
 }
