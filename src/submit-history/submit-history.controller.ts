@@ -73,7 +73,7 @@ export class SubmitHistoryController {
     @Query('questionId') questionId: string,
   ) {
     const [submits, err] = await this.submitHistoryService.showUserHistory(
-      '69f1276e-d4ae-42c5-84ea-7d528a9c031d',
+      curAccount.id,
       roomId,
       questionId,
     );
