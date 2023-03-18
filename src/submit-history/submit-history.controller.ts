@@ -10,10 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
-import { RoleGuard } from '@auth/role.guard';
-import Roles from '@decorators/roles.decorator';
-import { RoleEnum } from '@etc/enums';
-import { SubmitHistory } from './entities/submit-history.entity';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from '@accounts/entities/account.entity';
 
@@ -73,7 +69,7 @@ export class SubmitHistoryController {
     @Query('questionId') questionId: string,
   ) {
     const [submits, err] = await this.submitHistoryService.showUserHistory(
-      '69f1276e-d4ae-42c5-84ea-7d528a9c031d',
+      curAccount.id,
       roomId,
       questionId,
     );

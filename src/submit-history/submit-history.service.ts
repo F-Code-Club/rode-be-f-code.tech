@@ -5,7 +5,6 @@ import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
-import { find } from 'rxjs';
 
 @Injectable()
 export class SubmitHistoryService {
@@ -130,22 +129,13 @@ export class SubmitHistoryService {
   async showUserHistory(userId: string, roomId?: string, questionId?: string) {
     let submits: SubmitHistory[] = [];
     const findCondition = {
-      relations: {
-        account: true,
-        question: true,
-      },
+      relations: ['question'],
       select: {
-        account: {
-          id: true,
-          fname: true,
-          lname: true,
-          email: true,
-          studentId: true,
-        },
         id: true,
         score: true,
         time: true,
         space: true,
+        submissions: true,
         submittedAt: true,
         language: true,
         question: { id: true },
@@ -165,7 +155,7 @@ export class SubmitHistoryService {
           question: { room: { id: roomId } },
         },
         order: {
-          submittedAt: 'DESC', // can not push order submmittedAt into findCondition because it is error
+          submittedAt: 'DESC', // can not push order submittedAt into findCondition because it is error
         },
       });
     } else {
