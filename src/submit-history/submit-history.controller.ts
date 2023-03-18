@@ -10,10 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
-import { RoleGuard } from '@auth/role.guard';
-import Roles from '@decorators/roles.decorator';
-import { RoleEnum } from '@etc/enums';
-import { SubmitHistory } from './entities/submit-history.entity';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from '@accounts/entities/account.entity';
 
@@ -72,21 +68,11 @@ export class SubmitHistoryController {
     @Query('roomId') roomId: string,
     @Query('questionId') questionId: string,
   ) {
-    let submits: string | SubmitHistory[];
-    let err;
-    console.log(curAccount);
-    if (roomId) {
-      [submits, err] = await this.submitHistoryService.showUserHistoryByRoom(
-        curAccount.id,
-        roomId,
-      );
-    } else {
-      [submits, err] =
-        await this.submitHistoryService.showUserHistoryByQuestion(
-          curAccount.id,
-          questionId,
-        );
-    }
+    const [submits, err] = await this.submitHistoryService.showUserHistory(
+      curAccount.id,
+      roomId,
+      questionId,
+    );
     if (!submits)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
