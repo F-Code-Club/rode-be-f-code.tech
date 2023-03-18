@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
+import { Account } from '@accounts/entities/account.entity';
+import { Question } from '@rooms/entities/question.entity';
 
 @Injectable()
 export class SubmitHistoryService {
@@ -12,6 +14,12 @@ export class SubmitHistoryService {
 
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+
+    @InjectRepository(Account)
+    private readonly accountRepository: Repository<Account>,
+
+    @InjectRepository(Question)
+    private readonly questionRepository: Repository<Question>,
   ) {}
 
   async getByQuestion(question: string) {
@@ -116,5 +124,58 @@ export class SubmitHistoryService {
 
     const submit = await this.submitHistoryRepository.save(submission);
     return [submit, null];
+  }
+
+  async showUserHistory(userId: string, roomId?: string, questionId?: string) {
+    let submits: SubmitHistory[] = [];
+    const findCondition = {
+      relations: ['question'],
+      select: {
+        id: true,
+        score: true,
+        time: true,
+        space: true,
+        submissions: true,
+        submittedAt: true,
+        language: true,
+        question: { id: true },
+      },
+    };
+    if (roomId) {
+      const room = await this.roomRepository.findOne({
+        where: {
+          id: roomId,
+        },
+      });
+      if (!room) return [null, 'Room not exist'];
+      submits = await this.submitHistoryRepository.find({
+        ...findCondition,
+        where: {
+          account: { id: userId },
+          question: { room: { id: roomId } },
+        },
+        order: {
+          submittedAt: 'DESC', // can not push order submittedAt into findCondition because it is error
+        },
+      });
+    } else {
+      const question = await this.questionRepository.findOne({
+        where: {
+          id: questionId,
+        },
+      });
+      if (!question) return [null, 'Question not exist'];
+      submits = await this.submitHistoryRepository.find({
+        ...findCondition,
+        where: {
+          account: { id: userId },
+          question: { id: questionId },
+        },
+        order: {
+          submittedAt: 'DESC',
+        },
+      });
+    }
+    return [submits, null];
   }
 }

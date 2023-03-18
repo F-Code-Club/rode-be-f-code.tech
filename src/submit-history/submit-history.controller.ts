@@ -5,12 +5,13 @@ import {
   Get,
   HttpStatus,
   Param,
-  Post,
   UseGuards,
-  Body,
+  Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
+import CurrentAccount from '@decorators/current-account.decorator';
+import { Account } from '@accounts/entities/account.entity';
 
 @Controller('submit-history')
 @UseGuards(JwtAuthGuard)
@@ -54,6 +55,34 @@ export class SubmitHistoryController {
     return new ResponseObject(
       HttpStatus.OK,
       'Get all leader board success!',
+      submits,
+      null,
+    );
+  }
+
+  @Get('get-user-history')
+  @ApiQuery({ name: 'roomId', required: false })
+  @ApiQuery({ name: 'questionId', required: false })
+  async showUserHistory(
+    @CurrentAccount() curAccount: Account,
+    @Query('roomId') roomId: string,
+    @Query('questionId') questionId: string,
+  ) {
+    const [submits, err] = await this.submitHistoryService.showUserHistory(
+      curAccount.id,
+      roomId,
+      questionId,
+    );
+    if (!submits)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get submits failed',
+        null,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get all submits success!',
       submits,
       null,
     );
