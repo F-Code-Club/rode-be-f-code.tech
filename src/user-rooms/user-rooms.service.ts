@@ -132,17 +132,16 @@ export class UserRoomsService {
   }
 
   async checkAttendance(id: string) {
-    this.logger.log(`Checking attendance for user ${id}`);
-    const userRoom = await this.userRoomsRepository.findOne({
+    const check = await this.userRoomsRepository.findOne({
       where: {
         id: id,
       },
     });
-    if (!userRoom) {
+    if (!check) {
       return [null, 'Account not found'];
     }
-    userRoom.attendance = !userRoom.attendance;
-    await this.userRoomsRepository.save(userRoom);
-    return [userRoom, null];
+    check.attendance = !check.attendance;
+    await this.userRoomsRepository.save(check);
+    return [check, null];
   }
 }
