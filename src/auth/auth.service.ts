@@ -19,7 +19,10 @@ export class AuthService {
         audience: RodeConfig.GOOGLE_CLIENT_ID,
       });
       const payload = ticket.getPayload();
-      if (payload.hd != 'fpt.edu.vn') {
+      if (
+        payload.email != RodeConfig.ADMIN_EMAIL &&
+        payload.hd != 'fpt.edu.vn'
+      ) {
         return [null, 'Your email is not allowed'];
       }
       return [payload, null];
@@ -31,12 +34,6 @@ export class AuthService {
   async googleLogin(credential: string) {
     // Verify credential
     const [payload, err] = await this.getInfoFromGoogle(credential);
-    if (err) {
-      return [null, err];
-    }
-    if (payload.hd != 'fpt.edu.vn') {
-      return [null, 'Your email is not allowed'];
-    }
     if (err) {
       return [null, err];
     }
