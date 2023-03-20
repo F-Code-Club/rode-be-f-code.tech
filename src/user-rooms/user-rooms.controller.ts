@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   Body,
   Query,
+  Param,
 } from '@nestjs/common';
 import { UserRoomsService } from './user-rooms.service';
 import {
