@@ -1,5 +1,11 @@
 import { RoleEnum } from '../../etc/enums';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { UserRoom } from '../../user-rooms/entities/user-room.entity';
 import { SubmitHistory } from '../../submit-history/entities/submit-history.entity';
 
@@ -37,4 +43,7 @@ export class Account {
 
   @OneToMany(() => SubmitHistory, (submitHistory) => submitHistory.account)
   submitHistory: SubmitHistory[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

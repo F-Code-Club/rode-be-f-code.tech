@@ -31,6 +31,9 @@ export class AuthService {
   async googleLogin(credential: string) {
     // Verify credential
     const [payload, err] = await this.getInfoFromGoogle(credential);
+    if (err) {
+      return [null, err];
+    }
     if (payload.hd != 'fpt.edu.vn') {
       return [null, 'Your email is not allowed'];
     }
