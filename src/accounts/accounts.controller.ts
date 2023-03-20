@@ -19,6 +19,7 @@ import ResponseObject from '../etc/response-object';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from './entities/account.entity';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('accounts')
 @ApiTags('Accounts')
@@ -30,8 +31,8 @@ export class AccountsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
-  async getAll(@Query('active') active: string | null) {
-    const [accounts, err] = await this.accountsService.getAll(active);
+  async getAll(@Paginate() query: PaginateQuery) {
+    const [accounts, err] = await this.accountsService.paginateGetAll(query);
     if (!accounts) {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
