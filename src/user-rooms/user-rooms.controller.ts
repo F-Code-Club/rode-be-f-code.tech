@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   Body,
   Query,
+  Param,
 } from '@nestjs/common';
 import { UserRoomsService } from './user-rooms.service';
 import {
@@ -115,6 +116,29 @@ export class UserRoomsController {
       HttpStatus.OK,
       'Get all rooms that user joined success!',
       rooms,
+      null,
+    );
+  }
+
+  @Post('check-attendance/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'check attendance by userRoomId' })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN)
+  async checkAttendance(@Param('id') id: string) {
+    const [check, err] = await this.userRoomsService.checkAttendance(id);
+    if (!check) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'check attendance failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'check attendance success!',
+      check,
       null,
     );
   }

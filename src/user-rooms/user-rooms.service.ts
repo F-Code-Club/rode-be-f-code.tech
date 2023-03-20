@@ -156,4 +156,18 @@ export class UserRoomsService {
     });
     return result;
   }
+
+  async checkAttendance(id: string) {
+    const check = await this.userRoomsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!check) {
+      return [null, 'Account not found'];
+    }
+    check.attendance = !check.attendance;
+    await this.userRoomsRepository.save(check);
+    return [check, null];
+  }
 }
