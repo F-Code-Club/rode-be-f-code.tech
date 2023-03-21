@@ -6,6 +6,7 @@ import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
 import { PaginateQuery, paginate } from 'nestjs-paginate';
+import { logger } from 'handlebars';
 @Injectable()
 export class SubmitHistoryService {
   constructor(
@@ -107,6 +108,7 @@ export class SubmitHistoryService {
       .addSelect('userRoom.finishTime', 'finishTime')
       .andWhere('account.isActive = true')
       .groupBy('submitHistory.account.id');
+    console.log('haha');
   }
 
   async getByRoom(roomId: string) {
