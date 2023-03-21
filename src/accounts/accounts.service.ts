@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 import { Not, Repository } from 'typeorm';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
@@ -11,6 +12,21 @@ export class AccountsService {
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
   ) {}
+
+  async paginateGetAll(query: PaginateQuery) {
+    return [
+      paginate(query, this.accountRepository, {
+        defaultLimit: 10,
+        sortableColumns: ['studentId', 'fname', 'createdAt'],
+        nullSort: 'last',
+        searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
+        filterableColumns: {
+          isActive: [FilterOperator.EQ],
+        },
+      }),
+      null,
+    ];
+  }
 
   async getAll(active: string | null) {
     if (!active) {
