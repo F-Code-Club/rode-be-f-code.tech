@@ -5,6 +5,7 @@ import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 @Injectable()
 export class SubmitHistoryService {
   constructor(
@@ -64,6 +65,50 @@ export class SubmitHistoryService {
     return [submitHistory, err];
   }
 
+  async paginateGetByRoom(roomId: string, query: PaginateQuery) {
+    const room = await this.roomRepository.findOne({
+      where: {
+        id: roomId,
+      },
+    });
+    if (!room) return [null, 'Room not exist'];
+    const queryBuilder = this.submitHistoryRepository
+      .createQueryBuilder('submitHistory')
+      .select('submitHistory.id')
+      .addSelect('SUM(submitHistory.score)', 'totalScore')
+      .addSelect('SUM(submitHistory.time)', 'totalTime')
+      .addSelect('SUM(submitHistory.space)', 'totalSpace')
+      .innerJoinAndSelect(
+        (subQuery) => {
+          return subQuery
+            .addSelect('lastSubmit.account', 'account')
+            .addSelect('lastSubmit.question', 'question')
+            .addSelect('MAX(lastSubmit.submittedAt)', 'submittedAt')
+            .from(SubmitHistory, 'lastSubmit')
+            .innerJoin('lastSubmit.question', 'question')
+            .innerJoin('question.room', 'room')
+            .where('room.id = :roomId', { roomId: roomId })
+            .groupBy('lastSubmit.account.id')
+            .addGroupBy('lastSubmit.question.id');
+        },
+        'lastSubmits',
+        'lastSubmits.account = submitHistory.account AND lastSubmits.question = submitHistory.question AND lastSubmits.submittedAt = submitHistory.submittedAt',
+      )
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
+      .innerJoin('account.userRooms', 'userRoom')
+      .where('userRoom.room = :roomId', { roomId: roomId })
+      .addSelect('userRoom.finishTime', 'finishTime')
+      .andWhere('account.isActive = true')
+      .groupBy('submitHistory.account.id');
+  }
+
   async getByRoom(roomId: string) {
     const room = await this.roomRepository.findOne({
       where: {
@@ -74,9 +119,9 @@ export class SubmitHistoryService {
     const query = this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
       .select('submitHistory.id')
-      .addSelect('SUM(submitHistory.score)', 'totalScore')
-      .addSelect('SUM(submitHistory.time)', 'totalTime')
-      .addSelect('SUM(submitHistory.space)', 'totalSpace')
+      .addSelect('SUM(submitHistory.score) as totalScore')
+      .addSelect('SUM(submitHistory.time) as totalTime')
+      .addSelect('SUM(submitHistory.space) as totalSpace')
       .innerJoinAndSelect(
         (subQuery) => {
           return subQuery
