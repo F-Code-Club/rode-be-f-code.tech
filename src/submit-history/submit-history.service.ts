@@ -5,7 +5,6 @@ import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
-
 @Injectable()
 export class SubmitHistoryService {
   constructor(
