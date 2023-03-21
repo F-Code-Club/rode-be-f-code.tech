@@ -21,7 +21,12 @@ export class PaginationDto {
   searchBy: string[]; // ['column', 'column']
   @ApiProperty({ required: false })
   search: string; // 'search'
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    example: { 'filter.<column>': '$<operator>:<value>' },
+    description:
+      'Filter by column. Operator: $eq, $ne, $gt, $gte, $lt, $lte, $in, $nin',
+  })
   filter: {
     [column: string]: string | string[];
   }; // { column: 'value' }
