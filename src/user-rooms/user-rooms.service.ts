@@ -9,7 +9,6 @@ import { LogService } from '@logger/logger.service';
 import { JoinRoomDto } from './dtos/join-room.dto';
 import { RoomsService } from '@rooms/rooms.service';
 import { FilterOperator, PaginateQuery, paginate } from 'nestjs-paginate';
-import * as moment from 'moment';
 
 @Injectable()
 export class UserRoomsService {
@@ -186,16 +185,14 @@ export class UserRoomsService {
     }
 
     userRoom.finishTime = new Date();
-    if (userRoom.joinTime == null || userRoom.finishTime < userRoom.joinTime) {
-      return [null, 'finish time must be after join time'];
-    }
-    if (
-      userRoom.room.isPrivate &&
-      userRoom.finishTime > userRoom.room.closeTime
-    ) {
-      return [null, 'finish time must be before close time'];
+    var t =
+      (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
+    t /= 60;
+    var diff = Math.abs(Math.round(t));
+    if (userRoom.room.isPrivate && diff > userRoom.room.duration) {
+      return [null, 'finish time is invalid'];
     }
     await this.userRoomsRepository.save(userRoom);
-    return [userRoom, null];
+    return [userRoom.finishTime, null];
   }
 }

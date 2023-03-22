@@ -158,7 +158,7 @@ export class UserRoomsController {
     }
     return new ResponseObject(
       HttpStatus.OK,
-      'update finish time success!',
+      'SUBMITED SUCCESSFULL!',
       userRoom,
       null,
     );
