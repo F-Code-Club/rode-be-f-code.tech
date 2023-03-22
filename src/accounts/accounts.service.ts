@@ -18,6 +18,10 @@ export class AccountsService {
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,
         sortableColumns: ['studentId', 'fname', 'createdAt'],
+        defaultSortBy: [
+          ['createdAt', 'DESC'],
+          ['fname', 'ASC'],
+        ],
         searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
         filterableColumns: {
           isActive: [FilterOperator.EQ],

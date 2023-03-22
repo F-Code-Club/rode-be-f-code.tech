@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { Body, Get, Param, Post, UseGuards } from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '../etc/response-object';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -10,6 +10,8 @@ import { RoleEnum } from '../etc/enums';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { RoomsService } from './rooms.service';
 import { UpdateRoomDto } from './dtos/update-room.dto';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { PaginationDto } from '@etc/pagination.dto';
 
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
@@ -60,11 +62,41 @@ export class RoomsController {
     );
   }
 
-  @Get('get-all')
+  @Get('admin-get-all')
+  @ApiQuery({ required: false, type: PaginationDto })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
-  async getAll() {
-    const [rooms, err] = await this.roomsService.findAll();
+  async adminGetAll(@Paginate() query: PaginateQuery) {
+    const [rooms, err] = await this.roomsService.paginationGetAllForAdmin(
+      query,
+    );
+    if (!rooms) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get all rooms failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get all rooms success!',
+      rooms,
+      null,
+    );
+  }
+
+  @Get('user-get-all')
+  @ApiQuery({ required: false, type: PaginationDto })
+  @UseGuards(RoleGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.USER)
+  async getAll(@Paginate() query: PaginateQuery) {
+    if (query.filter) {
+      query.filter = { isPrivate: '0' };
+    } else {
+      query.filter.isPrivate = '0';
+    }
+    const [rooms, err] = await this.roomsService.paginationGetAllForUser(query);
     if (!rooms) {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
