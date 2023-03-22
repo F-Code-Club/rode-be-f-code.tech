@@ -147,10 +147,10 @@ export class SubmitHistoryService {
     if (!room) return [null, 'Room not exist'];
     const queryBuilder = this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
-      .select('submitHistory.id')
-      .addSelect('SUM(submitHistory.score)', 'totalScore')
-      .addSelect('SUM(submitHistory.time)', 'totalTime')
-      .addSelect('SUM(submitHistory.space)', 'totalSpace')
+      // .select('submitHistory.id')
+      .addSelect('SUM(submitHistory.score)', 'submitHistory_score')
+      .addSelect('SUM(submitHistory.time)', 'submitHistory_time')
+      .addSelect('SUM(submitHistory.space)', 'submitHistory_space')
       .innerJoinAndSelect(
         (subQuery) => {
           return subQuery
@@ -187,14 +187,14 @@ export class SubmitHistoryService {
         'account.lname',
         'account.email',
         'account.studentId',
-        'totalScore',
-        'totalTime',
-        'totalSpace',
+        'score',
+        'time',
+        'space',
       ],
       defaultSortBy: [
-        ['totalScore', 'DESC'],
-        ['totalSpace', 'ASC'],
-        ['totalTime', 'ASC'],
+        ['score', 'DESC'],
+        ['time', 'ASC'],
+        ['space', 'ASC'],
       ],
       searchableColumns: [
         'account.id',
@@ -202,6 +202,9 @@ export class SubmitHistoryService {
         'account.lname',
         'account.email',
         'account.studentId',
+        'score',
+        'time',
+        'space',
       ],
       filterableColumns: {
         finishTime: [
