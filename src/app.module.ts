@@ -1,3 +1,4 @@
+//import { SocketsGateWay } from './sockets/sockets.gateway';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,6 +16,7 @@ import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 
 @Module({
   imports: [
+    LogModule.forRoot(),
     HttpModule,
     DatabaseModule,
     AuthModule,
@@ -23,11 +25,12 @@ import { SubmitHistoryModule } from 'submit-history/submit-history.module';
     LocalFilesModule,
     ScoringModule,
     UserRoomsModule,
-    LogModule.forRoot(),
     SubmitHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
+  //SocketsGateWay
+  // ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
