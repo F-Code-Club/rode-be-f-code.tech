@@ -174,6 +174,9 @@ export class UserRoomsService {
 
   async finish(id: string) {
     const userRoom = await this.userRoomsRepository.findOne({
+      relations: {
+        room: true,
+      },
       where: {
         id: id,
       },
@@ -181,9 +184,16 @@ export class UserRoomsService {
     if (!userRoom) {
       return [null, 'user-room not found'];
     }
-    userRoom.finishTime = moment().toDate();
+
+    userRoom.finishTime = new Date();
     if (userRoom.joinTime == null || userRoom.finishTime < userRoom.joinTime) {
       return [null, 'finish time must be after join time'];
+    }
+    if (
+      userRoom.room.isPrivate &&
+      userRoom.finishTime > userRoom.room.closeTime
+    ) {
+      return [null, 'finish time must be before close time'];
     }
     await this.userRoomsRepository.save(userRoom);
     return [userRoom, null];
