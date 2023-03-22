@@ -170,4 +170,21 @@ export class UserRoomsService {
     await this.userRoomsRepository.save(check);
     return [check, null];
   }
+
+  async finish(id: string) {
+    const userRoom = await this.userRoomsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!userRoom) {
+      return [null, 'user-room not found'];
+    }
+    userRoom.finishTime = new Date();
+    if (userRoom.joinTime == null || userRoom.finishTime < userRoom.joinTime) {
+      return [null, 'finish time must be after join time'];
+    }
+    await this.userRoomsRepository.save(userRoom);
+    return [userRoom, null];
+  }
 }
