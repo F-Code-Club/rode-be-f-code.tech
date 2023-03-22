@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProgrammingLangEnum } from '../../etc/enums';
+import { VirtualColumn } from '@decorators/virtual-column.decorator';
 
 @Entity()
 export class SubmitHistory {
@@ -35,6 +36,18 @@ export class SubmitHistory {
 
   @Column()
   space: number; // uses for both FE (count number of chars) and BE
+
+  @VirtualColumn()
+  totalScore: number;
+
+  @VirtualColumn()
+  totalTime: number;
+
+  @VirtualColumn()
+  totalSpace: number;
+
+  @VirtualColumn()
+  finishTime: Date;
 
   @ManyToOne(() => Account, (account) => account.submitHistory)
   account: Account;

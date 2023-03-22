@@ -12,6 +12,8 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from '@accounts/entities/account.entity';
+import { PaginationDto } from '@etc/pagination.dto';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('submit-history')
 @UseGuards(JwtAuthGuard)
@@ -19,6 +21,31 @@ import { Account } from '@accounts/entities/account.entity';
 @ApiBearerAuth()
 export class SubmitHistoryController {
   constructor(private readonly submitHistoryService: SubmitHistoryService) {}
+
+  @Get('get-by-question-v2/:question')
+  @ApiQuery({ type: PaginationDto })
+  async paginateGetByQuestion(
+    @Param('question') question: string,
+    @Paginate() query: PaginateQuery,
+  ) {
+    const [submitHistory, err] =
+      await this.submitHistoryService.paginateGetByQuestion(question, query);
+    if (!question || !submitHistory) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get leader board failed!',
+        null,
+        err,
+      );
+    }
+
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get leader board successfully!',
+      submitHistory,
+      null,
+    );
+  }
 
   @Get('get-by-question/:question')
   async getByQuestion(@Param('question') question: string) {
@@ -38,6 +65,31 @@ export class SubmitHistoryController {
       HttpStatus.OK,
       'Get leader board successfully!',
       submitHistory,
+      null,
+    );
+  }
+
+  @Get('get-by-room-v2/:roomId')
+  @ApiQuery({ type: PaginationDto })
+  async getByRoomv2(
+    @Param('roomId') roomId: string,
+    @Paginate() query: PaginateQuery,
+  ) {
+    const [submits, err] = await this.submitHistoryService.paginateGetByRoom(
+      roomId,
+      query,
+    );
+    if (!submits)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Room not exist!',
+        null,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get all leader board success!',
+      submits,
       null,
     );
   }

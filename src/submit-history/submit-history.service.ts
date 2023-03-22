@@ -5,11 +5,15 @@ import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
-import { PaginateQuery, paginate } from 'nestjs-paginate';
-import { logger } from 'handlebars';
+import { FilterOperator, PaginateQuery, paginate } from 'nestjs-paginate';
+import { Log } from '@logger/logger.decorator';
+import { LogService } from '@logger/logger.service';
 @Injectable()
 export class SubmitHistoryService {
   constructor(
+    @Log('SubmitHistoryService')
+    private readonly logger: LogService,
+
     @InjectRepository(SubmitHistory)
     private readonly submitHistoryRepository: Repository<SubmitHistory>,
 
@@ -22,6 +26,74 @@ export class SubmitHistoryService {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
   ) {}
+
+  async paginateGetByQuestion(questionId: string, query: PaginateQuery) {
+    const question = await this.questionRepository.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+    if (!question) return [null, 'Question not exist'];
+    const queryBuilder = await this.submitHistoryRepository
+      .createQueryBuilder('submitHistory')
+      .innerJoinAndSelect(
+        (subQuery) => {
+          return subQuery
+            .select('lastSubmit.account', 'account')
+            .addSelect('MAX(lastSubmit.submittedAt)', 'submittedAt')
+            .from(SubmitHistory, 'lastSubmit')
+            .where('lastSubmit.question.id = :id')
+            .setParameter('id', questionId)
+            .groupBy('lastSubmit.account');
+        },
+        'lastSubmits',
+        'lastSubmits.account = submitHistory.account AND lastSubmits.submittedAt = submitHistory.submittedAt',
+      )
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
+      .andWhere('account.isActive = true');
+    const result = await paginate(query, queryBuilder, {
+      sortableColumns: [
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+        'score',
+        'time',
+        'space',
+        'submittedAt',
+      ],
+      defaultSortBy: [
+        ['score', 'DESC'],
+        ['time', 'ASC'],
+        ['space', 'ASC'],
+      ],
+      searchableColumns: [
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+        'submittedAt',
+      ],
+      filterableColumns: {
+        submittedAt: [
+          FilterOperator.GTE,
+          FilterOperator.LTE,
+          FilterOperator.BTW,
+        ],
+      },
+      relativePath: true,
+    });
+    return [result, null];
+  }
 
   async getByQuestion(question: string) {
     const err = [];
@@ -108,7 +180,39 @@ export class SubmitHistoryService {
       .addSelect('userRoom.finishTime', 'finishTime')
       .andWhere('account.isActive = true')
       .groupBy('submitHistory.account.id');
-    console.log('haha');
+    const result = await paginate(query, queryBuilder, {
+      sortableColumns: [
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+        'totalScore',
+        'totalTime',
+        'totalSpace',
+      ],
+      defaultSortBy: [
+        ['totalScore', 'DESC'],
+        ['totalSpace', 'ASC'],
+        ['totalTime', 'ASC'],
+      ],
+      searchableColumns: [
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ],
+      filterableColumns: {
+        finishTime: [
+          FilterOperator.GTE,
+          FilterOperator.LTE,
+          FilterOperator.BTW,
+        ],
+      },
+      relativePath: true,
+    });
+    return [result, null];
   }
 
   async getByRoom(roomId: string) {
@@ -121,9 +225,9 @@ export class SubmitHistoryService {
     const query = this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
       .select('submitHistory.id')
-      .addSelect('SUM(submitHistory.score) as totalScore')
-      .addSelect('SUM(submitHistory.time) as totalTime')
-      .addSelect('SUM(submitHistory.space) as totalSpace')
+      .addSelect('SUM(submitHistory.score)', 'totalScore')
+      .addSelect('SUM(submitHistory.time)', 'totalTime')
+      .addSelect('SUM(submitHistory.space)', 'totalSpace')
       .innerJoinAndSelect(
         (subQuery) => {
           return subQuery
@@ -159,18 +263,18 @@ export class SubmitHistoryService {
         totalSpace: 'ASC',
       });
     const getMany: any = await query.getMany();
-    const getRawMany = await query.getRawMany();
-    let i = 0;
-    const submits = getMany.map((item) => {
-      delete item.account.userRooms;
-      item.totalScore = getRawMany[i].totalScore;
-      item.totalTime = getRawMany[i].totalTime;
-      item.totalSpace = getRawMany[i].totalSpace;
-      item.finishTime = getRawMany[i].finishTime;
-      i++;
-      return item;
-    });
-    return [submits, null];
+    // const getRawMany = await query.getRawMany();
+    // let i = 0;
+    // const submits = getMany.map((item) => {
+    //   delete item.account.userRooms;
+    //   item.totalScore = getRawMany[i].totalScore;
+    //   item.totalTime = getRawMany[i].totalTime;
+    //   item.totalSpace = getRawMany[i].totalSpace;
+    //   item.finishTime = getRawMany[i].finishTime;
+    //   i++;
+    //   return item;
+    // });
+    return [getMany, null];
   }
   async createSubmit(submission: SubmitHistory) {
     //Handle number of submission here

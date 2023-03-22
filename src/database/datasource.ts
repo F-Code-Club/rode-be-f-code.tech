@@ -1,6 +1,7 @@
 import RodeConfig from '../etc/config';
 import { DataSource } from 'typeorm';
 import * as path from 'path';
+import '@decorators/polyfill';
 
 const RodeDataSource = new DataSource({
   type: 'mysql',
