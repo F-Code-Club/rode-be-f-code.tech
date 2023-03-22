@@ -78,6 +78,7 @@ export class ScoringService {
             return [null, 'Language not supported'];
           }
         }
+        break;
       }
       case RoomTypeEnum.FE: {
         const [submitResult, submitError] = await this.pixelMatchService.score(
