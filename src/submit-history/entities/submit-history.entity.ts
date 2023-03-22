@@ -20,20 +20,20 @@ export class SubmitHistory {
   @Column({
     type: 'enum',
     enum: ProgrammingLangEnum,
-    default: ProgrammingLangEnum.C_CPP,
+    nullable: true,
   })
   language: ProgrammingLangEnum;
 
-  @Column()
+  @Column({ type: 'text' })
   submissions: string;
 
   @CreateDateColumn()
   submittedAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   time: number;
 
-  @Column()
+  @Column({ nullable: true })
   space: number; // uses for both FE (count number of chars) and BE
 
   @ManyToOne(() => Account, (account) => account.submitHistory)
