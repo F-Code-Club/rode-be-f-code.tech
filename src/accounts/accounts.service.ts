@@ -15,10 +15,13 @@ export class AccountsService {
 
   async paginateGetAll(query: PaginateQuery) {
     return [
-      paginate(query, this.accountRepository, {
+      await paginate(query, this.accountRepository, {
         defaultLimit: 10,
         sortableColumns: ['studentId', 'fname', 'createdAt'],
-        nullSort: 'last',
+        defaultSortBy: [
+          ['createdAt', 'DESC'],
+          ['fname', 'ASC'],
+        ],
         searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
         filterableColumns: {
           isActive: [FilterOperator.EQ],

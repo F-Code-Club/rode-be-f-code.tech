@@ -57,8 +57,12 @@ export class UserRoomsService {
       return [null, 'Room Number or Code not correct!'];
     }
 
-    this.logger.log('Check if room is opened and then join');
-    if (room.openTime < new Date() && room.closeTime > new Date()) {
+    this.logger.log('Check if private room is opened and then join');
+    if (
+      room.isPrivate
+        ? room.openTime < new Date() && room.closeTime > new Date()
+        : true
+    ) {
       const userRoom = await this.userRoomsRepository.save({
         account,
         room,
