@@ -189,8 +189,14 @@ export class UserRoomsService {
       (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
     t /= 60;
     var diff = Math.abs(Math.round(t));
-    if (userRoom.room.isPrivate && diff > userRoom.room.duration) {
+    if (diff > userRoom.room.duration) {
       return [null, 'finish time is invalid'];
+    }
+    if (
+      userRoom.room.isPrivate &&
+      userRoom.finishTime > userRoom.room.closeTime
+    ) {
+      return [null, 'finish time must be before close time'];
     }
     await this.userRoomsRepository.save(userRoom);
     return [userRoom.finishTime, null];
