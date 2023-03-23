@@ -61,7 +61,12 @@ export class SubmitHistoryService {
         'account.email',
         'account.studentId',
       ])
-      .andWhere('account.isActive = true');
+      .andWhere('account.isActive = true')
+      .orderBy({
+        'submitHistory.score': 'DESC',
+        'submitHistory.time': 'ASC',
+        'submitHistory.space': 'ASC',
+      });
     query.limit = query.limit != null ? query.limit : 10;
     query.page = query.page != null ? query.page : 1;
     const result = await paginate(queryBuilder, query);
