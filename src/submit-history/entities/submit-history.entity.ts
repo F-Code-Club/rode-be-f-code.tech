@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProgrammingLangEnum } from '../../etc/enums';
-import { VirtualColumn } from '@decorators/virtual-column.decorator';
 
 @Entity()
 export class SubmitHistory {
