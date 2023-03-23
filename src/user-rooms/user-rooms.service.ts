@@ -171,13 +171,14 @@ export class UserRoomsService {
     return [check, null];
   }
 
-  async finish(id: string) {
+  async finish(id: string, account: Account) {
     const userRoom = await this.userRoomsRepository.findOne({
       relations: {
         room: true,
       },
       where: {
         id: id,
+        account: { id: account.id },
       },
     });
     if (!userRoom) {
@@ -185,19 +186,14 @@ export class UserRoomsService {
     }
 
     userRoom.finishTime = new Date();
-    var t =
+    var time =
       (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
-    t /= 60;
-    var diff = Math.abs(Math.round(t));
-    if (diff > userRoom.room.duration) {
+    time /= 60;
+    var finishTime = Math.abs(Math.round(time));
+    if (userRoom.room.isPrivate && finishTime > userRoom.room.duration) {
       return [null, 'finish time is invalid'];
     }
-    if (
-      userRoom.room.isPrivate &&
-      userRoom.finishTime > userRoom.room.closeTime
-    ) {
-      return [null, 'finish time must be before close time'];
-    }
+
     await this.userRoomsRepository.save(userRoom);
     return [userRoom.finishTime, null];
   }
