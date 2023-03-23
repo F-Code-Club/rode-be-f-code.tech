@@ -8,6 +8,7 @@ import { Log } from '@logger/logger.decorator';
 import { LogService } from '@logger/logger.service';
 import { JoinRoomDto } from './dtos/join-room.dto';
 import { RoomsService } from '@rooms/rooms.service';
+import { FilterOperator, PaginateQuery, paginate } from 'nestjs-paginate';
 
 @Injectable()
 export class UserRoomsService {
@@ -56,8 +57,12 @@ export class UserRoomsService {
       return [null, 'Room Number or Code not correct!'];
     }
 
-    this.logger.log('Check if room is opened and then join');
-    if (room.openTime < new Date() && room.closeTime > new Date()) {
+    this.logger.log('Check if private room is opened and then join');
+    if (
+      room.isPrivate
+        ? room.openTime < new Date() && room.closeTime > new Date()
+        : true
+    ) {
       const userRoom = await this.userRoomsRepository.save({
         account,
         room,
@@ -66,7 +71,7 @@ export class UserRoomsService {
     } else return [null, 'Room is not opened!'];
   }
 
-  async findAllUsersInRoom(roomId: string) {
+  async findAllUsersInRoom(roomId: string, query: PaginateQuery) {
     this.logger.log(`Get all users in room ${roomId}`);
     const isExisted = await this.roomsService.isExisted(roomId);
     if (!isExisted) {
@@ -74,60 +79,99 @@ export class UserRoomsService {
     }
     this.logger.log('Room is existed!');
 
-    const users = await this.userRoomsRepository.find({
-      where: {
-        room: {
-          id: roomId,
-        },
-        account: {
-          role: RoleEnum.USER,
-        },
+    const queryBuilder = this.userRoomsRepository
+      .createQueryBuilder('userRoom')
+      .innerJoinAndSelect('userRoom.account', 'account')
+      .where('userRoom.roomId = :roomId', { roomId })
+      .andWhere('account.role = :role', { role: RoleEnum.USER })
+      .select([
+        'userRoom.id',
+        'userRoom.joinTime',
+        'userRoom.finishTime',
+        'userRoom.attendance',
+      ]);
+    const result = await paginate(query, queryBuilder, {
+      relations: ['account'],
+      sortableColumns: ['joinTime', 'account.studentId'],
+      defaultSortBy: [['joinTime', 'ASC']],
+      searchableColumns: [
+        'account.studentId',
+        'account.email',
+        'account.lname',
+        'account.fname',
+        'account.phone',
+        'attendance',
+      ],
+      filterableColumns: {
+        attendance: [FilterOperator.EQ],
+        joinTime: [FilterOperator.GTE, FilterOperator.LTE, FilterOperator.BTW],
       },
-      relations: {
-        account: true,
-      },
-      select: {
-        account: {
-          id: true,
-          fname: true,
-          lname: true,
-          email: true,
-          studentId: true,
-          phone: true,
-          dob: true,
-        },
-        joinTime: true,
-        finishTime: true,
-        attendance: true,
-      },
+      relativePath: true,
     });
-    return [users, null];
+    return [result, null];
   }
 
-  async findAllRoomsOfUser(account: Account) {
-    this.logger.log(`Get all rooms that user ${account.email} joined`);
-    const users = await this.userRoomsRepository.find({
-      where: {
-        account: {
-          id: account.id,
-          role: RoleEnum.USER,
-        },
-      },
-      relations: {
-        room: true,
-      },
-      select: {
-        room: {
-          id: true,
-          openTime: true,
-          closeTime: true,
-          duration: true,
-          type: true,
-        },
-        joinTime: true,
-        finishTime: true,
+  async findAllRoomsOfUser(accountId: string, query: PaginateQuery) {
+    this.logger.log(`Get all rooms that user ${accountId} joined`);
+    const queryBuilder = this.userRoomsRepository
+      .createQueryBuilder('userRoom')
+      .innerJoinAndSelect('userRoom.room', 'room')
+      .innerJoin('userRoom.account', 'account')
+      .where('userRoom.accountId = :accountId', { accountId: accountId })
+      .andWhere('account.role = :role', { role: RoleEnum.USER })
+      .select([
+        'userRoom.id',
+        'userRoom.joinTime',
+        'userRoom.finishTime',
+        'room.id',
+        'room.openTime',
+        'room.closeTime',
+        'room.duration',
+        'room.type',
+        'room.isPrivate',
+      ]);
+    const result = await paginate(query, queryBuilder, {
+      relations: ['room'],
+      sortableColumns: [
+        'joinTime',
+        'room.openTime',
+        'room.closeTime',
+        'room.type',
+        'room.isPrivate',
+      ],
+      defaultSortBy: [['joinTime', 'ASC']],
+      searchableColumns: [
+        'joinTime',
+        'room.openTime',
+        'room.closeTime',
+        'room.type',
+        'room.isPrivate',
+      ],
+      filterableColumns: {
+        'room.type': [FilterOperator.EQ],
+        'room.isPrivate': [FilterOperator.EQ],
+        joinTime: [FilterOperator.GTE, FilterOperator.LTE, FilterOperator.BTW],
+        finishTime: [
+          FilterOperator.GTE,
+          FilterOperator.LTE,
+          FilterOperator.BTW,
+        ],
       },
     });
-    return users;
+    return result;
+  }
+
+  async checkAttendance(id: string) {
+    const check = await this.userRoomsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!check) {
+      return [null, 'Account not found'];
+    }
+    check.attendance = !check.attendance;
+    await this.userRoomsRepository.save(check);
+    return [check, null];
   }
 }

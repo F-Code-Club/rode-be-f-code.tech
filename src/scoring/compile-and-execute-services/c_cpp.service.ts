@@ -75,9 +75,12 @@ export class C_CPPService {
     if (fs.existsSync(path.resolve(this.scoringPath + `/${id}.exe`))) {
       fs.unlinkSync(path.resolve(this.scoringPath + `/${id}.exe`));
     }
-
     return [
-      { testCaseStatistics: testCaseStatistics, execTime: totalTime },
+      {
+        passedTestCases: testCaseStatistics.filter(Boolean).length,
+        allTestCases: testCases.length,
+        execTime: totalTime,
+      },
       null,
     ];
   }

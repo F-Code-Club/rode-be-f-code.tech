@@ -1,6 +1,4 @@
-import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
-
-export class FeResultDto extends SubmitTimesDto {
+export class FeResultDto {
   match: number;
   coc: number;
 }

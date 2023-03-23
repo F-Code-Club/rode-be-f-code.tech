@@ -78,7 +78,11 @@ export class JavaService {
     }
 
     return [
-      { testCaseStatistics: testCaseStatistics, execTime: totalTime },
+      {
+        passedTestCases: testCaseStatistics.filter(Boolean).length,
+        allTestCases: testCases.length,
+        execTime: totalTime,
+      },
       null,
     ];
   }

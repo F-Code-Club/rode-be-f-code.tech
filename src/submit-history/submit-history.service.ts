@@ -44,7 +44,14 @@ export class SubmitHistoryService {
         'lastSubmits',
         'lastSubmits.account = submitHistory.account AND lastSubmits.submittedAt = submitHistory.submittedAt',
       )
-      .innerJoinAndSelect('submitHistory.account', 'account')
+      .innerJoin('submitHistory.account', 'account')
+      .addSelect([
+        'account.id',
+        'account.fname',
+        'account.lname',
+        'account.email',
+        'account.studentId',
+      ])
       .andWhere('account.isActive = true')
       .orderBy({
         'submitHistory.score': 'DESC',
@@ -62,7 +69,6 @@ export class SubmitHistoryService {
     }
     return [submitHistory, err];
   }
-
   async getByRoom(roomId: string) {
     const room = await this.roomRepository.findOne({
       where: {
@@ -124,32 +130,10 @@ export class SubmitHistoryService {
     });
     return [submits, null];
   }
-  async createSubmit(
-    submission: SubmitHistory,
-    maxSubmitTimes: number,
-  ): Promise<[SubmitTimesDto, string]> {
-    this.logger.log('createSubmit: ' + submission.account.id);
-    let count = await this.countNumberOfSubmissions(
-      submission.account.id,
-      submission.question.id,
-    );
-    if (count < maxSubmitTimes) {
-      const submitTimes = new SubmitTimesDto(++count, maxSubmitTimes);
-      await this.submitHistoryRepository.save(submission);
-      this.logger.log(
-        'createSubmit: ' +
-          'Submit success. Number Of Submissions: ' +
-          submitTimes.current +
-          '/' +
-          submitTimes.current,
-      );
-      return [submitTimes, null];
-    } else {
-      this.logger.log(
-        'createSubmit: ' + 'You have reached the maximum number of submissions',
-      );
-      return [null, 'You have reached the maximum number of submissions'];
-    }
+  async createSubmit(submission: SubmitHistory): Promise<void> {
+    this.logger.log('<createSubmit> accountId: ' + submission.account.id);
+    this.logger.log('<createSubmit> questionId: ' + submission.question.id);
+    await this.submitHistoryRepository.save(submission);
   }
   async countNumberOfSubmissions(accountId: string, questionId: string) {
     this.logger.log(
@@ -169,7 +153,6 @@ export class SubmitHistoryService {
     this.logger.log('countNumberOfSubmissions: ' + count);
     return count;
   }
-
   async showUserHistory(userId: string, roomId?: string, questionId?: string) {
     let submits: SubmitHistory[] = [];
     const findCondition = {

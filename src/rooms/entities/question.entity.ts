@@ -23,7 +23,7 @@ export class Question {
   @Column({ nullable: true })
   colors: string;
 
-  @Column({ nullable: true, length: 3000 })
+  @Column({ type: 'text', nullable: true })
   codeTemplate: string;
 
   @ManyToOne(() => Room, { onDelete: 'CASCADE' })

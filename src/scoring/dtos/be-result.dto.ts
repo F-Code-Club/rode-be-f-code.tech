@@ -1,6 +1,6 @@
-import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
-
-export class BeResultDto extends SubmitTimesDto {
-  testCaseStatistics: boolean[];
+export class BeResultDto {
+  //testCaseStatistics: boolean[];
+  passedTestCases: number;
+  allTestCases: number;
   execTime: number;
 }

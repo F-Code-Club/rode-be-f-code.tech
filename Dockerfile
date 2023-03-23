@@ -1,5 +1,5 @@
 FROM node:16-alpine
-RUN apk add openjdk8 build-base
+RUN apk add openjdk8 build-base chromium
 WORKDIR /app
 COPY . .
 COPY .env.deploy .env
