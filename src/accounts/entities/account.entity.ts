@@ -20,6 +20,8 @@ export class Account {
   @Column()
   lname: string;
 
+  // fullname: string;
+
   @Column({ unique: true })
   email: string;
 

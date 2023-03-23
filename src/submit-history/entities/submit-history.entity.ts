@@ -37,18 +37,6 @@ export class SubmitHistory {
   @Column({ nullable: true })
   space: number; // uses for both FE (count number of chars) and BE
 
-  // @VirtualColumn()
-  // totalScore: number;
-
-  // @VirtualColumn()
-  // totalTime: number;
-
-  // @VirtualColumn()
-  // totalSpace: number;
-
-  // @VirtualColumn()
-  // finishTime: Date;
-
   @ManyToOne(() => Account, (account) => account.submitHistory)
   account: Account;
 
