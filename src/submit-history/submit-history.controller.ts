@@ -30,8 +30,10 @@ export class SubmitHistoryController {
     @Param('question') question: string,
     @Query() query: IPaginationOptions,
   ) {
-    const [submitHistory, err] =
-      await this.submitHistoryService.paginateGetByQuestion(question, query);
+    const [submitHistory, err] = await this.submitHistoryService.getByQuestion(
+      question,
+      query,
+    );
     if (!question || !submitHistory) {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
@@ -57,7 +59,7 @@ export class SubmitHistoryController {
     @Param('roomId') roomId: string,
     @Query() query: IPaginationOptions,
   ) {
-    const [submits, err] = await this.submitHistoryService.paginateGetByRoom(
+    const [submits, err] = await this.submitHistoryService.getByRoom(
       roomId,
       query,
     );

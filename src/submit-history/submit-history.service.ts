@@ -31,7 +31,7 @@ export class SubmitHistoryService {
     private readonly questionRepository: Repository<Question>,
   ) {}
 
-  async paginateGetByQuestion(questionId: string, query: IPaginationOptions) {
+  async getByQuestion(questionId: string, query: IPaginationOptions) {
     const question = await this.questionRepository.findOne({
       where: {
         id: questionId,
@@ -68,7 +68,7 @@ export class SubmitHistoryService {
     return [result, null];
   }
 
-  async paginateGetByRoom(roomId: string, query: IPaginationOptions) {
+  async getByRoom(roomId: string, query: IPaginationOptions) {
     const room = await this.roomRepository.findOne({
       where: {
         id: roomId,
