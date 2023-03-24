@@ -174,4 +174,31 @@ export class UserRoomsService {
     await this.userRoomsRepository.save(check);
     return [check, null];
   }
+
+  async finish(id: string, account: Account) {
+    const userRoom = await this.userRoomsRepository.findOne({
+      relations: {
+        room: true,
+      },
+      where: {
+        id: id,
+        account: { id: account.id },
+      },
+    });
+    if (!userRoom) {
+      return [null, 'user-room not found'];
+    }
+
+    userRoom.finishTime = new Date();
+    var time =
+      (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
+    time /= 60;
+    var finishTime = Math.abs(Math.round(time));
+    if (userRoom.room.isPrivate && finishTime > userRoom.room.duration) {
+      return [null, 'finish time is invalid'];
+    }
+
+    await this.userRoomsRepository.save(userRoom);
+    return [userRoom.finishTime, null];
+  }
 }
