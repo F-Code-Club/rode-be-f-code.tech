@@ -17,13 +17,13 @@ export class Question {
   @Column()
   questionImage: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'integer', default: 5 })
   maxSubmitTimes: number;
 
   @Column({ nullable: true })
   colors: string;
 
-  @Column({ nullable: true, length: 3000 })
+  @Column({ type: 'text', nullable: true })
   codeTemplate: string;
 
   @ManyToOne(() => Room, { onDelete: 'CASCADE' })

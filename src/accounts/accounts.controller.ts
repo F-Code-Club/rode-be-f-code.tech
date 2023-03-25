@@ -20,6 +20,7 @@ import { UpdateAccountDto } from './dtos/update-account.dto';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from './entities/account.entity';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { PaginationDto } from '@etc/pagination.dto';
 
 @Controller('accounts')
 @ApiTags('Accounts')
@@ -27,7 +28,7 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Get('get-all')
-  @ApiQuery({ name: 'active', required: false, type: String })
+  @ApiQuery({ type: PaginationDto })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)

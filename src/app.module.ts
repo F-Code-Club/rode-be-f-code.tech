@@ -1,4 +1,3 @@
-//import { SocketsGateWay } from './sockets/sockets.gateway';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,6 +12,7 @@ import { UserRoomsModule } from './user-rooms/user-rooms.module';
 import { LogModule } from './logger/logger.module';
 import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
+import { SocketsModule } from 'sockets/sockets.module';
 
 @Module({
   imports: [
@@ -26,11 +26,10 @@ import { SubmitHistoryModule } from 'submit-history/submit-history.module';
     ScoringModule,
     UserRoomsModule,
     SubmitHistoryModule,
+    SocketsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
-  //SocketsGateWay
-  // ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
