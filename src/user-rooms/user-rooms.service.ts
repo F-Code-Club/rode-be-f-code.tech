@@ -166,6 +166,10 @@ export class UserRoomsService {
       where: {
         id: id,
       },
+      select: {
+        id: true,
+        attendance: true,
+      },
     });
     if (!check) {
       return [null, 'Account not found'];
