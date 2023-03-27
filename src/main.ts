@@ -27,6 +27,8 @@ async function bootstrap() {
     new SocketIoAdapter(app, await app.resolve(LogService)),
   );
 
+  app.enableShutdownHooks();
+
   await app.listen(RodeConfig.PORT);
 }
 bootstrap();

@@ -190,10 +190,10 @@ export class UserRoomsService {
     }
 
     userRoom.finishTime = new Date();
-    var time =
+    let time =
       (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
     time /= 60;
-    var finishTime = Math.abs(Math.round(time));
+    const finishTime = Math.abs(Math.round(time));
     if (userRoom.room.isPrivate && finishTime > userRoom.room.duration) {
       return [null, 'finish time is invalid'];
     }
