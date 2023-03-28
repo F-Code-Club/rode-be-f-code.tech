@@ -8,7 +8,7 @@ export class LogService extends Logger {
   //prefix for every log message
   private prefix?: string;
 
-  log(message: string, context?: string) {
+  log(message: string) {
     let formattedMessage = message;
     if (this.prefix) {
       formattedMessage = `[${this.prefix}] ${message}`;
@@ -16,7 +16,15 @@ export class LogService extends Logger {
     super.log(formattedMessage);
   }
 
-  error(message: string, context?: string) {
+  debug(message: string) {
+    let formattedMessage = message;
+    if (this.prefix) {
+      formattedMessage = `[${this.prefix}] ${message}`;
+    }
+    super.debug(formattedMessage);
+  }
+
+  error(message: string) {
     let formattedMessage = message;
     if (this.prefix) {
       formattedMessage = `[${this.prefix}] ${message}`;
@@ -24,7 +32,7 @@ export class LogService extends Logger {
     super.error(formattedMessage);
   }
 
-  warn(message: string, context?: string) {
+  warn(message: string) {
     let formattedMessage = message;
     if (this.prefix) {
       formattedMessage = `[${this.prefix}] ${message}`;
