@@ -91,11 +91,6 @@ export class RoomsController {
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.USER)
   async getAll(@Paginate() query: PaginateQuery) {
-    if (query.filter) {
-      query.filter = { isPrivate: '0' };
-    } else {
-      query.filter.isPrivate = '0';
-    }
     const [rooms, err] = await this.roomsService.paginationGetAllForUser(query);
     if (!rooms) {
       return new ResponseObject(

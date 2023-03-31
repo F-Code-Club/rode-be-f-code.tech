@@ -33,8 +33,10 @@ export class RoomsService {
         ],
         searchableColumns: ['code'],
         filterableColumns: {
-          isPrivate: [FilterOperator.EQ],
           type: [FilterOperator.EQ],
+        },
+        where: {
+          isPrivate: false,
         },
       }),
       null,
