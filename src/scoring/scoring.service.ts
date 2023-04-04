@@ -61,9 +61,10 @@ export class ScoringService {
       if (
         now < userRoom.joinTime.getTime() ||
         now > userRoom.joinTime.getTime() + room.duration * 60 * 1000
-      )
+      ) {
         this.logger.log('<submit> Time to submit is over');
-      return [null, 'Time to submit is over'];
+        return [null, 'Time to submit is over'];
+      }
     }
 
     const question = room.questions.find(
