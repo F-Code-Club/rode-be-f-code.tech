@@ -14,6 +14,8 @@ import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
 import { Question } from '@rooms/entities/question.entity';
 import { Account } from '@accounts/entities/account.entity';
+import { UserRoom } from 'user-rooms/entities/user-room.entity';
+import { UserRoomsModule } from 'user-rooms/user-rooms.module';
 
 @Module({
   controllers: [ScoringController],
@@ -31,7 +33,14 @@ import { Account } from '@accounts/entities/account.entity';
   imports: [
     RoomsModule,
     LocalFilesModule,
-    TypeOrmModule.forFeature([SubmitHistory, Room, Question, Account]),
+    UserRoomsModule,
+    TypeOrmModule.forFeature([
+      SubmitHistory,
+      Room,
+      Question,
+      Account,
+      UserRoom,
+    ]),
   ],
 })
 export class ScoringModule {
