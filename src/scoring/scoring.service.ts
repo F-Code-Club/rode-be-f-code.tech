@@ -52,7 +52,7 @@ export class ScoringService {
         },
       },
     });
-    if (userRoom) return [null, `You didn't join this room`];
+    if (!userRoom) return [null, `You didn't join this room`];
     this.logger.log('<submit> roomId: ' + submitDto.roomId + ' existed');
     const room = userRoom.room;
     this.logger.log('<submit> Check valid time to submit');
