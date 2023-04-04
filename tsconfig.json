@@ -20,7 +20,7 @@
       "@logger/*": ["logger/*"],
       "@rooms/*": ["rooms/*"],
       "@scoring/*": ["scoring/*"],
-      "@user-rooms": ["user-rooms/*"]
+      "@userrooms": ["user-rooms/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

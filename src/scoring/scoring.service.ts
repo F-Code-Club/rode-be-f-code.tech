@@ -14,6 +14,9 @@ import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
 import { Log } from '@logger/logger.decorator';
 import { LogService } from '@logger/logger.service';
 import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
+import { Repository } from 'typeorm';
+import { UserRoom } from 'user-rooms/entities/user-room.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ScoringService {
@@ -24,22 +27,40 @@ export class ScoringService {
     private readonly javaService: JavaService,
     private readonly pixelMatchService: PixelMatchService,
     private readonly submitHistoryService: SubmitHistoryService,
+    @InjectRepository(UserRoom)
+    private readonly userRoomRepository: Repository<UserRoom>,
   ) {}
 
   async submit(submitDto: SubmitDto, account: Account) {
     this.logger.log(
       '<submit> ' + submitDto.roomId + ' ' + submitDto.questionId,
     );
-    const [room, err] = await this.roomsService.findOneById(submitDto.roomId);
-    if (err) return [null, err];
+    //const [room, err] = await this.roomsService.findOneById(submitDto.roomId);
+    const userRoom = await this.userRoomRepository.findOne({
+      relations: {
+        room: {
+          questions: true,
+        },
+        account: true,
+      },
+      where: {
+        room: {
+          id: submitDto.roomId,
+        },
+        account: {
+          id: account.id,
+        },
+      },
+    });
+    if (userRoom) return [null, `You didn't join this room`];
     this.logger.log('<submit> roomId: ' + submitDto.roomId + ' existed');
-
+    const room = userRoom.room;
     this.logger.log('<submit> Check valid time to submit');
     if (room.isPrivate) {
       const now = Date.now();
       if (
-        now < room.openTime.getTime() ||
-        now > room.openTime.getTime() + room.duration * 60 * 1000
+        now < userRoom.joinTime.getTime() ||
+        now > userRoom.joinTime.getTime() + room.duration * 60 * 1000
       )
         this.logger.log('<submit> Time to submit is over');
       return [null, 'Time to submit is over'];
