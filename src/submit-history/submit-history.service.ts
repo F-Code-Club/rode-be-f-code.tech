@@ -8,6 +8,11 @@ import { LogService } from '@logger/logger.service';
 import { SubmitTimesDto } from './dtos/submit-times';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
+import {
+  paginate,
+  IPaginationOptions,
+  paginateRawAndEntities,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class SubmitHistoryService {
@@ -27,9 +32,14 @@ export class SubmitHistoryService {
     private readonly questionRepository: Repository<Question>,
   ) {}
 
-  async getByQuestion(question: string) {
-    const err = [];
-    const submitHistory = await this.submitHistoryRepository
+  async getByQuestion(questionId: string, query: IPaginationOptions) {
+    const question = await this.questionRepository.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+    if (!question) return [null, 'Question not exist'];
+    const queryBuilder = await this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
       .innerJoinAndSelect(
         (subQuery) => {
@@ -38,7 +48,7 @@ export class SubmitHistoryService {
             .addSelect('MAX(lastSubmit.submittedAt)', 'submittedAt')
             .from(SubmitHistory, 'lastSubmit')
             .where('lastSubmit.question.id = :id')
-            .setParameter('id', question)
+            .setParameter('id', questionId)
             .groupBy('lastSubmit.account');
         },
         'lastSubmits',
@@ -57,28 +67,23 @@ export class SubmitHistoryService {
         'submitHistory.score': 'DESC',
         'submitHistory.time': 'ASC',
         'submitHistory.space': 'ASC',
-      })
-      .getMany();
-
-    if (!submitHistory.length) {
-      err.push({
-        at: 'question',
-        message: 'can not find question',
       });
-      return [null, err];
-    }
-    return [submitHistory, err];
+    query.limit = query.limit != null ? query.limit : 10;
+    query.page = query.page != null ? query.page : 1;
+    const result = await paginate(queryBuilder, query);
+    return [result, null];
   }
-  async getByRoom(roomId: string) {
+
+  async getByRoom(roomId: string, query: IPaginationOptions) {
     const room = await this.roomRepository.findOne({
       where: {
         id: roomId,
       },
     });
     if (!room) return [null, 'Room not exist'];
-    const query = this.submitHistoryRepository
+    const queryBuilder = this.submitHistoryRepository
       .createQueryBuilder('submitHistory')
-      .select('submitHistory.id')
+      .select(['submitHistory.id'])
       .addSelect('SUM(submitHistory.score)', 'totalScore')
       .addSelect('SUM(submitHistory.time)', 'totalTime')
       .addSelect('SUM(submitHistory.space)', 'totalSpace')
@@ -110,25 +115,32 @@ export class SubmitHistoryService {
       .where('userRoom.room = :roomId', { roomId: roomId })
       .addSelect('userRoom.finishTime', 'finishTime')
       .andWhere('account.isActive = true')
-      .groupBy('submitHistory.account.id')
+      .groupBy('submitHistory.account')
       .orderBy({
         totalScore: 'DESC',
         totalTime: 'ASC',
         totalSpace: 'ASC',
       });
-    const getMany: any = await query.getMany();
-    const getRawMany = await query.getRawMany();
-    let i = 0;
-    const submits = getMany.map((item) => {
-      delete item.account.userRooms;
-      item.totalScore = getRawMany[i].totalScore;
-      item.totalTime = getRawMany[i].totalTime;
-      item.totalSpace = getRawMany[i].totalSpace;
-      item.finishTime = getRawMany[i].finishTime;
-      i++;
-      return item;
-    });
-    return [submits, null];
+    query.limit = query.limit != null ? query.limit : 10;
+    query.page = query.page != null ? query.page : 1;
+    const [entityResult, rawResult] = await paginateRawAndEntities(
+      queryBuilder,
+      query,
+    );
+    const itemslength: number = entityResult.items.length;
+    for (let i = 0; i < itemslength; i++) {
+      delete entityResult.items[i].account.userRooms;
+      delete entityResult.items[i].id;
+      entityResult.items[i].account['fullname'] =
+        rawResult[i]['account_lname'] + ' ' + rawResult[i]['account_fname'];
+      entityResult.items[i]['totalScore'] = Number(rawResult[i]['totalScore']);
+      entityResult.items[i]['totalTime'] = Number(rawResult[i]['totalTime']);
+      entityResult.items[i]['totalSpace'] = Number(rawResult[i]['totalSpace']);
+      entityResult.items[i]['finishTime'] = rawResult[i]['finishTime'];
+      delete entityResult.items[i].account.fname;
+      delete entityResult.items[i].account.lname;
+    }
+    return [entityResult, null];
   }
   async createSubmit(submission: SubmitHistory): Promise<void> {
     this.logger.log('<createSubmit> accountId: ' + submission.account.id);

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import RodeDataSource from './datasource';
 import { DatabaseService } from './database.service';
-import { Account } from '../accounts/entities/account.entity';
+import { Account } from '@accounts/entities/account.entity';
 
 @Module({
   imports: [

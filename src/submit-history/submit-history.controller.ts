@@ -12,7 +12,9 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SubmitHistoryService } from './submit-history.service';
 import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from '@accounts/entities/account.entity';
-
+import { PaginationDto } from '@etc/pagination.dto';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 @Controller('submit-history')
 @UseGuards(JwtAuthGuard)
 @ApiTags('SubmitHistory')
@@ -21,9 +23,16 @@ export class SubmitHistoryController {
   constructor(private readonly submitHistoryService: SubmitHistoryService) {}
 
   @Get('get-by-question/:question')
-  async getByQuestion(@Param('question') question: string) {
+  // @ApiQuery({ type: PaginationDto })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  async getByQuestion(
+    @Param('question') question: string,
+    @Query() query: IPaginationOptions,
+  ) {
     const [submitHistory, err] = await this.submitHistoryService.getByQuestion(
       question,
+      query,
     );
     if (!question || !submitHistory) {
       return new ResponseObject(
@@ -43,8 +52,17 @@ export class SubmitHistoryController {
   }
 
   @Get('get-by-room/:roomId')
-  async getByRoom(@Param('roomId') roomId: string) {
-    const [submits, err] = await this.submitHistoryService.getByRoom(roomId);
+  // @ApiQuery({ type: PaginationDto })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  async getByRoom(
+    @Param('roomId') roomId: string,
+    @Query() query: IPaginationOptions,
+  ) {
+    const [submits, err] = await this.submitHistoryService.getByRoom(
+      roomId,
+      query,
+    );
     if (!submits)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
