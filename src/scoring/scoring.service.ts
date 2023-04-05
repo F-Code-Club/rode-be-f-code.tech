@@ -57,6 +57,13 @@ export class ScoringService {
     const room = userRoom.room;
     this.logger.log('<submit> Check valid time to submit');
     if (room.isPrivate) {
+      this.logger.debug('Date.now(): ' + Date.now());
+      this.logger.debug('userRoom.joinTime: ' + userRoom.joinTime.getTime());
+      this.logger.debug(
+        'Time to close submit: ' +
+          userRoom.joinTime.getTime() +
+          room.duration * 60 * 1000,
+      );
       const now = Date.now();
       if (
         now < userRoom.joinTime.getTime() ||
