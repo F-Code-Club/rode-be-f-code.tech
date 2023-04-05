@@ -166,6 +166,10 @@ export class UserRoomsService {
       where: {
         id: id,
       },
+      select: {
+        id: true,
+        attendance: true,
+      },
     });
     if (!check) {
       return [null, 'Account not found'];
@@ -173,5 +177,32 @@ export class UserRoomsService {
     check.attendance = !check.attendance;
     await this.userRoomsRepository.save(check);
     return [check, null];
+  }
+
+  async finish(id: string, account: Account) {
+    const userRoom = await this.userRoomsRepository.findOne({
+      relations: {
+        room: true,
+      },
+      where: {
+        id: id,
+        account: { id: account.id },
+      },
+    });
+    if (!userRoom) {
+      return [null, 'user-room not found'];
+    }
+
+    userRoom.finishTime = new Date();
+    let time =
+      (userRoom.finishTime.getTime() - userRoom.joinTime.getTime()) / 1000;
+    time /= 60;
+    const finishTime = Math.abs(Math.round(time));
+    if (userRoom.room.isPrivate && finishTime > userRoom.room.duration) {
+      return [null, 'finish time is invalid'];
+    }
+
+    await this.userRoomsRepository.save(userRoom);
+    return [userRoom.finishTime, null];
   }
 }

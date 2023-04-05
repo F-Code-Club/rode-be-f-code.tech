@@ -12,9 +12,11 @@ import { UserRoomsModule } from './user-rooms/user-rooms.module';
 import { LogModule } from './logger/logger.module';
 import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
+import { SocketsModule } from 'sockets/sockets.module';
 
 @Module({
   imports: [
+    LogModule.forRoot(),
     HttpModule,
     DatabaseModule,
     AuthModule,
@@ -23,8 +25,8 @@ import { SubmitHistoryModule } from 'submit-history/submit-history.module';
     LocalFilesModule,
     ScoringModule,
     UserRoomsModule,
-    LogModule.forRoot(),
     SubmitHistoryModule,
+    SocketsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

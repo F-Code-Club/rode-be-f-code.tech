@@ -142,4 +142,25 @@ export class UserRoomsController {
       null,
     );
   }
+
+  @Post('finish/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update finish time by user-room id' })
+  async finish(@Param('id') id: string, @CurrentAccount() curAccount: Account) {
+    const [userRoom, err] = await this.userRoomsService.finish(id, curAccount);
+    if (!userRoom) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'update finish time failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'SUBMITED SUCCESSFULL!',
+      userRoom,
+      null,
+    );
+  }
 }

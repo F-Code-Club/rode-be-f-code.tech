@@ -46,4 +46,7 @@ export class Account {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ default: false, select: false })
+  isLoggedIn: boolean;
 }

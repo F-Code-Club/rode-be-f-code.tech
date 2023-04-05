@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SubmitHistory } from './entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
+import { Log } from '@logger/logger.decorator';
+import { LogService } from '@logger/logger.service';
+import { SubmitTimesDto } from './dtos/submit-times';
 import { Account } from '@accounts/entities/account.entity';
 import { Question } from '@rooms/entities/question.entity';
 import {
@@ -10,13 +13,11 @@ import {
   IPaginationOptions,
   paginateRawAndEntities,
 } from 'nestjs-typeorm-paginate';
-import { Log } from '@logger/logger.decorator';
-import { LogService } from '@logger/logger.service';
+
 @Injectable()
 export class SubmitHistoryService {
   constructor(
-    @Log('SubmitHistoryService')
-    private readonly logger: LogService,
+    @Log('SubmitHistoryService') private readonly logger: LogService,
 
     @InjectRepository(SubmitHistory)
     private readonly submitHistoryRepository: Repository<SubmitHistory>,
@@ -141,14 +142,29 @@ export class SubmitHistoryService {
     }
     return [entityResult, null];
   }
-
-  async createSubmit(submission: SubmitHistory) {
-    //Handle number of submission here
-
-    const submit = await this.submitHistoryRepository.save(submission);
-    return [submit, null];
+  async createSubmit(submission: SubmitHistory): Promise<void> {
+    this.logger.log('<createSubmit> accountId: ' + submission.account.id);
+    this.logger.log('<createSubmit> questionId: ' + submission.question.id);
+    await this.submitHistoryRepository.save(submission);
   }
-
+  async countNumberOfSubmissions(accountId: string, questionId: string) {
+    this.logger.log(
+      'countNumberOfSubmissions: ' + accountId + ', ' + questionId,
+    );
+    const count = await this.submitHistoryRepository.count({
+      where: {
+        account: {
+          id: accountId,
+          isActive: true,
+        },
+        question: {
+          id: questionId,
+        },
+      },
+    });
+    this.logger.log('countNumberOfSubmissions: ' + count);
+    return count;
+  }
   async showUserHistory(userId: string, roomId?: string, questionId?: string) {
     let submits: SubmitHistory[] = [];
     const findCondition = {

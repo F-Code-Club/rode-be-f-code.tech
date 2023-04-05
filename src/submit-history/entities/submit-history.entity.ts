@@ -41,4 +41,16 @@ export class SubmitHistory {
 
   @ManyToOne(() => Question, (question) => question.submitHistory)
   question: Question;
+
+  constructor(
+    account: Account,
+    question: Question,
+    submissions: string,
+    language: ProgrammingLangEnum,
+  ) {
+    this.account = account;
+    this.question = question;
+    this.submissions = submissions;
+    this.language = language;
+  }
 }
