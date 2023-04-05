@@ -15,4 +15,5 @@ export default class RodeConfig {
     process.env.GOOGLE_CLIENT_ID || 'google_client_id';
   static readonly JWT_SECRET = process.env.JWT_SECRET || '12345';
   static readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
+  static readonly CHROMIUM_PATH = process.env.CHROMIUM_PATH || null;
 }
