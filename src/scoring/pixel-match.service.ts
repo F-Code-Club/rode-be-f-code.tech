@@ -6,6 +6,7 @@ import { resolve } from 'path';
 import { LocalFilesService } from '@local-files/local-files.service';
 import { PNG } from 'pngjs';
 import { FeResultDto } from './dtos/fe-result.dto';
+import RodeConfig from '@etc/config';
 
 @Injectable()
 export class PixelMatchService {
@@ -39,6 +40,7 @@ export class PixelMatchService {
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: RodeConfig.CHROMIUM_PATH,
         dumpio: true,
         defaultViewport: {
           width: viewport[0],
