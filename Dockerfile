@@ -1,5 +1,8 @@
-FROM node:16-alpine
-RUN apk add openjdk8 build-base
+FROM node:18-alpine
+RUN apk add openjdk8 build-base chromium tzdata
+ENV TZ Asia/Ho_Chi_Minh
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 WORKDIR /app
 COPY . .
 COPY .env.deploy .env

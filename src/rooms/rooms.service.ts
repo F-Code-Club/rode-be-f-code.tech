@@ -6,6 +6,7 @@ import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { Question } from './entities/question.entity';
+import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class RoomsService {
@@ -19,6 +20,46 @@ export class RoomsService {
   async getAllRoomTypes() {
     const roomTypes = Object.values(RoomTypeEnum);
     return [roomTypes, null];
+  }
+
+  async paginationGetAllForUser(query: PaginateQuery) {
+    return [
+      await paginate(query, this.roomRepository, {
+        defaultLimit: 10,
+        sortableColumns: ['code', 'createdAt'],
+        defaultSortBy: [
+          ['createdAt', 'DESC'],
+          ['code', 'ASC'],
+        ],
+        searchableColumns: ['code'],
+        filterableColumns: {
+          type: [FilterOperator.EQ],
+        },
+        where: {
+          isPrivate: false,
+        },
+      }),
+      null,
+    ];
+  }
+
+  async paginationGetAllForAdmin(query: PaginateQuery) {
+    return [
+      await paginate(query, this.roomRepository, {
+        defaultLimit: 10,
+        sortableColumns: ['code', 'openTime', 'createdAt'],
+        defaultSortBy: [
+          ['createdAt', 'DESC'],
+          ['code', 'ASC'],
+        ],
+        searchableColumns: ['code'],
+        filterableColumns: {
+          isPrivate: [FilterOperator.EQ],
+          type: [FilterOperator.EQ],
+        },
+      }),
+      null,
+    ];
   }
 
   async getAllRooms() {

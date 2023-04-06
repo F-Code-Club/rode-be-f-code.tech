@@ -17,6 +17,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const accountId = payload.sub;
     const account = await this.accountsService.getById(accountId);
+    // const account = await this.accountsService.getById(accountId, true);
+    if (!account) {
+      // Access denied for not connect with websocket first
+      return null;
+    }
     return account;
   }
 }

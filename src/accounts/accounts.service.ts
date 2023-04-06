@@ -18,6 +18,10 @@ export class AccountsService {
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,
         sortableColumns: ['studentId', 'fname', 'createdAt'],
+        defaultSortBy: [
+          ['createdAt', 'DESC'],
+          ['fname', 'ASC'],
+        ],
         searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
         filterableColumns: {
           isActive: [FilterOperator.EQ],
@@ -50,10 +54,11 @@ export class AccountsService {
     });
   }
 
-  async getById(id: string) {
+  async getById(id: string, checkLoggedIn?: boolean) {
     return await this.accountRepository.findOne({
       where: {
         id: id,
+        isLoggedIn: checkLoggedIn ? true : null,
       },
     });
   }
@@ -171,5 +176,26 @@ export class AccountsService {
     account.isActive = !account.isActive;
     await this.accountRepository.save(account);
     return [account, null];
+  }
+
+  async updateLoggedIn(id: string, isLoggedIn: boolean) {
+    const account = await this.accountRepository.findOne({
+      where: {
+        id: id,
+      },
+      select: ['isLoggedIn'],
+    });
+    if (!account) {
+      return [null, 'User not found'];
+    }
+    //check if user is already connected
+    if (isLoggedIn && account.isLoggedIn) {
+      return [null, 'User already logged in'];
+    }
+    if (isLoggedIn != account.isLoggedIn) {
+      account.isLoggedIn = !account.isLoggedIn;
+      await this.accountRepository.update({ id: id }, account);
+      return [account, null];
+    }
   }
 }
