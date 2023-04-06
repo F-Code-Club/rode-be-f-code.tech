@@ -39,7 +39,9 @@ export class ScoringService {
     const userRoom = await this.userRoomRepository.findOne({
       relations: {
         room: {
-          questions: true,
+          questions: {
+            testCases: true,
+          },
         },
         account: true,
       },
