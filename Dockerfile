@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
-RUN apt install openjdk8 gcc chromium tzdata
+RUN apt-get update
+RUN apt-get install openjdk8 gcc chromium tzdata
 ENV TZ Asia/Ho_Chi_Minh
 WORKDIR /app
 COPY . .
