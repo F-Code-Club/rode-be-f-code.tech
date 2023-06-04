@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 RUN apt-get update
-RUN apt-get install openjdk-8-jdk gcc chromium-browser tzdata -y
+RUN apt-get install nodejs openjdk-8-jdk gcc chromium-browser tzdata -y
 ENV TZ Asia/Ho_Chi_Minh
 WORKDIR /app
 COPY . .
