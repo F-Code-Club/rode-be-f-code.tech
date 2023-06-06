@@ -60,7 +60,8 @@ export class UserRoomsService {
     this.logger.log('Check if private room is opened and then join');
     this.logger.debug('room.openTime: ' + room.openTime.getTime());
     this.logger.debug('Date.now(): ' + Date.now());
-    this.logger.debug('room.closeTime: ' + room.closeTime.getTime());
+    if (room.isPrivate)
+      this.logger.debug('room.closeTime: ' + room.closeTime.getTime());
     if (
       room.isPrivate
         ? room.openTime.getTime() < Date.now() &&

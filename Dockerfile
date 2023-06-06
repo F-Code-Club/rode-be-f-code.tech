@@ -1,8 +1,10 @@
-FROM node:18-alpine
-RUN apk add openjdk8 build-base chromium tzdata
+FROM ubuntu:22.04
+RUN apt-get update
+RUN apt-get install curl openjdk-8-jdk build-essential chromium-browser -y
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+RUN bash nodesource_setup.sh
+RUN apt-get install nodejs -y
 ENV TZ Asia/Ho_Chi_Minh
-ENV CHROME_BIN=/usr/bin/chromium-browser
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 WORKDIR /app
 COPY . .
 COPY .env.deploy .env
