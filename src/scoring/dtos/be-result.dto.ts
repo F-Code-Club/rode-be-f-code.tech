@@ -3,4 +3,5 @@ export class BeResultDto {
   passedTestCases: number;
   allTestCases: number;
   execTime: number;
+  link?: string;
 }

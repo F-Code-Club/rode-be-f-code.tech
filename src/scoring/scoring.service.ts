@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RoomsService } from '../rooms/rooms.service';
 import { SubmitDto } from './dtos/submit.dto';
 import { ProgrammingLangEnum, RoomTypeEnum } from '../etc/enums';
@@ -17,6 +17,9 @@ import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
 import { Repository } from 'typeorm';
 import { UserRoom } from 'user-rooms/entities/user-room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import fs from 'fs';
+import * as path from 'path';
+import { GoogleApiService } from 'google-api/google-api.service';
 
 @Injectable()
 export class ScoringService {
@@ -27,8 +30,11 @@ export class ScoringService {
     private readonly javaService: JavaService,
     private readonly pixelMatchService: PixelMatchService,
     private readonly submitHistoryService: SubmitHistoryService,
+    private readonly googleApiService: GoogleApiService,
     @InjectRepository(UserRoom)
     private readonly userRoomRepository: Repository<UserRoom>,
+    @Inject('SCORING_PATH')
+    private scoringPath: string,
   ) {}
   async submitV2(submitDto: SubmitDto, account: Account) {
     this.logger.log(
@@ -114,7 +120,23 @@ export class ScoringService {
       submission.space = result.coc;
       Object.assign(submitResult, result);
     } else if (room.type == RoomTypeEnum.BE) {
+      submitResult = new BeResultDto();
       submission.score = 0;
+      let filePath = '';
+      if (submission.language == ProgrammingLangEnum.C_CPP) {
+        filePath = this.scoringPath + `/${crypto.randomUUID()}.cpp`;
+      } else if (submission.language == ProgrammingLangEnum.JAVA) {
+        filePath = this.scoringPath + `/${crypto.randomUUID()}.java`;
+      } else return [null, 'Language not supported'];
+      fs.writeFileSync(path.resolve(filePath), submitDto.code);
+      const fileUpload = await this.googleApiService.uploadFile(
+        filePath,
+        submission.language,
+      );
+      if (!fileUpload) return [null, 'Error while uploading'];
+      const linkFileSubmission =
+        'https://drive.google.com/uc?export=download&id=' + fileUpload.id;
+      submitResult.link = linkFileSubmission;
     } else {
       return [null, 'Room type not supported'];
     }
