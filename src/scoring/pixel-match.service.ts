@@ -22,7 +22,10 @@ export class PixelMatchService {
     const src = fs.readFileSync(
       resolve(__dirname + '/../../' + localFile.path),
     );
-    const [target, err2] = await this.renderImage(html);
+    const srcImg = PNG.sync.read(src);
+    const srcWidth = srcImg.width;
+    const srcHeight = srcImg.height;
+    const [target, err2] = await this.renderImage(html, srcWidth, srcHeight);
     if (err2) {
       return [null, err2];
     }
@@ -33,10 +36,14 @@ export class PixelMatchService {
     return [{ match: match, coc: html.length }, null];
   }
 
-  async renderImage(html: string): Promise<[Buffer, any]> {
+  async renderImage(
+    html: string,
+    srcWidth: number,
+    srcHeight: number,
+  ): Promise<[Buffer, any]> {
     try {
-      const viewport = [400, 300];
-
+      // const viewport = [800, 600];
+      const viewport = [srcWidth, srcHeight];
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -74,12 +81,15 @@ export class PixelMatchService {
     const src = fs.readFileSync(
       resolve(__dirname + '/../../' + localFile.path),
     );
-    const [target, err2] = await this.renderImage(html);
+    const srcImg = PNG.sync.read(src);
+    const srcWidth = srcImg.width;
+    const srcHeight = srcImg.height;
+    const [target, err2] = await this.renderImage(html, srcWidth, srcHeight);
     if (err2) {
       return [null, err2];
     }
     try {
-      const srcImg = PNG.sync.read(src);
+      // const srcImg = PNG.sync.read(src);
       const targetImg = PNG.sync.read(target);
       const diffImg = new PNG({ width: srcImg.width, height: srcImg.height });
       if (

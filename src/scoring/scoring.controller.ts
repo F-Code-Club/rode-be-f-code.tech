@@ -55,4 +55,23 @@ export class ScoringController {
     }
     return new ResponseObject(HttpStatus.OK, 'Submit success!', result, null);
   }
+
+  @Post('submit-v2')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.USER)
+  async submitV2(
+    @Body() body: SubmitDto,
+    @CurrentAccount() curAccount: Account,
+  ) {
+    const [result, err] = await this.scoringService.submitV2(body, curAccount);
+    if (err) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Submit failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(HttpStatus.OK, 'Submit success!', result, null);
+  }
 }

@@ -30,7 +30,101 @@ export class ScoringService {
     @InjectRepository(UserRoom)
     private readonly userRoomRepository: Repository<UserRoom>,
   ) {}
+  async submitV2(submitDto: SubmitDto, account: Account) {
+    this.logger.log(
+      '<submit> ' + submitDto.roomId + ' ' + submitDto.questionId,
+    );
+    const userRoom = await this.userRoomRepository.findOne({
+      relations: {
+        room: {
+          questions: {
+            testCases: true,
+          },
+        },
+        account: true,
+      },
+      where: {
+        room: {
+          id: submitDto.roomId,
+        },
+        account: {
+          id: account.id,
+        },
+      },
+    });
+    if (!userRoom) return [null, `You didn't join this room`];
+    this.logger.log('<submit> roomId: ' + submitDto.roomId + ' existed');
+    const room = userRoom.room;
+    this.logger.log('<submit> Check valid time to submit');
+    if (room.isPrivate) {
+      this.logger.debug('userRoom.joinTime: ' + userRoom.joinTime.getTime());
+      this.logger.debug('Date.now(): ' + Date.now());
+      this.logger.debug(
+        'Time to close submit: ' +
+          (userRoom.joinTime.getTime() + room.duration * 60 * 1000),
+      );
+      const now = Date.now();
+      if (
+        now < userRoom.joinTime.getTime() ||
+        now > userRoom.joinTime.getTime() + room.duration * 60 * 1000
+      ) {
+        this.logger.log('<submit> Time to submit is over');
+        return [null, 'Time to submit is over'];
+      }
+    }
+    const question = room.questions.find(
+      (ele) => ele.id == submitDto.questionId,
+    );
+    if (!question) {
+      return [null, 'Question not found'];
+    }
+    this.logger.log(
+      '<submit> questionId: ' + submitDto.questionId + ' existed',
+    );
 
+    this.logger.log('<submit> Check valid number of submissions');
+    const submitTimes = await this.checkNumberOfSubmissions(
+      account.id,
+      question.id,
+      question.maxSubmitTimes,
+    );
+    if (!submitTimes)
+      return [null, 'You have reached the maximum number of submissions'];
+
+    //result for return to client
+    let submitResult: BeResultDto | FeResultDto;
+
+    //entity for save submission to database
+    const submission = new SubmitHistory(
+      account,
+      question,
+      submitDto.code,
+      submitDto.language,
+    );
+
+    this.logger.log('submit: languageSubmission ' + submitDto.language);
+    if (room.type == RoomTypeEnum.FE) {
+      submitResult = new FeResultDto();
+      const [result, error] = await this.pixelMatchService.score(
+        question.questionImage,
+        submitDto.code,
+      );
+      if (error) return [null, error];
+      submission.score = result.match;
+      submission.space = result.coc;
+      Object.assign(submitResult, result);
+    } else if (room.type == RoomTypeEnum.BE) {
+      submission.score = 0;
+    } else {
+      return [null, 'Room type not supported'];
+    }
+    this.logger.log('score: ' + submission.score);
+    this.logger.log('space: ' + submission.space);
+    this.logger.log('time: ' + submission.time);
+    this.logger.log('submit: Saving submission...');
+    await this.submitHistoryService.createSubmit(submission);
+    return [{ result: submitResult, times: submitTimes }, null];
+  }
   async submit(submitDto: SubmitDto, account: Account) {
     this.logger.log(
       '<submit> ' + submitDto.roomId + ' ' + submitDto.questionId,
@@ -163,8 +257,13 @@ export class ScoringService {
     this.logger.log('submit: Saved submission!!!');
     return [{ result: submitResult, times: submitTimes }, null];
   }
+
   async renderImage(info: RenderImageDto) {
-    return await this.pixelMatchService.renderImage(info.html);
+    return await this.pixelMatchService.renderImage(
+      info.html,
+      info.srcWidth,
+      info.srcHeight,
+    );
   }
   async renderDiffImage(submitDto: SubmitDto) {
     const [room, err] = await this.roomsService.findOneById(submitDto.roomId);
