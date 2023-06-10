@@ -19,11 +19,11 @@ const drive = google.drive({ version: 'v3', auth: oauth2Client });
 @Injectable()
 export class GoogleApiService {
   async uploadFile(filePath: string, language: ProgrammingLangEnum) {
-    let name = crypto.randomUUID() + '.';
+    let name = '';
     if (language == ProgrammingLangEnum.C_CPP) {
-      name += 'cpp';
+      name = crypto.randomUUID() + '.cpp';
     } else if (language == ProgrammingLangEnum.JAVA) {
-      name += 'java';
+      name += 'Main.java';
     }
     try {
       const response = await drive.files.create({
@@ -37,6 +37,7 @@ export class GoogleApiService {
           body: fs.createReadStream(filePath),
         },
       });
+      fs.unlinkSync(filePath);
       return response.data;
     } catch (error) {
       console.log(error.message);
