@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
-import fs from 'fs';
+import * as fs from 'fs';
+import { randomUUID } from 'crypto';
 import { ProgrammingLangEnum } from '@etc/enums';
 const CLIENT_ID =
-  '821968596288-2mdr67o5l7eq8hgvf7bekjhdmr03kckk.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
+  '1000294828030-73o2q7h93p1cnank3d2ega0ai39siit9.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
 const REDIRECT_URL = 'https://developers.google.com/oauthplayground';
 const REFRESH_TOKEN =
-  '1//04dmZCctpi3ftCgYIARAAGAQSNwF-L9IrnI2w6kZPgauctsUgcbF3MozLd-DjFY_DuLJ5Rq-joqy7Aq8X1AH3Hyv524Teqw7xpiU';
-const folderId = '1cmBA7OuNYExMQglguoGZvm6Oitp6Q1a-';
+  '1//04JIMlsKtiOJUCgYIARAAGAQSNwF-L9IreyjCBLXzjiB9LU835942sE4d1mi6GhlyFpQyTjLSREJB9GNipfT0K1_Y0BakLO2PqdU';
+const folderId = '1C1M9eB9K8eqHxzi6JLODLpjSVEDSTyQ3';
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -21,9 +22,11 @@ export class GoogleApiService {
   async uploadFile(filePath: string, language: ProgrammingLangEnum) {
     let name = '';
     if (language == ProgrammingLangEnum.C_CPP) {
-      name = crypto.randomUUID() + '.cpp';
+      name = randomUUID() + '.cpp';
     } else if (language == ProgrammingLangEnum.JAVA) {
       name += 'Main.java';
+    } else if (language == ProgrammingLangEnum.PYTHON) {
+      name += randomUUID() + '.py';
     }
     try {
       const response = await drive.files.create({

@@ -11,4 +11,5 @@ export enum RoomTypeEnum {
 export enum ProgrammingLangEnum {
   C_CPP = 'C_CPP',
   JAVA = 'JAVA',
+  PYTHON = 'PYTHON',
 }

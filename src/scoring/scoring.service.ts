@@ -17,7 +17,7 @@ import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
 import { Repository } from 'typeorm';
 import { UserRoom } from 'user-rooms/entities/user-room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 import { GoogleApiService } from 'google-api/google-api.service';
 
@@ -127,6 +127,8 @@ export class ScoringService {
         filePath = this.scoringPath + `/${crypto.randomUUID()}.cpp`;
       } else if (submission.language == ProgrammingLangEnum.JAVA) {
         filePath = this.scoringPath + `/${crypto.randomUUID()}.java`;
+      } else if (submission.language == ProgrammingLangEnum.PYTHON) {
+        filePath = this.scoringPath + `/${crypto.randomUUID()}.py`;
       } else return [null, 'Language not supported'];
       fs.writeFileSync(path.resolve(filePath), submitDto.code);
       const fileUpload = await this.googleApiService.uploadFile(
