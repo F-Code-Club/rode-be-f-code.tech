@@ -20,7 +20,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { GoogleApiService } from 'google-api/google-api.service';
-
+import { randomUUID } from 'crypto';
 @Injectable()
 export class ScoringService {
   constructor(
@@ -124,11 +124,11 @@ export class ScoringService {
       submission.score = 0;
       let filePath = '';
       if (submission.language == ProgrammingLangEnum.C_CPP) {
-        filePath = this.scoringPath + `/${crypto.randomUUID()}.cpp`;
+        filePath = this.scoringPath + `/${randomUUID()}.cpp`;
       } else if (submission.language == ProgrammingLangEnum.JAVA) {
-        filePath = this.scoringPath + `/${crypto.randomUUID()}.java`;
+        filePath = this.scoringPath + `/${randomUUID()}.java`;
       } else if (submission.language == ProgrammingLangEnum.PYTHON) {
-        filePath = this.scoringPath + `/${crypto.randomUUID()}.py`;
+        filePath = this.scoringPath + `/${randomUUID()}.py`;
       } else return [null, 'Language not supported'];
       fs.writeFileSync(path.resolve(filePath), submitDto.code);
       const fileUpload = await this.googleApiService.uploadFile(
@@ -138,7 +138,7 @@ export class ScoringService {
       if (!fileUpload) return [null, 'Error while uploading'];
       const linkFileSubmission =
         'https://drive.google.com/uc?export=download&id=' + fileUpload.id;
-      submitResult.link = linkFileSubmission;
+      submission.link = linkFileSubmission;
     } else {
       return [null, 'Room type not supported'];
     }

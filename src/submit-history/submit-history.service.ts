@@ -46,6 +46,7 @@ export class SubmitHistoryService {
           return subQuery
             .select('lastSubmit.account', 'account')
             .addSelect('MAX(lastSubmit.submittedAt)', 'submittedAt')
+            .addSelect('lastSubmit.link', 'link')
             .from(SubmitHistory, 'lastSubmit')
             .where('lastSubmit.question.id = :id')
             .setParameter('id', questionId)

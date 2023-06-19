@@ -42,6 +42,9 @@ export class SubmitHistory {
   @ManyToOne(() => Question, (question) => question.submitHistory)
   question: Question;
 
+  @Column({ nullable: true })
+  link: string;
+
   constructor(
     account: Account,
     question: Question,
