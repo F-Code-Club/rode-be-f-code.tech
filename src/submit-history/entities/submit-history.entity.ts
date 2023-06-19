@@ -14,7 +14,7 @@ export class SubmitHistory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'float' })
   score: number;
 
   @Column({
