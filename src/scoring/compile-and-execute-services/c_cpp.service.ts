@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import { randomUUID } from 'crypto';
 import * as cp from 'child_process';
 import { BeResultDto } from '@scoring/dtos/be-result.dto';
-
 @Injectable()
 export class C_CPPService {
   constructor(

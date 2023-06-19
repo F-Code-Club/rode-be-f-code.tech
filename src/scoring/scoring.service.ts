@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RoomsService } from '../rooms/rooms.service';
 import { SubmitDto } from './dtos/submit.dto';
 import { ProgrammingLangEnum, RoomTypeEnum } from '../etc/enums';
@@ -17,7 +17,10 @@ import { SubmitTimesDto } from 'submit-history/dtos/submit-times';
 import { Repository } from 'typeorm';
 import { UserRoom } from 'user-rooms/entities/user-room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import * as fs from 'fs';
+import * as path from 'path';
+import { GoogleApiService } from 'google-api/google-api.service';
+import { randomUUID } from 'crypto';
 @Injectable()
 export class ScoringService {
   constructor(
@@ -27,10 +30,125 @@ export class ScoringService {
     private readonly javaService: JavaService,
     private readonly pixelMatchService: PixelMatchService,
     private readonly submitHistoryService: SubmitHistoryService,
+    private readonly googleApiService: GoogleApiService,
     @InjectRepository(UserRoom)
     private readonly userRoomRepository: Repository<UserRoom>,
+    @Inject('SCORING_PATH')
+    private scoringPath: string,
   ) {}
+  async submitV2(submitDto: SubmitDto, account: Account) {
+    this.logger.log(
+      '<submit> ' + submitDto.roomId + ' ' + submitDto.questionId,
+    );
+    const userRoom = await this.userRoomRepository.findOne({
+      relations: {
+        room: {
+          questions: {
+            testCases: true,
+          },
+        },
+        account: true,
+      },
+      where: {
+        room: {
+          id: submitDto.roomId,
+        },
+        account: {
+          id: account.id,
+        },
+      },
+    });
+    if (!userRoom) return [null, `You didn't join this room`];
+    this.logger.log('<submit> roomId: ' + submitDto.roomId + ' existed');
+    const room = userRoom.room;
+    this.logger.log('<submit> Check valid time to submit');
+    if (room.isPrivate) {
+      this.logger.debug('userRoom.joinTime: ' + userRoom.joinTime.getTime());
+      this.logger.debug('Date.now(): ' + Date.now());
+      this.logger.debug(
+        'Time to close submit: ' +
+          (userRoom.joinTime.getTime() + room.duration * 60 * 1000),
+      );
+      const now = Date.now();
+      if (
+        now < userRoom.joinTime.getTime() ||
+        now > userRoom.joinTime.getTime() + room.duration * 60 * 1000
+      ) {
+        this.logger.log('<submit> Time to submit is over');
+        return [null, 'Time to submit is over'];
+      }
+    }
+    const question = room.questions.find(
+      (ele) => ele.id == submitDto.questionId,
+    );
+    if (!question) {
+      return [null, 'Question not found'];
+    }
+    this.logger.log(
+      '<submit> questionId: ' + submitDto.questionId + ' existed',
+    );
 
+    this.logger.log('<submit> Check valid number of submissions');
+    const submitTimes = await this.checkNumberOfSubmissions(
+      account.id,
+      question.id,
+      question.maxSubmitTimes,
+    );
+    if (!submitTimes)
+      return [null, 'You have reached the maximum number of submissions'];
+
+    //result for return to client
+    let submitResult: BeResultDto | FeResultDto;
+
+    //entity for save submission to database
+    const submission = new SubmitHistory(
+      account,
+      question,
+      submitDto.code,
+      submitDto.language,
+    );
+
+    this.logger.log('submit: languageSubmission ' + submitDto.language);
+    if (room.type == RoomTypeEnum.FE) {
+      submitResult = new FeResultDto();
+      const [result, error] = await this.pixelMatchService.score(
+        question.questionImage,
+        submitDto.code,
+      );
+      if (error) return [null, error];
+      submission.score = result.match;
+      submission.space = result.coc;
+      Object.assign(submitResult, result);
+    } else if (room.type == RoomTypeEnum.BE) {
+      submitResult = new BeResultDto();
+      submission.score = 0;
+      let filePath = '';
+      if (submission.language == ProgrammingLangEnum.C_CPP) {
+        filePath = this.scoringPath + `/${randomUUID()}.cpp`;
+      } else if (submission.language == ProgrammingLangEnum.JAVA) {
+        filePath = this.scoringPath + `/${randomUUID()}.java`;
+      } else if (submission.language == ProgrammingLangEnum.PYTHON) {
+        filePath = this.scoringPath + `/${randomUUID()}.py`;
+      } else return [null, 'Language not supported'];
+      fs.writeFileSync(path.resolve(filePath), submitDto.code);
+      const fileUpload = await this.googleApiService.uploadFile(
+        filePath,
+        submission.language,
+      );
+      if (!fileUpload) return [null, 'Error while uploading'];
+      const linkFileSubmission =
+        'https://drive.google.com/uc?export=download&id=' + fileUpload.id;
+      submission.link = linkFileSubmission;
+    } else {
+      return [null, 'Room type not supported'];
+    }
+    this.logger.log('score: ' + submission.score);
+    this.logger.log('space: ' + submission.space);
+    this.logger.log('time: ' + submission.time);
+    this.logger.log('submit: Saving submission...');
+    await this.submitHistoryService.createSubmit(submission);
+    return [{ result: submitResult, times: submitTimes }, null];
+  }
   async submit(submitDto: SubmitDto, account: Account) {
     this.logger.log(
       '<submit> ' + submitDto.roomId + ' ' + submitDto.questionId,
@@ -163,8 +281,13 @@ export class ScoringService {
     this.logger.log('submit: Saved submission!!!');
     return [{ result: submitResult, times: submitTimes }, null];
   }
+
   async renderImage(info: RenderImageDto) {
-    return await this.pixelMatchService.renderImage(info.html);
+    return await this.pixelMatchService.renderImage(
+      info.html,
+      info.srcWidth,
+      info.srcHeight,
+    );
   }
   async renderDiffImage(submitDto: SubmitDto) {
     const [room, err] = await this.roomsService.findOneById(submitDto.roomId);

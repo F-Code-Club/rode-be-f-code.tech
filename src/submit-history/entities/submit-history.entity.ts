@@ -14,7 +14,7 @@ export class SubmitHistory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'float' })
   score: number;
 
   @Column({
@@ -41,6 +41,9 @@ export class SubmitHistory {
 
   @ManyToOne(() => Question, (question) => question.submitHistory)
   question: Question;
+
+  @Column({ nullable: true })
+  link: string;
 
   constructor(
     account: Account,

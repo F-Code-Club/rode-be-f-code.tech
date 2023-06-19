@@ -13,6 +13,7 @@ import { LogModule } from './logger/logger.module';
 import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { SocketsModule } from 'sockets/sockets.module';
+import { GoogleApiModule } from './google-api/google-api.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SocketsModule } from 'sockets/sockets.module';
     UserRoomsModule,
     SubmitHistoryModule,
     SocketsModule,
+    GoogleApiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

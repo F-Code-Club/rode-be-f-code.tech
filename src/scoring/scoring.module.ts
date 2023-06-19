@@ -16,6 +16,7 @@ import { Question } from '@rooms/entities/question.entity';
 import { Account } from '@accounts/entities/account.entity';
 import { UserRoom } from 'user-rooms/entities/user-room.entity';
 import { UserRoomsModule } from 'user-rooms/user-rooms.module';
+import { GoogleApiModule } from 'google-api/google-api.module';
 
 @Module({
   controllers: [ScoringController],
@@ -34,6 +35,7 @@ import { UserRoomsModule } from 'user-rooms/user-rooms.module';
     RoomsModule,
     LocalFilesModule,
     UserRoomsModule,
+    GoogleApiModule,
     TypeOrmModule.forFeature([
       SubmitHistory,
       Room,
