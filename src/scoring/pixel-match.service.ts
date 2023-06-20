@@ -46,7 +46,7 @@ export class PixelMatchService {
       const viewport = [srcWidth, srcHeight];
       const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--headless'],
         executablePath: RodeConfig.CHROMIUM_PATH,
         dumpio: true,
         defaultViewport: {
