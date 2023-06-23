@@ -3,19 +3,14 @@ import { google } from 'googleapis';
 import * as fs from 'fs';
 import { randomUUID } from 'crypto';
 import { ProgrammingLangEnum } from '@etc/enums';
-const CLIENT_ID =
-  '1000294828030-73o2q7h93p1cnank3d2ega0ai39siit9.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URL = 'https://developers.google.com/oauthplayground';
-const REFRESH_TOKEN =
-  '1//04JIMlsKtiOJUCgYIARAAGAQSNwF-L9IreyjCBLXzjiB9LU835942sE4d1mi6GhlyFpQyTjLSREJB9GNipfT0K1_Y0BakLO2PqdU';
-const folderId = '1C1M9eB9K8eqHxzi6JLODLpjSVEDSTyQ3';
+import RodeConfig from '../etc/config';
+
 const oauth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URL,
+  RodeConfig.CLIENT_ID,
+  RodeConfig.CLIENT_SECRET,
+  RodeConfig.REDIRECT_URL,
 );
-oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+oauth2Client.setCredentials({ refresh_token: RodeConfig.REFRESH_TOKEN });
 const drive = google.drive({ version: 'v3', auth: oauth2Client });
 @Injectable()
 export class GoogleApiService {
@@ -33,7 +28,7 @@ export class GoogleApiService {
         requestBody: {
           name,
           // mimeType: file.mimetype,
-          parents: [folderId],
+          parents: [RodeConfig.FOLDER_ID],
         },
         media: {
           // mimeType: file.mimetype,
@@ -63,7 +58,7 @@ export class GoogleApiService {
   async getFileByName(fileName: string) {
     try {
       const result = await drive.files.list({
-        q: `'${folderId}' in parents and name ='${fileName}'`,
+        q: `'${RodeConfig.FOLDER_ID}' in parents and name ='${fileName}'`,
         fields: 'files(id, name, mimeType)',
       });
       return result.data.files[0];

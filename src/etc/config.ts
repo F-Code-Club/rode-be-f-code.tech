@@ -16,4 +16,9 @@ export default class RodeConfig {
   static readonly JWT_SECRET = process.env.JWT_SECRET || '12345';
   static readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
   static readonly CHROMIUM_PATH = process.env.CHROMIUM_PATH;
+  static readonly CLIENT_ID = process.env.CLIENT_ID;
+  static readonly CLIENT_SECRET = process.env.CLIENT_SECRET;
+  static readonly REDIRECT_URL = process.env.REDIRECT_URL;
+  static readonly REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+  static readonly FOLDER_ID = process.env.FOLDER_ID;
 }
