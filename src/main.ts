@@ -8,16 +8,17 @@ import RodeConfig from './etc/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.setGlobalPrefix('api/v2');
   const config = new DocumentBuilder()
     .setTitle('RODE API')
     .setDescription('The RODE API description')
-    .setVersion('1.0')
+    .setVersion('2.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, document);
+  
+  SwaggerModule.setup('swagger-ui', app, document);
 
   app.useGlobalPipes(new RodeValidationPipe());
 
@@ -26,7 +27,6 @@ async function bootstrap() {
   app.useWebSocketAdapter(
     new SocketIoAdapter(app, await app.resolve(LogService)),
   );
-
   app.enableShutdownHooks();
 
   await app.listen(RodeConfig.PORT);
