@@ -11,7 +11,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v2');
   const config = new DocumentBuilder()
     .setTitle('RODE API')
-    .setDescription('The RODE API description')
+    .setDescription('The RODE API For Rode Battle Management')
     .setVersion('2.0')
     .addBearerAuth()
     .build();
