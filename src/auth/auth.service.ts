@@ -22,7 +22,22 @@ export class AuthService {
     if (!isCorrectPassword) return [null, "Password Is Not Correct, Please Check Password Again"]
     this.accountsService.toggleActive(user.id);
     const key = await this.generateToken(user);
-    return [new AuthTokenReturn(key[0],key[1],user.role),null]
+    return [new AuthTokenReturn(key[0],user.role).setRefreshToken(key[1]),null]
+  }
+
+  async refreshToken(user: Account){
+    if (!user.isActive || user.isLocked) return [null, "This Account Is Not Active Or Locked"]
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        username: user.id,
+      },
+      {
+        secret: RodeConfig.JWT_SECRET,
+        expiresIn: RodeConfig.JWT_EXPIRES_IN,
+      },
+    );
+    return [new AuthTokenReturn(accessToken, user.role), null];
   }
 
   private validateLoginProcess(user: Account) {

@@ -6,6 +6,7 @@ import ResponseObject from '../etc/response-object';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AuthLogin } from '@auth/dtos/auth.login.dto';
+import { JwtRefreshAuthGuard } from './jwt-refresh-auth.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -17,6 +18,27 @@ export class AuthController {
   @ApiBearerAuth()
   async self(@CurrentAccount() account: Account) {
     return account;
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshAuthGuard)
+  @ApiBearerAuth()
+  async refreshToken(@CurrentAccount() account:Account){
+    const [data, err] = await this.authService.refreshToken(account);
+    if(!data){
+      return new ResponseObject(
+        HttpStatus.UNAUTHORIZED,
+        'Login Failed',
+        null,
+        err
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Login Success',
+      data,
+      err
+    );
   }
 
   @Post('authenticate')
