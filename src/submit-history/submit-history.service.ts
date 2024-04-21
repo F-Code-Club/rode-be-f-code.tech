@@ -138,8 +138,7 @@ export class SubmitHistoryService {
       entityResult.items[i]['totalTime'] = Number(rawResult[i]['totalTime']);
       entityResult.items[i]['totalSpace'] = Number(rawResult[i]['totalSpace']);
       entityResult.items[i]['finishTime'] = rawResult[i]['finishTime'];
-      delete entityResult.items[i].account.fname;
-      delete entityResult.items[i].account.lname;
+      delete entityResult.items[i].account.fullName;
     }
     return [entityResult, null];
   }

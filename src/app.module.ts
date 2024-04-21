@@ -12,6 +12,7 @@ import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { SocketsModule } from 'sockets/sockets.module';
 import { GoogleApiModule } from './google-api/google-api.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [

@@ -31,7 +31,7 @@ export class AccountsController {
   @ApiQuery({ type: PaginationDto })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async getAll(@Paginate() query: PaginateQuery) {
     const [accounts, err] = await this.accountsService.paginateGetAll(query);
     if (!accounts) {
@@ -93,7 +93,7 @@ export class AccountsController {
   @Post('update-one/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.USER)
+  @Roles(RoleEnum.ADMIN)
   async updateOne(
     @Param('id') id: string,
     @CurrentAccount() curAccount: Account,
@@ -139,5 +139,22 @@ export class AccountsController {
       account,
       null,
     );
+  }
+
+
+  @Roles(RoleEnum.MANAGER)
+  @Post('users/active-account')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async activeUser(){
+    
+  }
+
+  @Roles(RoleEnum.MANAGER)
+  @Post('')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async changeUserRole(){
+    
   }
 }

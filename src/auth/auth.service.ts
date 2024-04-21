@@ -1,52 +1,64 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { OAuth2Client } from 'google-auth-library';
 import { AccountsService } from '../accounts/accounts.service';
 import RodeConfig from '../etc/config';
+import { AuthLogin } from './dtos/auth.login.dto';
+import { Account } from '@accounts/entities/account.entity';
+import { Utils } from '@etc/utils';
+import { AuthTokenReturn } from './dtos/auth.token.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly accountsService: AccountsService,
-    private readonly jwtService: JwtService,
-  ) {}
+    private readonly jwtService: JwtService
+  ) { }
 
-  async getInfoFromGoogle(credential: string) {
-    const client = new OAuth2Client(RodeConfig.GOOGLE_CLIENT_ID);
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: credential,
-        audience: RodeConfig.GOOGLE_CLIENT_ID,
-      });
-      const payload = ticket.getPayload();
-      if (
-        payload.email != RodeConfig.ADMIN_EMAIL &&
-        payload.hd != 'fpt.edu.vn'
-      ) {
-        return [null, 'Your email is not allowed'];
-      }
-      return [payload, null];
-    } catch (err) {
-      return [null, err];
-    }
+  async authenticateUsingUserPass(auth: AuthLogin) {
+    const user = await this.accountsService.getByEmail(auth.username, false);
+    const validateResult = this.validateLoginProcess(user);
+    if (validateResult != null) return validateResult;
+    const isCorrectPassword = await Utils.comparePassword(auth.password, user.password);
+    if (!isCorrectPassword) return [null, "Password Is Not Correct, Please Check Password Again"]
+    this.accountsService.toggleActive(user.id);
+    const key = await this.generateToken(user);
+    return [new AuthTokenReturn(key[0],key[1],user.role),null]
   }
 
-  async googleLogin(credential: string) {
-    // Verify credential
-    const [payload, err] = await this.getInfoFromGoogle(credential);
-    if (err) {
-      return [null, err];
+  private validateLoginProcess(user: Account) {
+    if (!user) {
+      return [null, "Account Not Found"]
     }
-    const email = payload.email;
-
-    // Check database
-    const account = await this.accountsService.getByEmail(email);
-    if (!account) {
-      return [null, 'Account not found'];
+    if (!user.isActive || user.isLocked) return [null, "This Account Is Not Active Or Locked"]
+    if (user.isLoggedIn) {
+      return [null, "This Account Is Already Login"]
     }
-
-    // Sign JWT
-    const token = this.jwtService.sign({ sub: account.id });
-    return [token, null];
+    return null;
+  }
+  async generateToken(user: Account) {
+    const username = user.email;
+    const id = user.id;
+    return await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          username: username,
+        },
+        {
+          secret: RodeConfig.JWT_SECRET,
+          expiresIn: RodeConfig.JWT_EXPIRES_IN,
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          username: username,
+        },
+        {
+          secret: RodeConfig.JWT_SECRET,
+          expiresIn: RodeConfig.JWT_REFRESH_EXPIRES_IN,
+        },
+      ),
+    ]);
   }
 }

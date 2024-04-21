@@ -17,12 +17,12 @@ export class AccountsService {
     return [
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,
-        sortableColumns: ['studentId', 'fname', 'createdAt'],
+        sortableColumns: ['fullName', 'createdAt'],
         defaultSortBy: [
           ['createdAt', 'DESC'],
-          ['fname', 'ASC'],
+          ['fullName', 'ASC'],
         ],
-        searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
+        searchableColumns: ['fullName', 'phone', 'email'],
         filterableColumns: {
           isActive: [FilterOperator.EQ],
         },
@@ -65,7 +65,7 @@ export class AccountsService {
 
   async createOne(info: CreateAccountDto) {
     const err = [];
-    if (!info.fname) {
+    if (!info.fullName) {
       err.push({
         at: 'fname',
         message: 'First name is required',
@@ -93,27 +93,14 @@ export class AccountsService {
         message: 'Phone already exists',
       });
     }
-    const checkStudentId = await this.accountRepository.findOne({
-      where: {
-        studentId: info.studentId,
-      },
-    });
-    if (checkStudentId) {
-      err.push({
-        at: 'studentId',
-        message: 'Student ID already exists',
-      });
-    }
     if (err.length > 0) {
       return [null, err];
     }
     const account = await this.accountRepository.save({
-      fname: info.fname,
-      lname: info.lname,
+      fullName: info.fullName,
       email: info.email,
       dob: info.dob,
-      phone: info.phone,
-      studentId: info.studentId,
+      phone: info.phone
     });
     return [account, err];
   }
@@ -138,28 +125,12 @@ export class AccountsService {
         });
       }
     }
-    if (info.studentId) {
-      const checkStudentId = await this.accountRepository.findOne({
-        where: {
-          studentId: info.studentId,
-          id: Not(id),
-        },
-      });
-      if (checkStudentId) {
-        err.push({
-          at: 'studentId',
-          message: 'Student ID already exists',
-        });
-      }
-    }
     if (err.length > 0) {
       return [null, err];
     }
-    account.fname = info.fname ?? account.fname;
-    account.lname = info.lname ?? account.lname;
+    account.fullName = info.fullName ?? account.fullName;
     account.dob = info.dob ?? account.dob;
     account.phone = info.phone ?? account.phone;
-    account.studentId = info.studentId ?? account.studentId;
     await this.accountRepository.save(account);
     return [account, err];
   }

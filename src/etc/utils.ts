@@ -5,7 +5,7 @@ export class Utils {
         return await bcrypt.hash(password, RodeConfig.SALT_ROUND);
     }
 
-    static async comparePassword(password:string, hashPassword:string){
+    static async comparePassword(password:string, hashPassword:string): Promise<boolean>{
         return await bcrypt.compare(password, hashPassword);
     }
 }
