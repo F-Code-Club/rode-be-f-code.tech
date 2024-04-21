@@ -15,7 +15,7 @@ export class AuthTokenReturn {
             this.role = role;
     }
 
-    setRefreshToken(refreshToken: string) : AuthTokenReturn{
+    setRefreshToken(refreshToken: string) : this{
         this.refreshToken = refreshToken;
         return this;
     }
