@@ -100,7 +100,7 @@ export class AccountsService {
       fullName: info.fullName,
       email: info.email,
       dob: info.dob,
-      phone: info.phone
+      phone: info.phone,
     });
     return [account, err];
   }

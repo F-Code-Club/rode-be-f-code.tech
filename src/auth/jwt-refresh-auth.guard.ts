@@ -1,21 +1,20 @@
 import {
-    ExecutionContext,
-    Injectable,
-    UnauthorizedException,
-  } from '@nestjs/common';
-  import { AuthGuard } from '@nestjs/passport';
-  
-  @Injectable()
-  export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
-    canActivate(context: ExecutionContext) {
-      return super.canActivate(context);
-    }
-  
-    handleRequest(err, account, info) {
-      if (err || !account) {
-        throw err || new UnauthorizedException();
-      }
-      return account;
-    }
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
   }
-  
+
+  handleRequest(err, account, info) {
+    if (err || !account) {
+      throw err || new UnauthorizedException();
+    }
+    return account;
+  }
+}

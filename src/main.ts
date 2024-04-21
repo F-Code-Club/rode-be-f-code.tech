@@ -17,7 +17,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  
   SwaggerModule.setup('swagger-ui', app, document);
 
   app.useGlobalPipes(new RodeValidationPipe());

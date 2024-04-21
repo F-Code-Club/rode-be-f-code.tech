@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Account } from '../accounts/entities/account.entity';
 import CurrentAccount from '../decorators/current-account.decorator';
@@ -23,41 +31,30 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
   @ApiBearerAuth()
-  async refreshToken(@CurrentAccount() account:Account){
+  async refreshToken(@CurrentAccount() account: Account) {
     const [data, err] = await this.authService.refreshToken(account);
-    if(!data){
+    if (!data) {
       return new ResponseObject(
         HttpStatus.UNAUTHORIZED,
         'Login Failed',
         null,
-        err
+        err,
       );
     }
-    return new ResponseObject(
-      HttpStatus.OK,
-      'Login Success',
-      data,
-      err
-    );
+    return new ResponseObject(HttpStatus.OK, 'Login Success', data, err);
   }
 
   @Post('authenticate')
-  async authentication(@Body() login: AuthLogin){
-    const[data, err] = await this.authService.authenticateUsingUserPass(login);
-    if(!data){
+  async authentication(@Body() login: AuthLogin) {
+    const [data, err] = await this.authService.authenticateUsingUserPass(login);
+    if (!data) {
       return new ResponseObject(
         HttpStatus.UNAUTHORIZED,
         'Login Failed',
         null,
-        err
+        err,
       );
     }
-    return new ResponseObject(
-      HttpStatus.OK,
-      'Login Success',
-      data,
-      err
-    );
+    return new ResponseObject(HttpStatus.OK, 'Login Success', data, err);
   }
-
 }

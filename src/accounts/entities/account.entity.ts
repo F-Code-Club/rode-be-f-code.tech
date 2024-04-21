@@ -14,13 +14,13 @@ import { SubmitHistory } from '../../submit-history/entities/submit-history.enti
 export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({nullable: true})
+  @Column({ nullable: true })
   fullName: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   password: string;
 
   @Column({ unique: true })
@@ -31,7 +31,6 @@ export class Account {
 
   @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.USER })
   role: RoleEnum;
-
 
   @OneToMany(() => UserRoom, (userRooms) => userRooms.account)
   userRooms: UserRoom[];
@@ -47,9 +46,9 @@ export class Account {
 
   @Column({ default: false })
   isActive: boolean;
-  
-  @Column({default: false})
-  isLocked:boolean;
+
+  @Column({ default: false })
+  isLocked: boolean;
 
   @Column({ default: false, select: false })
   isLoggedIn: boolean;

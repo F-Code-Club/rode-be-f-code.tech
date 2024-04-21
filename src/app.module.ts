@@ -28,7 +28,7 @@ import { ConfigModule } from '@nestjs/config';
     SubmitHistoryModule,
     SocketsModule,
     GoogleApiModule,
-  ]
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

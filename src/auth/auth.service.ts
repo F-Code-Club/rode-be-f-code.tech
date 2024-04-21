@@ -11,22 +11,30 @@ import { AuthTokenReturn } from './dtos/auth.token.dto';
 export class AuthService {
   constructor(
     private readonly accountsService: AccountsService,
-    private readonly jwtService: JwtService
-  ) { }
+    private readonly jwtService: JwtService,
+  ) {}
 
   async authenticateUsingUserPass(auth: AuthLogin) {
     const user = await this.accountsService.getByEmail(auth.username, false);
     const validateResult = this.validateLoginProcess(user);
     if (validateResult != null) return validateResult;
-    const isCorrectPassword = await Utils.comparePassword(auth.password, user.password);
-    if (!isCorrectPassword) return [null, "Password Is Not Correct, Please Check Password Again"]
+    const isCorrectPassword = await Utils.comparePassword(
+      auth.password,
+      user.password,
+    );
+    if (!isCorrectPassword)
+      return [null, 'Password Is Not Correct, Please Check Password Again'];
     this.accountsService.toggleActive(user.id);
     const key = await this.generateToken(user);
-    return [new AuthTokenReturn(key[0],user.role).setRefreshToken(key[1]),null]
+    return [
+      new AuthTokenReturn(key[0], user.role).setRefreshToken(key[1]),
+      null,
+    ];
   }
 
-  async refreshToken(user: Account){
-    if (!user.isActive || user.isLocked) return [null, "This Account Is Not Active Or Locked"]
+  async refreshToken(user: Account) {
+    if (!user.isActive || user.isLocked)
+      return [null, 'This Account Is Not Active Or Locked'];
     const accessToken = await this.jwtService.signAsync(
       {
         sub: user.id,
@@ -42,11 +50,12 @@ export class AuthService {
 
   private validateLoginProcess(user: Account) {
     if (!user) {
-      return [null, "Account Not Found"]
+      return [null, 'Account Not Found'];
     }
-    if (!user.isActive || user.isLocked) return [null, "This Account Is Not Active Or Locked"]
+    if (!user.isActive || user.isLocked)
+      return [null, 'This Account Is Not Active Or Locked'];
     if (user.isLoggedIn) {
-      return [null, "This Account Is Already Login"]
+      return [null, 'This Account Is Already Login'];
     }
     return null;
   }

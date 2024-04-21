@@ -141,20 +141,15 @@ export class AccountsController {
     );
   }
 
-
   @Roles(RoleEnum.MANAGER)
   @Post('users/active-account')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async activeUser(){
-    
-  }
+  async activeUser() {}
 
   @Roles(RoleEnum.MANAGER)
   @Post('')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async changeUserRole(){
-    
-  }
+  async changeUserRole() {}
 }

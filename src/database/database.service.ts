@@ -41,7 +41,7 @@ export class DatabaseService implements BeforeApplicationShutdown {
         role: RoleEnum.ADMIN,
         isActive: true,
         isLocked: false,
-        password: await Utils.hashPassword(RodeConfig.ADMIN_DEFAULT_PASSWORD)
+        password: await Utils.hashPassword(RodeConfig.ADMIN_DEFAULT_PASSWORD),
       });
     }
   }
