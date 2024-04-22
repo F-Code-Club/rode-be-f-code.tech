@@ -5,6 +5,8 @@ import { Not, Repository } from 'typeorm';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Account } from './entities/account.entity';
+import { RoleEnum } from '@etc/enums';
+import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 
 @Injectable()
 export class AccountsService {
@@ -168,5 +170,40 @@ export class AccountsService {
       await this.accountRepository.update({ id: id }, account);
       return [account, null];
     }
+  }
+
+  async activateAllAccount() {
+    try {
+      await this.accountRepository
+        .createQueryBuilder()
+        .update(Account)
+        .set({ isActive: true })
+        .where('role = :role', { role: RoleEnum.USER })
+        .andWhere('isActive = :active', { active: false })
+        .andWhere('isLocked = :locked', { locked: false })
+        .execute();
+    } catch (exception) {
+      return 'Update Users Failed';
+    }
+
+    return 'Active Users Successfully';
+  }
+
+  async updateUserRole(update: UpdateRoleAccountDto, accountRole: RoleEnum) {
+    const currentUser = await this.accountRepository.findOne({
+      where: {
+        id: update.id,
+      },
+      select: ['id', 'fullName', 'role', 'isLocked'],
+    });
+    if (accountRole == RoleEnum.MANAGER && currentUser.role >= accountRole)
+      return [null, "You Can't Update User With Higher Role Or Same Role"];
+    if (!currentUser) return [null, 'Not Found Account With This Id'];
+    if (currentUser.isLocked)
+      return [null, "Can't Change Role With A Locked Account"];
+    if (currentUser.role == update.role) return [currentUser, null];
+    currentUser.role = update.role;
+    await this.accountRepository.update({ id: update.id }, currentUser);
+    return [currentUser, null];
   }
 }
