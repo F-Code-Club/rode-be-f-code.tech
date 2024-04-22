@@ -30,18 +30,17 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
-  @ApiBearerAuth()
   async refreshToken(@CurrentAccount() account: Account) {
     const [data, err] = await this.authService.refreshToken(account);
     if (!data) {
       return new ResponseObject(
         HttpStatus.UNAUTHORIZED,
-        'Login Failed',
+        'Refresh Token Failed',
         null,
         err,
       );
     }
-    return new ResponseObject(HttpStatus.OK, 'Login Success', data, err);
+    return new ResponseObject(HttpStatus.OK, 'Refresh Token Success', data, err);
   }
 
   @Post('authenticate')

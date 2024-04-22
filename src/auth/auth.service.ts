@@ -24,7 +24,7 @@ export class AuthService {
     );
     if (!isCorrectPassword)
       return [null, 'Password Is Not Correct, Please Check Password Again'];
-    this.accountsService.toggleActive(user.id);
+    this.accountsService.updateLoggedIn(user.id, true);
     const key = await this.generateToken(user);
     return [
       new AuthTokenReturn(key[0], user.role).setRefreshToken(key[1]),
@@ -79,7 +79,7 @@ export class AuthService {
           username: username,
         },
         {
-          secret: RodeConfig.JWT_SECRET,
+          secret: RodeConfig.REFRESH_TOKEN,
           expiresIn: RodeConfig.JWT_REFRESH_EXPIRES_IN,
         },
       ),
