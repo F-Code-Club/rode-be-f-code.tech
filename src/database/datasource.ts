@@ -11,6 +11,7 @@ const RodeDataSource = new DataSource({
   database: RodeConfig.DB_DATABASE,
   entities: [path.resolve(__dirname + '/../**/*.entity{.js,.ts}')],
   migrations: [path.resolve(__dirname + '/../migrations', '*{.js,.ts}')],
+  synchronize: true,
   logger: 'advanced-console',
   logging: 'all',
 });

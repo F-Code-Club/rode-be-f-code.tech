@@ -6,6 +6,7 @@ import { RoleEnum } from '../etc/enums';
 import RodeConfig from '../etc/config';
 import { Log } from '@logger/logger.decorator';
 import { LogService } from '@logger/logger.service';
+import { Utils } from '@etc/utils';
 
 @Injectable()
 export class DatabaseService implements BeforeApplicationShutdown {
@@ -32,14 +33,15 @@ export class DatabaseService implements BeforeApplicationShutdown {
         role: RoleEnum.ADMIN,
       });
       await this.accountRepository.save({
-        fname: 'Admin',
-        lname: '',
-        sname: '',
+        fullName: 'Super Admin',
         email: RodeConfig.ADMIN_EMAIL,
         dob: new Date(),
-        phone: '',
-        studentId: '',
+        phone: '0123456789',
+        studentId: 'SE000000',
         role: RoleEnum.ADMIN,
+        isActive: true,
+        isLocked: false,
+        password: await Utils.hashPassword(RodeConfig.ADMIN_DEFAULT_PASSWORD),
       });
     }
   }

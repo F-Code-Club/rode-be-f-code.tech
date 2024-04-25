@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
@@ -14,6 +12,7 @@ import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { SocketsModule } from 'sockets/sockets.module';
 import { GoogleApiModule } from './google-api/google-api.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -30,8 +29,6 @@ import { GoogleApiModule } from './google-api/google-api.module';
     SocketsModule,
     GoogleApiModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

@@ -5,26 +5,23 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { UserRoom } from '../../user-rooms/entities/user-room.entity';
 import { SubmitHistory } from '../../submit-history/entities/submit-history.entity';
 
-@Entity()
+@Entity('accounts')
 export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  fname: string;
-
-  @Column()
-  lname: string;
+  @Column({ nullable: true })
+  fullName: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({ unique: true })
-  studentId: string;
+  @Column({ nullable: true })
+  password: string;
 
   @Column({ unique: true })
   phone: string;
@@ -35,9 +32,6 @@ export class Account {
   @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.USER })
   role: RoleEnum;
 
-  @Column({ default: true })
-  isActive: boolean;
-
   @OneToMany(() => UserRoom, (userRooms) => userRooms.account)
   userRooms: UserRoom[];
 
@@ -46,6 +40,15 @@ export class Account {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
+
+  @Column({ default: false })
+  isActive: boolean;
+
+  @Column({ default: false })
+  isLocked: boolean;
 
   @Column({ default: false, select: false })
   isLoggedIn: boolean;

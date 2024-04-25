@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import RodeConfig from '../etc/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { JwtStrategy } from './jwt.strategy';
     AccountsModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
 })
 export class AuthModule {}

@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -21,6 +22,8 @@ import CurrentAccount from '@decorators/current-account.decorator';
 import { Account } from './entities/account.entity';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginationDto } from '@etc/pagination.dto';
+import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
+import CurrentAccountRole from '@decorators/current-account-role.decorator';
 
 @Controller('accounts')
 @ApiTags('Accounts')
@@ -31,7 +34,7 @@ export class AccountsController {
   @ApiQuery({ type: PaginationDto })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async getAll(@Paginate() query: PaginateQuery) {
     const [accounts, err] = await this.accountsService.paginateGetAll(query);
     if (!accounts) {
@@ -93,7 +96,7 @@ export class AccountsController {
   @Post('update-one/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.USER)
+  @Roles(RoleEnum.ADMIN)
   async updateOne(
     @Param('id') id: string,
     @CurrentAccount() curAccount: Account,
@@ -139,5 +142,35 @@ export class AccountsController {
       account,
       null,
     );
+  }
+
+  @Roles(RoleEnum.MANAGER)
+  @Post('users/active-account')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async activeUser() {
+    return await this.accountsService.activateAllAccount();
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Patch('change-role')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async changeUserRole(
+    @Body() updateRole: UpdateRoleAccountDto,
+    @CurrentAccountRole() role: RoleEnum,
+  ) {
+    const [data, err] = await this.accountsService.updateUserRole(
+      updateRole,
+      role,
+    );
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Update Role Failed',
+        data,
+        err,
+      );
+    return new ResponseObject(HttpStatus.OK, 'Update Role Success', data, err);
   }
 }
