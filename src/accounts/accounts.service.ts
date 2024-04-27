@@ -5,6 +5,8 @@ import { Not, Repository } from 'typeorm';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Account } from './entities/account.entity';
+import { RoleEnum } from '@etc/enums';
+import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 
 @Injectable()
 export class AccountsService {
@@ -17,12 +19,12 @@ export class AccountsService {
     return [
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,
-        sortableColumns: ['studentId', 'fname', 'createdAt'],
+        sortableColumns: ['fullName', 'createdAt'],
         defaultSortBy: [
           ['createdAt', 'DESC'],
-          ['fname', 'ASC'],
+          ['fullName', 'ASC'],
         ],
-        searchableColumns: ['fname', 'lname', 'phone', 'studentId', 'email'],
+        searchableColumns: ['fullName', 'phone', 'email'],
         filterableColumns: {
           isActive: [FilterOperator.EQ],
         },
@@ -65,7 +67,7 @@ export class AccountsService {
 
   async createOne(info: CreateAccountDto) {
     const err = [];
-    if (!info.fname) {
+    if (!info.fullName) {
       err.push({
         at: 'fname',
         message: 'First name is required',
@@ -93,27 +95,14 @@ export class AccountsService {
         message: 'Phone already exists',
       });
     }
-    const checkStudentId = await this.accountRepository.findOne({
-      where: {
-        studentId: info.studentId,
-      },
-    });
-    if (checkStudentId) {
-      err.push({
-        at: 'studentId',
-        message: 'Student ID already exists',
-      });
-    }
     if (err.length > 0) {
       return [null, err];
     }
     const account = await this.accountRepository.save({
-      fname: info.fname,
-      lname: info.lname,
+      fullName: info.fullName,
       email: info.email,
       dob: info.dob,
       phone: info.phone,
-      studentId: info.studentId,
     });
     return [account, err];
   }
@@ -138,28 +127,12 @@ export class AccountsService {
         });
       }
     }
-    if (info.studentId) {
-      const checkStudentId = await this.accountRepository.findOne({
-        where: {
-          studentId: info.studentId,
-          id: Not(id),
-        },
-      });
-      if (checkStudentId) {
-        err.push({
-          at: 'studentId',
-          message: 'Student ID already exists',
-        });
-      }
-    }
     if (err.length > 0) {
       return [null, err];
     }
-    account.fname = info.fname ?? account.fname;
-    account.lname = info.lname ?? account.lname;
+    account.fullName = info.fullName ?? account.fullName;
     account.dob = info.dob ?? account.dob;
     account.phone = info.phone ?? account.phone;
-    account.studentId = info.studentId ?? account.studentId;
     await this.accountRepository.save(account);
     return [account, err];
   }
@@ -197,5 +170,65 @@ export class AccountsService {
       await this.accountRepository.update({ id: id }, account);
       return [account, null];
     }
+  }
+
+  async activateAllAccount() {
+    try {
+      await this.accountRepository
+        .createQueryBuilder()
+        .update(Account)
+        .set({ isActive: true })
+        .where('role = :role', { role: RoleEnum.USER })
+        .andWhere('isActive = :active', { active: false })
+        .andWhere('isLocked = :locked', { locked: false })
+        .execute();
+    } catch (exception) {
+      return 'Update Users Failed';
+    }
+
+    return 'Active Users Successfully';
+  }
+
+  async updateUserRole(update: UpdateRoleAccountDto, accountRole: RoleEnum) {
+    const currentUser = await this.accountRepository.findOne({
+      where: {
+        id: update.id,
+      },
+      select: ['id', 'fullName', 'role', 'isLocked'],
+    });
+    if (accountRole == RoleEnum.MANAGER && currentUser.role >= accountRole)
+      return [null, "You Can't Update User With Higher Role Or Same Role"];
+    if (!currentUser) return [null, 'Not Found Account With This Id'];
+    if (currentUser.isLocked)
+      return [null, "Can't Change Role With A Locked Account"];
+    if (currentUser.role == update.role) return [currentUser, null];
+    currentUser.role = update.role;
+    await this.accountRepository.update({ id: update.id }, currentUser);
+    return [currentUser, null];
+  }
+
+  async removeAccount(id: string, curAccount: Account) {
+    if (curAccount.id === id) return [null, "You can't remove self account"];
+
+    const removeAccount = await this.accountRepository.findOne({
+      where: {
+        id: id,
+      },
+      select: ['id', 'role', 'isActive'],
+    });
+    if (!removeAccount) return [null, "Can't find account to remove"];
+    if (removeAccount.isActive) return [null, 'This account already active'];
+    if (removeAccount.role === RoleEnum.ADMIN)
+      return [null, "You can't remove admin account"];
+    if (
+      curAccount.role === RoleEnum.USER ||
+      (curAccount.role === RoleEnum.MANAGER &&
+        removeAccount.role !== RoleEnum.USER)
+    ) {
+      return [null, 'Account role must be higher to remove this account'];
+    }
+
+    await this.accountRepository.remove(removeAccount);
+    return ['Remove account successful!', null];
   }
 }

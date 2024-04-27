@@ -97,13 +97,11 @@ export class UserRoomsService {
       ]);
     const result = await paginate(query, queryBuilder, {
       relations: ['account'],
-      sortableColumns: ['joinTime', 'account.studentId'],
+      sortableColumns: ['joinTime'],
       defaultSortBy: [['joinTime', 'ASC']],
       searchableColumns: [
-        'account.studentId',
         'account.email',
-        'account.lname',
-        'account.fname',
+        'account.fullName',
         'account.phone',
         'attendance',
       ],

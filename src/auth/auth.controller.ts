@@ -1,63 +1,64 @@
-import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Account } from '../accounts/entities/account.entity';
 import CurrentAccount from '../decorators/current-account.decorator';
 import ResponseObject from '../etc/response-object';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthLogin } from '@auth/dtos/auth.login.dto';
+import { JwtRefreshAuthGuard } from './jwt-refresh-auth.guard';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('get-info-from-google/:credential')
-  @ApiParam({ name: 'credential' })
-  async getInfoFromGoogle(@Param('credential') credential: string) {
-    const [info, err] = await this.authService.getInfoFromGoogle(credential);
-    if (err) {
+  @Get('self')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async self(@CurrentAccount() account: Account) {
+    return account;
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshAuthGuard)
+  async refreshToken(@CurrentAccount() account: Account) {
+    const [data, err] = await this.authService.refreshToken(account);
+    if (!data) {
       return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Get info from google failed',
+        HttpStatus.UNAUTHORIZED,
+        'Refresh Token Failed',
         null,
         err,
       );
     }
     return new ResponseObject(
       HttpStatus.OK,
-      'Get info from google success',
-      info,
-      null,
+      'Refresh Token Success',
+      data,
+      err,
     );
   }
 
-  @Get('login/:credential')
-  @ApiParam({ name: 'credential' })
-  async login(@Param('credential') credential: string) {
-    const [account, err] = await this.authService.googleLogin(credential);
-    if (err) {
+  @Post('authenticate')
+  async authentication(@Body() login: AuthLogin) {
+    const [data, err] = await this.authService.authenticateUsingUserPass(login);
+    if (!data) {
       return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Login failed',
+        HttpStatus.UNAUTHORIZED,
+        'Login Failed',
         null,
         err,
       );
     }
-    if (!account) {
-      return new ResponseObject(
-        HttpStatus.NOT_FOUND,
-        'Login failed',
-        null,
-        'Account not found',
-      );
-    }
-    return new ResponseObject(HttpStatus.OK, 'Login success', account, null);
-  }
-
-  @Get('self')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async self(@CurrentAccount() account: Account) {
-    return account;
+    return new ResponseObject(HttpStatus.OK, 'Login Success', data, err);
   }
 }
