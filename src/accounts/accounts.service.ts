@@ -233,7 +233,7 @@ export class AccountsService {
       await this.accountRepository.remove(removeAccount);
       return ['Remove account successful!', null];
     } else {
-      return [removeAccount, 'Account must be inactive to be removed'];
+      return [null, 'This account already active'];
     }
   }
 }
