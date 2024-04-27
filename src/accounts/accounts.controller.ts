@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -168,6 +169,28 @@ export class AccountsController {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
         'Update Role Failed',
+        data,
+        err,
+      );
+    return new ResponseObject(HttpStatus.OK, 'Update Role Success', data, err);
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Delete('remove-account/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async removeAccount(
+    @Param('id') id: string,
+    @CurrentAccount() curAccount: Account,
+  ) {
+    const [data, err] = await this.accountsService.removeAccount(
+      id,
+      curAccount,
+    );
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Remove Account Failed',
         data,
         err,
       );

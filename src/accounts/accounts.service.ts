@@ -206,4 +206,39 @@ export class AccountsService {
     await this.accountRepository.update({ id: update.id }, currentUser);
     return [currentUser, null];
   }
+
+  async removeAccount(id: string, curAccount: Account) {
+    if (curAccount.id === id) return [null, "You can't remove self account"];
+
+    const removeAccount = await this.accountRepository.findOne({
+      where: {
+        id: id,
+      },
+      select: ['id', 'role', 'isActive'],
+    });
+
+    if (!removeAccount) {
+      return [null, "Can't find account to remove"];
+    }
+    if (removeAccount.role === RoleEnum.ADMIN)
+      return [null, "You can't remove admin account"];
+    if (
+      curAccount.role === RoleEnum.USER ||
+      (curAccount.role === RoleEnum.MANAGER &&
+        removeAccount.role !== RoleEnum.USER)
+    ) {
+      return [null, 'Account role must be higher to remove this account'];
+    }
+    if (removeAccount.isActive) {
+      removeAccount.isActive = false;
+      await this.accountRepository.update(
+        { id: removeAccount.id },
+        removeAccount,
+      );
+      return ['Deactive account successful!', null];
+    } else {
+      await this.accountRepository.remove(removeAccount);
+      return ['Remove account successful!: ' + removeAccount.isActive, null];
+    }
+  }
 }
