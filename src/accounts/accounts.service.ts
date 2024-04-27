@@ -216,10 +216,8 @@ export class AccountsService {
       },
       select: ['id', 'role', 'isActive'],
     });
-
-    if (!removeAccount) {
-      return [null, "Can't find account to remove"];
-    }
+    if (!removeAccount) return [null, "Can't find account to remove"];
+    if (removeAccount.isActive) return [null, 'This account already active'];
     if (removeAccount.role === RoleEnum.ADMIN)
       return [null, "You can't remove admin account"];
     if (
@@ -229,11 +227,8 @@ export class AccountsService {
     ) {
       return [null, 'Account role must be higher to remove this account'];
     }
-    if (!removeAccount.isActive) {
-      await this.accountRepository.remove(removeAccount);
-      return ['Remove account successful!', null];
-    } else {
-      return [null, 'This account already active'];
-    }
+
+    await this.accountRepository.remove(removeAccount);
+    return ['Remove account successful!', null];
   }
 }
