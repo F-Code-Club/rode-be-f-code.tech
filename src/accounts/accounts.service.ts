@@ -229,16 +229,11 @@ export class AccountsService {
     ) {
       return [null, 'Account role must be higher to remove this account'];
     }
-    if (removeAccount.isActive) {
-      removeAccount.isActive = false;
-      await this.accountRepository.update(
-        { id: removeAccount.id },
-        removeAccount,
-      );
-      return ['Deactive account successful!', null];
-    } else {
+    if (!removeAccount.isActive) {
       await this.accountRepository.remove(removeAccount);
-      return ['Remove account successful!: ' + removeAccount.isActive, null];
+      return ['Remove account successful!', null];
+    } else {
+      return [null, 'Account must be inactive to be removed'];
     }
   }
 }
