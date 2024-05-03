@@ -40,7 +40,12 @@ export class AuthController {
         err,
       );
     }
-    return new ResponseObject(HttpStatus.OK, 'Refresh Token Success', data, err);
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Refresh Token Success',
+      data,
+      err,
+    );
   }
 
   @Post('authenticate')
