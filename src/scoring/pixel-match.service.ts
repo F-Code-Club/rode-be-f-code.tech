@@ -3,7 +3,7 @@ import * as pixelmatch from 'pixelmatch';
 import puppeteer from 'puppeteer';
 import * as fs from 'fs';
 import { resolve } from 'path';
-import { LocalFilesService } from '@local-files/local-files.service';
+import { LocalFilesService } from 'templates/local-files.service';
 import { PNG } from 'pngjs';
 import { FeResultDto } from './dtos/fe-result.dto';
 import RodeConfig from '@etc/config';

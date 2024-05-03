@@ -3,7 +3,7 @@ import { RoomsService } from './rooms.service';
 import { RoomsController } from './rooms.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Room } from './entities/room.entity';
-import { Question } from './entities/question.entity';
+import { Question } from '../questions/entities/question.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Room, Question])],

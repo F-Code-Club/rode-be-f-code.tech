@@ -6,10 +6,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RoomTypeEnum } from '../../etc/enums';
-import { Question } from './question.entity';
+import { Question } from '../../questions/entities/question.entity';
 import { UserRoom } from '../../user-rooms/entities/user-room.entity';
+import { Score } from 'submit-history/entities/scores.entity';
 
-@Entity()
+@Entity('rooms')
 export class Room {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -42,4 +43,6 @@ export class Room {
 
   @CreateDateColumn()
   createdAt: Date;
+  @OneToMany(() => Score, (score) => score.room, {nullable: true})
+  scores?:Score[]
 }

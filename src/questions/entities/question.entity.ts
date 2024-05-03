@@ -2,37 +2,35 @@ import { SubmitHistory } from '../../submit-history/entities/submit-history.enti
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { QuestionTestCase } from './question-test-case.entity';
-import { Room } from './room.entity';
+import { QuestionStack } from './question-stack.entity';
+import { Template } from '@templates/entities/templates.entity';
 
-@Entity()
+@Entity('questions')
 export class Question {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', {name: 'id'})
   id: string;
 
-  @Column()
-  questionImage: string;
+  @ManyToOne(() => QuestionStack, (stack) => stack.questions)
+  @JoinColumn({name: 'stack_id'})
+  stack: QuestionStack;
 
-  @Column({ type: 'integer', default: 5 })
+  @Column({name: 'max_submit_time', type: 'integer', default: 5 })
   maxSubmitTimes: number;
 
-  @Column({ nullable: true })
-  colors: string;
 
-  @Column({ type: 'text', nullable: true })
-  codeTemplate: string;
-
-  @ManyToOne(() => Room, { onDelete: 'CASCADE' })
-  room: Room;
-
+  @OneToOne(() => Template, (template) => template.question)
+  template: Template;
   @OneToMany(
     () => QuestionTestCase,
     (questionTestCase) => questionTestCase.question,
-    { cascade: true },
+    { onDelete: 'CASCADE' },
   )
   testCases: QuestionTestCase[];
 

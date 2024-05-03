@@ -11,7 +11,7 @@ import { HttpStatus } from '@nestjs/common/enums';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '@etc/response-object';
-import { LocalFilesService } from './local-files.service';
+import { LocalFilesService } from './templates.service';
 import { FileMimeTypeEnum, UploadFilePipe } from './upload-file.pipe';
 import { Response } from 'express';
 import { resolve } from 'path';

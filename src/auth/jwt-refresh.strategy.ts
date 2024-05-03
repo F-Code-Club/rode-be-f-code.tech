@@ -19,7 +19,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(payload: any) {
     const accountId = payload.sub;
     const account = await this.accountsService.getById(accountId, true);
-    if (!account) {
+    if (!account || !account.isActive || account.isLocked) {
       return null;
     }
     return account;

@@ -35,8 +35,8 @@ export class AccountsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
-  async getAll(@Paginate() query: PaginateQuery) {
-    const [accounts, err] = await this.accountsService.paginateGetAll(query);
+  async getAll(@Paginate() query: PaginateQuery, @CurrentAccount() account:Account) {
+    const [accounts, err] = await this.accountsService.paginateGetAll(query, account);
     if (!accounts) {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,

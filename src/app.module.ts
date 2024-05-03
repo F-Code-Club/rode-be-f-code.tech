@@ -4,7 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { HttpModule } from '@nestjs/axios';
 import { RoomsModule } from './rooms/rooms.module';
-import { LocalFilesModule } from './local-files/local-files.module';
+import { LocalFilesModule } from './templates/local-files.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { UserRoomsModule } from './user-rooms/user-rooms.module';
 import { LogModule } from './logger/logger.module';

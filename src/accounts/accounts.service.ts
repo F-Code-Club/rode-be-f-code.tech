@@ -15,7 +15,7 @@ export class AccountsService {
     private readonly accountRepository: Repository<Account>,
   ) {}
 
-  async paginateGetAll(query: PaginateQuery) {
+  async paginateGetAll(query: PaginateQuery, account?:Account) {
     return [
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,

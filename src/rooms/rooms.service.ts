@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
-import { Question } from './entities/question.entity';
+import { Question } from '../questions/entities/question.entity';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()

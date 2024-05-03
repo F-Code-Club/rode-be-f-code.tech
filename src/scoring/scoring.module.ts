@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import { C_CPPService } from './compile-and-execute-services/c_cpp.service';
 import { JavaService } from './compile-and-execute-services/java.service';
 import { PixelMatchService } from './pixel-match.service';
-import { LocalFilesModule } from '@local-files/local-files.module';
+import { LocalFilesModule } from 'templates/local-files.module';
 import { SubmitHistoryService } from 'submit-history/submit-history.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
