@@ -3,13 +3,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRoom } from '../../user-rooms/entities/user-room.entity';
-import { SubmitHistory } from '../../submit-history/entities/submit-history.entity';
 import { Member } from '../../teams/entities/member.entity';
 
 @Entity({name: 'accounts'})
@@ -35,11 +32,12 @@ export class Account {
 
   @Column({name: 'role', type: 'enum', enum: RoleEnum, default: RoleEnum.USER })
   role: RoleEnum;
-  @CreateDateColumn({name: 'created_at', type: 'date'})
+  
+  @CreateDateColumn({name: 'created_at'})
   createdAt: Date;
 
-  @UpdateDateColumn({name: 'updated_at', type: 'date'})
-  updateAt: Date;
+  @UpdateDateColumn({name: 'updated_at'})
+  updatedAt: Date;
 
   @Column({name: 'is_enabled', default: false })
   isEnabled: boolean;

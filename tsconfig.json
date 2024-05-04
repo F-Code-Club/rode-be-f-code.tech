@@ -16,11 +16,14 @@
       "@database/*": ["database/*"],
       "@decorators/*": ["decorators/*"],
       "@etc/*": ["etc/*"],
-      "@local-files/*": ["local-files/*"],
       "@logger/*": ["logger/*"],
+      "@questions/*": ["questions/*"],
       "@rooms/*": ["rooms/*"],
       "@scoring/*": ["scoring/*"],
-      "@user-rooms": ["user-rooms/*"]
+      "@sockets/*": ["sockets/*"],
+      "@submit-history/*": ["submit-history/*"],
+      "@teams/*": ["teams/*"],
+      "@templates/*": ["templates/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

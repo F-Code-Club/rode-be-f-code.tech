@@ -7,34 +7,38 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from 'typeorm';
-import { ProgrammingLangEnum } from '../../etc/enums';
+import { ProgrammingLangEnum } from '@etc/enums';
 import { Member } from 'teams/entities/member.entity';
 import { Score } from './scores.entity';
 
 @Entity('submit_histories')
 export class SubmitHistory {
+  @PrimaryColumn({name: 'score_id'})
+  scoreId:string;
+  @PrimaryColumn({name: 'question_id'})
+  questionId: string;
+  @PrimaryColumn({name: 'member_id'})
+  memberId:number;
 
-  @ManyToOne(() => Score, (score) => score)
+  @ManyToOne(() => Score, (score) => score.submitHistories)
   @JoinColumn({name: 'score_id', referencedColumnName: 'id'})
-  @PrimaryColumn()
   score: Score;
+  
   @ManyToOne(() => Question, (question) => question.submitHistory)
   @JoinColumn({name: 'question_id', referencedColumnName: 'id'})
-  @PrimaryColumn()
   question: Question;
-
+  
   @ManyToOne(() => Member, (member) => member.submitHistory)
   @JoinColumn({name: 'member_id', referencedColumnName: 'id'})
-  @PrimaryColumn()
   member: Member;
   
   @Column({name: 'submit_number', type: 'int', default: 1})
   submitNumber: number;
 
-  @Column({name: 'run_time', type: "unsigned big int", nullable: true })
+  @Column({name: 'run_time', type: "int", unsigned: true, nullable: true })
   runTime: number;
 
-  @Column({name: 'score',  type: 'unsigned big int' })
+  @Column({name: 'score',  type: 'int', unsigned: true })
   scoreSubmit: number;
 
   @Column({

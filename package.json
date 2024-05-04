@@ -1,6 +1,6 @@
 {
-  "name": "rode-be",
-  "version": "0.0.1",
+  "name": "rode-be-api",
+  "version": "0.1.1",
   "description": "RODE",
   "author": "F-Code",
   "private": true,
