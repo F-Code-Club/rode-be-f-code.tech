@@ -33,7 +33,7 @@ export class AuthService {
   }
 
   async refreshToken(user: Account) {
-    if (!user.isActive || user.isLocked)
+    if (!user.isEnabled || user.isLocked)
       return [null, 'This Account Is Not Active Or Locked'];
     const accessToken = await this.jwtService.signAsync(
       {
@@ -52,7 +52,7 @@ export class AuthService {
     if (!user) {
       return [null, 'Account Not Found'];
     }
-    if (!user.isActive || user.isLocked)
+    if (!user.isEnabled || user.isLocked)
       return [null, 'This Account Is Not Active Or Locked'];
     if (user.isLoggedIn) {
       return [null, 'This Account Is Already Login'];

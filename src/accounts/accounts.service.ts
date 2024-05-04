@@ -15,7 +15,7 @@ export class AccountsService {
     private readonly accountRepository: Repository<Account>,
   ) {}
 
-  async paginateGetAll(query: PaginateQuery) {
+  async paginateGetAll(query: PaginateQuery, account?: Account) {
     return [
       await paginate(query, this.accountRepository, {
         defaultLimit: 10,
@@ -33,15 +33,15 @@ export class AccountsService {
     ];
   }
 
-  async getAll(active: string | null) {
-    if (!active) {
+  async getAll(enable: string | null) {
+    if (!enable) {
       const accounts = await this.accountRepository.find();
       return [accounts, null];
     }
-    const isActive = active == 'true' ? true : false;
+    const isEnabled = enable == 'true' ? true : false;
     const accounts = await this.accountRepository.find({
       where: {
-        isActive,
+        isEnabled,
       },
     });
     return [accounts, null];
@@ -51,7 +51,7 @@ export class AccountsService {
     return await this.accountRepository.findOne({
       where: {
         email: email,
-        isActive: noCheckActive ? null : true,
+        isEnabled: noCheckActive ? null : true,
       },
     });
   }
@@ -146,7 +146,7 @@ export class AccountsService {
     if (!account) {
       return [null, 'Account not found'];
     }
-    account.isActive = !account.isActive;
+    account.isEnabled = !account.isEnabled;
     await this.accountRepository.save(account);
     return [account, null];
   }
@@ -177,7 +177,7 @@ export class AccountsService {
       await this.accountRepository
         .createQueryBuilder()
         .update(Account)
-        .set({ isActive: true })
+        .set({ isEnabled: true })
         .where('role = :role', { role: RoleEnum.USER })
         .andWhere('isActive = :active', { active: false })
         .andWhere('isLocked = :locked', { locked: false })
@@ -214,10 +214,10 @@ export class AccountsService {
       where: {
         id: id,
       },
-      select: ['id', 'role', 'isActive'],
+      select: ['id', 'role', 'isEnabled'],
     });
     if (!removeAccount) return [null, "Can't find account to remove"];
-    if (removeAccount.isActive) return [null, 'This account already active'];
+    if (removeAccount.isEnabled) return [null, 'This account already active'];
     if (removeAccount.role === RoleEnum.ADMIN)
       return [null, "You can't remove admin account"];
     if (

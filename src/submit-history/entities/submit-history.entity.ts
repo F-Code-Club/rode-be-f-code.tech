@@ -1,57 +1,69 @@
-import { Account } from '../../accounts/entities/account.entity';
-import { Question } from '../../rooms/entities/question.entity';
+import { Question } from '../../questions/entities/question.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
-import { ProgrammingLangEnum } from '../../etc/enums';
+import { ProgrammingLangEnum } from '@etc/enums';
+import { Member } from 'teams/entities/member.entity';
+import { Score } from './scores.entity';
 
-@Entity()
+@Entity('submit_histories')
 export class SubmitHistory {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn({ name: 'score_id' })
+  scoreId: string;
+  @PrimaryColumn({ name: 'question_id' })
+  questionId: string;
+  @PrimaryColumn({ name: 'member_id' })
+  memberId: number;
 
-  @Column({ type: 'float' })
-  score: number;
+  @ManyToOne(() => Score, (score) => score.submitHistories)
+  @JoinColumn({ name: 'score_id', referencedColumnName: 'id' })
+  score: Score;
+
+  @ManyToOne(() => Question, (question) => question.submitHistory)
+  @JoinColumn({ name: 'question_id', referencedColumnName: 'id' })
+  question: Question;
+
+  @ManyToOne(() => Member, (member) => member.submitHistory)
+  @JoinColumn({ name: 'member_id', referencedColumnName: 'id' })
+  member: Member;
+
+  @Column({ name: 'submit_number', type: 'int', default: 1 })
+  submitNumber: number;
+
+  @Column({ name: 'run_time', type: 'int', unsigned: true, nullable: true })
+  runTime: number;
+
+  @Column({ name: 'score', type: 'int', unsigned: true })
+  scoreSubmit: number;
 
   @Column({
     type: 'enum',
     enum: ProgrammingLangEnum,
-    nullable: true,
+    name: 'language',
   })
   language: ProgrammingLangEnum;
 
-  @Column({ type: 'text' })
+  @Column({ name: 'character_count', nullable: true })
+  characterCount: number; // uses for both FE (count number of chars) and BE
+
+  @CreateDateColumn({ name: 'last_submit_time', type: 'timestamp' })
+  lastSubmitTime: Date;
+
+  @Column({ name: 'submissions', type: 'text' })
   submissions: string;
 
-  @CreateDateColumn()
-  submittedAt: Date;
-
-  @Column({ nullable: true })
-  time: number;
-
-  @Column({ nullable: true })
-  space: number; // uses for both FE (count number of chars) and BE
-
-  @ManyToOne(() => Account, (account) => account.submitHistory)
-  account: Account;
-
-  @ManyToOne(() => Question, (question) => question.submitHistory)
-  question: Question;
-
-  @Column({ nullable: true })
-  link: string;
-
   constructor(
-    account: Account,
+    member: Member,
     question: Question,
     submissions: string,
     language: ProgrammingLangEnum,
   ) {
-    this.account = account;
+    this.member = member;
     this.question = question;
     this.submissions = submissions;
     this.language = language;

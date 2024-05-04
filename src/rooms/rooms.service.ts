@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoomTypeEnum } from '../etc/enums';
+import { RoomTypeEnum } from '@etc/enums';
 import { Repository } from 'typeorm';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
-import { Question } from './entities/question.entity';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
+import { QuestionStack } from '@questions/entities/question-stack.entity';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-    @InjectRepository(Question)
-    private readonly questionRepository: Repository<Question>,
+    @InjectRepository(QuestionStack)
+    private readonly questionStackRepository: Repository<QuestionStack>,
   ) {}
 
   async getAllRoomTypes() {
@@ -160,27 +160,6 @@ export class RoomsService {
     }
     room.closeTime = info.closeTime;
     room.openTime = info.openTime;
-    room.duration = info.duration;
-    await this.questionRepository.delete({
-      room: { id: room.id },
-    });
-    room.questions = info.questions.map((question) =>
-      this.questionRepository.create({
-        id: question.id,
-        questionImage: question.questionImage,
-        maxSubmitTimes: question.maxSubmitTimes,
-        colors: question.colors,
-        codeTemplate: question.codeTemplate,
-        room: room,
-        testCases: question.testCases
-          ? question.testCases.map((testCase) => ({
-              id: testCase.id,
-              input: testCase.input,
-              output: testCase.output,
-            }))
-          : [],
-      }),
-    );
     const updatedRoom = await this.roomRepository.save(room);
     return [updatedRoom, null];
   }
@@ -194,11 +173,7 @@ export class RoomsService {
     const room = await this.roomRepository.findOne({
       where: {
         id: id,
-      },
-      relations: {
-        questions: {
-          testCases: true,
-        },
+        isPrivate: false,
       },
     });
     if (!room) {
@@ -211,9 +186,6 @@ export class RoomsService {
     const room = await this.roomRepository.findOne({
       where: {
         code: code,
-      },
-      relations: {
-        questions: true,
       },
     });
     if (!room) {

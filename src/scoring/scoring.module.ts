@@ -7,15 +7,13 @@ import * as fs from 'fs';
 import { C_CPPService } from './compile-and-execute-services/c_cpp.service';
 import { JavaService } from './compile-and-execute-services/java.service';
 import { PixelMatchService } from './pixel-match.service';
-import { LocalFilesModule } from '@local-files/local-files.module';
+import { TemplateModule } from '@templates/templates.module';
 import { SubmitHistoryService } from 'submit-history/submit-history.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
 import { Room } from '@rooms/entities/room.entity';
-import { Question } from '@rooms/entities/question.entity';
+import { Question } from '@questions/entities/question.entity';
 import { Account } from '@accounts/entities/account.entity';
-import { UserRoom } from 'user-rooms/entities/user-room.entity';
-import { UserRoomsModule } from 'user-rooms/user-rooms.module';
 import { GoogleApiModule } from 'google-api/google-api.module';
 
 @Module({
@@ -33,16 +31,9 @@ import { GoogleApiModule } from 'google-api/google-api.module';
   ],
   imports: [
     RoomsModule,
-    LocalFilesModule,
-    UserRoomsModule,
+    TemplateModule,
     GoogleApiModule,
-    TypeOrmModule.forFeature([
-      SubmitHistory,
-      Room,
-      Question,
-      Account,
-      UserRoom,
-    ]),
+    TypeOrmModule.forFeature([SubmitHistory, Room, Question, Account]),
   ],
 })
 export class ScoringModule {

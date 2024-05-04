@@ -4,29 +4,32 @@ import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { HttpModule } from '@nestjs/axios';
 import { RoomsModule } from './rooms/rooms.module';
-import { LocalFilesModule } from './local-files/local-files.module';
+import { TemplateModule } from './templates/templates.module';
 import { ScoringModule } from './scoring/scoring.module';
-import { UserRoomsModule } from './user-rooms/user-rooms.module';
 import { LogModule } from './logger/logger.module';
 import LoggerMiddleware from './etc/logger.middleware';
 import { SubmitHistoryModule } from 'submit-history/submit-history.module';
 import { SocketsModule } from 'sockets/sockets.module';
 import { GoogleApiModule } from './google-api/google-api.module';
-import { ConfigModule } from '@nestjs/config';
+import { QuestionsModule } from '@questions/questions.module';
+import { TeamsModule } from '@teams/teams.module';
 
 @Module({
   imports: [
     LogModule.forRoot(),
     HttpModule,
-    DatabaseModule,
-    AuthModule,
     AccountsModule,
+    AuthModule,
+    DatabaseModule,
+    QuestionsModule,
     RoomsModule,
-    LocalFilesModule,
     ScoringModule,
-    UserRoomsModule,
-    SubmitHistoryModule,
+    TemplateModule,
+    ScoringModule,
     SocketsModule,
+    SubmitHistoryModule,
+    TeamsModule,
+    TemplateModule,
     GoogleApiModule,
   ],
 })

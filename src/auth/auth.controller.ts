@@ -3,11 +3,10 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Account } from '../accounts/entities/account.entity';
 import CurrentAccount from '../decorators/current-account.decorator';
 import ResponseObject from '../etc/response-object';

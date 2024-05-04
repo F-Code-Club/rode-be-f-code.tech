@@ -3,53 +3,56 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRoom } from '../../user-rooms/entities/user-room.entity';
-import { SubmitHistory } from '../../submit-history/entities/submit-history.entity';
+import { Member } from '../../teams/entities/member.entity';
 
-@Entity('accounts')
+@Entity({ name: 'accounts' })
 export class Account {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
-  @Column({ nullable: true })
+  @Column({ name: 'student_id', unique: true, length: 24 })
+  studentId: string;
+  @Column({ name: 'full_name', type: 'varchar', length: 48 })
   fullName: string;
 
-  @Column({ unique: true })
+  @Column({ name: 'email', type: 'varchar', length: 30 })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'password', type: 'varchar', length: 128 })
   password: string;
 
-  @Column({ unique: true })
+  @Column({ name: 'phone', unique: true, type: 'varchar', length: 12 })
   phone: string;
 
-  @Column()
+  @Column({ name: 'dob', nullable: false, type: 'date' })
   dob: Date;
 
-  @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.USER })
+  @Column({
+    name: 'role',
+    type: 'enum',
+    enum: RoleEnum,
+    default: RoleEnum.USER,
+  })
   role: RoleEnum;
 
-  @OneToMany(() => UserRoom, (userRooms) => userRooms.account)
-  userRooms: UserRoom[];
-
-  @OneToMany(() => SubmitHistory, (submitHistory) => submitHistory.account)
-  submitHistory: SubmitHistory[];
-
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updateAt: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
-  @Column({ default: false })
-  isActive: boolean;
+  @Column({ name: 'is_enabled', default: false })
+  isEnabled: boolean;
 
-  @Column({ default: false })
+  @Column({ name: 'is_locked', default: false })
   isLocked: boolean;
 
-  @Column({ default: false, select: false })
+  @Column({ name: 'is_logged_in', default: false, select: false })
   isLoggedIn: boolean;
+
+  @OneToOne(() => Member, (member) => member.account, { nullable: true })
+  member: Member;
 }
