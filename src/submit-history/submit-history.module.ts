@@ -8,9 +8,11 @@ import { QuestionsModule } from '@questions/questions.module';
 import { Score } from './entities/scores.entity';
 import { Member } from '@teams/entities/member.entity';
 
-
 @Module({
-  imports: [TypeOrmModule.forFeature([SubmitHistory, Member, Room, Score]), QuestionsModule],
+  imports: [
+    TypeOrmModule.forFeature([SubmitHistory, Member, Room, Score]),
+    QuestionsModule,
+  ],
   controllers: [SubmitHistoryController],
   providers: [SubmitHistoryService],
   exports: [SubmitHistoryService],

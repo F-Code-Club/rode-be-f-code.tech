@@ -6,10 +6,8 @@ import { TeamController } from './teams.controller';
 import { AccountsModule } from '@accounts/accounts.module';
 import { TeamService } from './teams.service';
 
-
 @Module({
-  imports: [TypeOrmModule.forFeature([Team,Member]),
-    AccountsModule],
+  imports: [TypeOrmModule.forFeature([Team, Member]), AccountsModule],
   controllers: [TeamController],
   providers: [TeamService],
   exports: [TeamService],

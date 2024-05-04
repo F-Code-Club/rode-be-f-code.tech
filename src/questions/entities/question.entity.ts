@@ -14,16 +14,15 @@ import { Template } from '@templates/entities/templates.entity';
 
 @Entity('questions')
 export class Question {
-  @PrimaryGeneratedColumn('uuid', {name: 'id'})
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
   @ManyToOne(() => QuestionStack, (stack) => stack.questions)
-  @JoinColumn({name: 'stack_id'})
+  @JoinColumn({ name: 'stack_id' })
   stack: QuestionStack;
 
-  @Column({name: 'max_submit_time', type: 'integer', default: 5 })
+  @Column({ name: 'max_submit_time', type: 'integer', default: 5 })
   maxSubmitTimes: number;
-
 
   @OneToOne(() => Template, (template) => template.question)
   template: Template;

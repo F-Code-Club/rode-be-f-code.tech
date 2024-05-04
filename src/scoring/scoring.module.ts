@@ -33,12 +33,7 @@ import { GoogleApiModule } from 'google-api/google-api.module';
     RoomsModule,
     TemplateModule,
     GoogleApiModule,
-    TypeOrmModule.forFeature([
-      SubmitHistory,
-      Room,
-      Question,
-      Account,
-    ]),
+    TypeOrmModule.forFeature([SubmitHistory, Room, Question, Account]),
   ],
 })
 export class ScoringModule {

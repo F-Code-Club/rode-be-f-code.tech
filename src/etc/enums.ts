@@ -13,12 +13,12 @@ export enum ProgrammingLangEnum {
   C_CPP = 'C_CPP',
   JAVA = 'JAVA',
   PYTHON = 'PYTHON',
-  CSS = 'CSS'
+  CSS = 'CSS',
 }
 
 export enum QuestionStackStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
   DE_ACTIVE = 'DE_ACTIVE',
-  USED = 'USED'
+  USED = 'USED',
 }

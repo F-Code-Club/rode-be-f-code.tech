@@ -173,7 +173,7 @@ export class RoomsService {
     const room = await this.roomRepository.findOne({
       where: {
         id: id,
-        isPrivate:false
+        isPrivate: false,
       },
     });
     if (!room) {
