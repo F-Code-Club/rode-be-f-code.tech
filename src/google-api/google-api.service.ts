@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { randomUUID } from 'crypto';
 import { ProgrammingLangEnum } from '@etc/enums';
 import RodeConfig from '../etc/config';
+import { Readable } from 'stream';
 
 const oauth2Client = new google.auth.OAuth2(
   RodeConfig.CLIENT_ID,
@@ -79,5 +80,14 @@ export class GoogleApiService {
     try {
       await drive.files.delete({ fileId: fileIds.join(',') });
     } catch (error) {}
+  }
+
+  async downloadTeamsRegisterSheetTemplate(fileId: string):Promise<[Readable, any]> {
+    try{
+      const response = await drive.files.get({fileId, alt: 'media'}, {responseType: 'stream'});
+      return [response.data, null];
+    }catch(error){
+      return [null, "Error When Pull File From Google Drive"];
+    }
   }
 }
