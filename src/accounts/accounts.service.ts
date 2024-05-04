@@ -38,7 +38,7 @@ export class AccountsService {
       const accounts = await this.accountRepository.find();
       return [accounts, null];
     }
-    const isEnabled = enable == 'true' ? true : false;
+    const isEnabled = enable == 'true';
     const accounts = await this.accountRepository.find({
       where: {
         isEnabled,
