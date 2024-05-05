@@ -13,7 +13,7 @@ import { Room } from '@rooms/entities/room.entity';
 @Entity('question_stacks')
 export class QuestionStack {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
-  id: number;
+  id: string;
   @Column({ name: 'stack_max', type: 'int', default: 1 })
   stackMax: number;
   @Column({ name: 'name', type: 'varchar', length: 128 })

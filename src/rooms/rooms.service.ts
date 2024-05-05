@@ -6,15 +6,14 @@ import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
-import { QuestionStack } from '@questions/entities/question-stack.entity';
+import { QuestionService } from '@questions/questions.service';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-    @InjectRepository(QuestionStack)
-    private readonly questionStackRepository: Repository<QuestionStack>,
+    private readonly questionService: QuestionService
   ) {}
 
   async getAllRoomTypes() {

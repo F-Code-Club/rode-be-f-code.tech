@@ -17,8 +17,8 @@ export class TeamService {
     private readonly excelsService: ExcelService,
     private readonly googleApiService: GoogleApiService,
   ) {}
-  async importTeamsFromGoogleForm(duplicateMode: number){
-    const [result, err] = await this.googleApiService.downloadTeamsRegisterSheetTemplate("");
+  async importTeamsFromGoogleForm(duplicateMode: number, fileId: string){
+    const [result, err] = await this.googleApiService.downloadTeamsRegisterSheetTemplate(fileId);
     if(!err) return [result, err];
     const resultExcel = await this.excelsService.readImportTeamExcel(result);
     for (const teamData of resultExcel) {
@@ -38,9 +38,10 @@ export class TeamService {
         member.account = account;
         return member;
       });
-
-      await this.teamRepository.save(team);
+      try{
+        await this.teamRepository.save(team);
+      }catch(error){}
     }
-    return [resultExcel, null];
+    return ["Load Success", null];
   }
 }
