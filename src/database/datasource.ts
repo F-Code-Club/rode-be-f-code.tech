@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import * as path from 'path';
 
 const RodeDataSource = new DataSource({
-  type: 'mysql',
+  type: 'postgres',
   host: RodeConfig.DB_HOST,
   port: RodeConfig.DB_PORT,
   username: RodeConfig.DB_USERNAME,

@@ -6,15 +6,14 @@ import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
-import { QuestionStack } from '@questions/entities/question-stack.entity';
+import { QuestionService } from '@questions/questions.service';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-    @InjectRepository(QuestionStack)
-    private readonly questionStackRepository: Repository<QuestionStack>,
+    private readonly questionService: QuestionService
   ) {}
 
   async getAllRoomTypes() {
@@ -136,7 +135,7 @@ export class RoomsService {
    * @param info
    * @returns [Updated Room, Errors]
    */
-  async updateOne(id: string, info: UpdateRoomDto) {
+  async updateOne(id: number, info: UpdateRoomDto) {
     const errs = [];
     const room = await this.roomRepository.findOne({
       where: {
@@ -169,7 +168,7 @@ export class RoomsService {
     return [rooms, null];
   }
 
-  async findOneById(id: string): Promise<[Room, any]> {
+  async findOneById(id: number): Promise<[Room, any]> {
     const room = await this.roomRepository.findOne({
       where: {
         id: id,
@@ -194,7 +193,7 @@ export class RoomsService {
     return [room, null];
   }
 
-  async isExisted(id: string): Promise<boolean> {
+  async isExisted(id: number): Promise<boolean> {
     const result = await this.roomRepository.exist({
       where: {
         id,

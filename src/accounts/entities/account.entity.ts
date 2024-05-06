@@ -8,10 +8,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Member } from '../../teams/entities/member.entity';
-
 @Entity({ name: 'accounts' })
 export class Account {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  @PrimaryGeneratedColumn('uuid', {name: 'id'})
   id: string;
   @Column({ name: 'student_id', unique: true, length: 24 })
   studentId: string;
@@ -27,7 +26,7 @@ export class Account {
   @Column({ name: 'phone', unique: true, type: 'varchar', length: 12 })
   phone: string;
 
-  @Column({ name: 'dob', nullable: false, type: 'date' })
+  @Column({ name: 'dob', type: 'date' })
   dob: Date;
 
   @Column({
@@ -35,13 +34,14 @@ export class Account {
     type: 'enum',
     enum: RoleEnum,
     default: RoleEnum.USER,
+    enumName: 'role_enum'
   })
   role: RoleEnum;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'date' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'date' })
   updatedAt: Date;
 
   @Column({ name: 'is_enabled', default: false })

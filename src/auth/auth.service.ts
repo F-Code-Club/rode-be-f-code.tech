@@ -79,7 +79,7 @@ export class AuthService {
           username: username,
         },
         {
-          secret: RodeConfig.REFRESH_TOKEN,
+          secret: RodeConfig.JWT_REFRESH_SECRET,
           expiresIn: RodeConfig.JWT_REFRESH_EXPIRES_IN,
         },
       ),

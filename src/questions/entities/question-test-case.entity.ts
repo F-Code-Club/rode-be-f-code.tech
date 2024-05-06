@@ -1,9 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Question } from './question.entity';
 
 @Entity('test_cases')
 export class QuestionTestCase {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('identity', {name: 'id'})
   id: number;
 
   @Column()
@@ -13,5 +13,6 @@ export class QuestionTestCase {
   output: string;
 
   @ManyToOne(() => Question, { onDelete: 'CASCADE' })
+  @JoinColumn({name: 'question_id'})
   question: Question;
 }

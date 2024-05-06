@@ -1,5 +1,6 @@
 import { Question } from '../../questions/entities/question.entity';
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -12,6 +13,10 @@ import { Member } from 'teams/entities/member.entity';
 import { Score } from './scores.entity';
 
 @Entity('submit_histories')
+@Check(`"submit_number" >= 1`)
+@Check(`"run_time" >= 0`)
+@Check(`"score" >= 1`)
+@Check(`"character_count" >= 0`)
 export class SubmitHistory {
   @PrimaryColumn({ name: 'score_id' })
   scoreId: string;
@@ -32,23 +37,24 @@ export class SubmitHistory {
   @JoinColumn({ name: 'member_id', referencedColumnName: 'id' })
   member: Member;
 
-  @Column({ name: 'submit_number', type: 'int', default: 1 })
+  @Column({ name: 'submit_number', type: 'integer', default: 1 })
   submitNumber: number;
 
-  @Column({ name: 'run_time', type: 'int', unsigned: true, nullable: true })
+  @Column({ name: 'run_time', type: 'integer', unsigned: true, nullable: true })
   runTime: number;
 
-  @Column({ name: 'score', type: 'int', unsigned: true })
+  @Column({ name: 'score', type: 'integer', unsigned: true })
   scoreSubmit: number;
 
   @Column({
     type: 'enum',
     enum: ProgrammingLangEnum,
     name: 'language',
+    enumName: 'programming_lang_enum'
   })
   language: ProgrammingLangEnum;
 
-  @Column({ name: 'character_count', nullable: true })
+  @Column({ name: 'character_count', type: 'integer' })
   characterCount: number; // uses for both FE (count number of chars) and BE
 
   @CreateDateColumn({ name: 'last_submit_time', type: 'timestamp' })
