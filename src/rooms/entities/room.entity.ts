@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -12,9 +13,11 @@ import { Score } from 'submit-history/entities/scores.entity';
 import { QuestionStack } from '@questions/entities/question-stack.entity';
 
 @Entity('rooms')
+@Check(`"size" >= 1`)
+@Check(`"open_time" <= "close_time"`)
 export class Room {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
-  id: string;
+  @PrimaryGeneratedColumn('identity', { name: 'id' })
+  id: number;
 
   @Column({ name: 'code', unique: true })
   code: string;
@@ -25,19 +28,19 @@ export class Room {
 
   @Column({ name: 'size', type: 'integer', default: 1 })
   size: number;
-  @Column({ type: 'enum', enum: RoomTypeEnum })
+  @Column({ type: 'enum', enum: RoomTypeEnum, name: 'type', enumName: 'type_enum' })
   type: RoomTypeEnum;
 
-  @Column({ name: 'open_time' })
+  @Column({ name: 'open_time', type:'timestamp' })
   openTime: Date;
 
-  @Column({ name: 'close_time' })
+  @Column({ name: 'close_time', type: 'timestamp' })
   closeTime: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'date' })
   createdAt: Date;
 
-  @Column({ default: false, name: 'is_privated' })
+  @Column({ default: true, name: 'is_privated' })
   isPrivate: boolean;
 
   @OneToMany(() => Score, (score) => score.room, { nullable: true })

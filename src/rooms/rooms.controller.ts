@@ -112,7 +112,7 @@ export class RoomsController {
   @ApiParam({ name: 'id', description: 'Room ID' })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
-  async getOneById(@Param('id') id: string) {
+  async getOneById(@Param('id') id: number) {
     const [room, err] = await this.roomsService.findOneById(id);
     if (err) {
       return new ResponseObject(
@@ -144,7 +144,7 @@ export class RoomsController {
   @ApiParam({ name: 'id', description: 'Room ID' })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
-  async updateOneById(@Param('id') id: string, @Body() info: UpdateRoomDto) {
+  async updateOneById(@Param('id') id: number, @Body() info: UpdateRoomDto) {
     const [room, err] = await this.roomsService.updateOne(id, info);
     if (!room) {
       return new ResponseObject(

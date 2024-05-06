@@ -1,10 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Member } from './member.entity';
 import { Score } from 'submit-history/entities/scores.entity';
 
 @Entity({ name: 'teams' })
+@Check(`"member_count" >= 1`)
 export class Team {
-  @PrimaryGeneratedColumn('increment', { name: 'id' })
+  @PrimaryGeneratedColumn('identity', { name: 'id'})
   id: number;
   @Column({ name: 'name', unique: true, type: 'varchar', length: 128 })
   name: string;

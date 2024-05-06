@@ -39,7 +39,7 @@ export class DatabaseService implements BeforeApplicationShutdown {
         phone: '0123456789',
         studentId: 'SE000000',
         role: RoleEnum.ADMIN,
-        isActive: true,
+        isEnabled: true,
         isLocked: false,
         password: await Utils.hashPassword(RodeConfig.ADMIN_DEFAULT_PASSWORD),
       });
