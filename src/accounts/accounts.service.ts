@@ -7,6 +7,9 @@ import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Account } from './entities/account.entity';
 import { RoleEnum } from '@etc/enums';
 import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
+import AccountsUtils from './accounts.utils';
+import { SendEmailDto } from 'mail/dto/send-mail.dto';
+import { Utils } from '@etc/utils';
 
 @Injectable()
 export class AccountsService {
@@ -95,10 +98,22 @@ export class AccountsService {
         message: 'Phone already exists',
       });
     }
+    const checkStudentId = await this.accountRepository.findOne({
+      where: {
+        studentId: info.studentId,
+      },
+    });
+    if (checkStudentId) {
+      err.push({
+        at: 'studentId',
+        message: 'Student ID already exists',
+      });
+    }
     if (err.length > 0) {
       return [null, err];
     }
     const account = await this.accountRepository.save({
+      studentId: info.studentId,
       fullName: info.fullName,
       email: info.email,
       dob: info.dob,
@@ -187,6 +202,51 @@ export class AccountsService {
     }
 
     return 'Active Users Successfully';
+  }
+  async activeAccount(id: string) {
+    const activeAccount = await this.accountRepository.findOne({
+      where: {
+        id: id,
+      },
+      select: [
+        'id',
+        'fullName',
+        'email',
+        'password',
+        'role',
+        'isEnabled',
+        'isLocked',
+      ],
+    });
+    //Account User with Role User,
+    //locked is false, not enable and password is null
+
+    if (activeAccount.role !== RoleEnum.USER)
+      throw new Error('Account must be user account to be actived');
+    if (activeAccount.isLocked) throw new Error('Account has been locked');
+    if (activeAccount.isEnabled) throw new Error('Account has been actived');
+    if (activeAccount.password)
+      throw new Error('Account password has been generated');
+    // Account when active will generate a random password,
+    const randomPwd = AccountsUtils.generateRandomPassword(12);
+    // hash pass
+    const hashPwd = await Utils.hashPassword(randomPwd);
+
+    //and save in database with enable true
+    activeAccount.password = hashPwd;
+    activeAccount.isEnabled = true;
+    await this.accountRepository.update({ id: id }, activeAccount);
+
+    const sendEmailDto: SendEmailDto = {
+      recipients: [
+        { name: activeAccount.fullName, address: activeAccount.email },
+      ],
+      placeholderReplacement: {
+        fullName: activeAccount.fullName,
+        password: randomPwd,
+      },
+    };
+    return sendEmailDto;
   }
 
   async updateUserRole(update: UpdateRoleAccountDto, accountRole: RoleEnum) {

@@ -10,11 +10,8 @@ import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
   @Get('stacks/:id')
-  async findOneStack(@Param('id') stackId){
-    
-  }
+  async findOneStack(@Param('id') stackId) {}
 
   @Get('stacks')
-  async getAllStackActive(@Query('active') isActive?:boolean){
-  }
+  async getAllStackActive(@Query('active') isActive?: boolean) {}
 }

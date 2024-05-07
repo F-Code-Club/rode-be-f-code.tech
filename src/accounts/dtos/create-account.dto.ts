@@ -5,6 +5,10 @@ import { IsDate, IsEmail, IsNotEmpty, IsPhoneNumber } from 'class-validator';
 export class CreateAccountDto {
   @ApiProperty()
   @IsNotEmpty()
+  studentId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   fullName: string;
 
   @ApiProperty()

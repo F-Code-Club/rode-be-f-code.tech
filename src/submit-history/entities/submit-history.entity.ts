@@ -50,7 +50,7 @@ export class SubmitHistory {
     type: 'enum',
     enum: ProgrammingLangEnum,
     name: 'language',
-    enumName: 'programming_lang_enum'
+    enumName: 'programming_lang_enum',
   })
   language: ProgrammingLangEnum;
 

@@ -10,7 +10,7 @@ import {
 import { Member } from '../../teams/entities/member.entity';
 @Entity({ name: 'accounts' })
 export class Account {
-  @PrimaryGeneratedColumn('uuid', {name: 'id'})
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
   @Column({ name: 'student_id', unique: true, length: 24 })
   studentId: string;
@@ -20,7 +20,7 @@ export class Account {
   @Column({ name: 'email', type: 'varchar', length: 30 })
   email: string;
 
-  @Column({ name: 'password', type: 'varchar', length: 128 })
+  @Column({ name: 'password', type: 'varchar', length: 128, nullable: true })
   password: string;
 
   @Column({ name: 'phone', unique: true, type: 'varchar', length: 12 })
@@ -34,7 +34,7 @@ export class Account {
     type: 'enum',
     enum: RoleEnum,
     default: RoleEnum.USER,
-    enumName: 'role_enum'
+    enumName: 'role_enum',
   })
   role: RoleEnum;
 

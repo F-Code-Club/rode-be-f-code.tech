@@ -24,11 +24,16 @@ import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginationDto } from '@etc/pagination.dto';
 import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 import CurrentAccountRole from '@decorators/current-account-role.decorator';
+import { MailService } from 'mail/mail.service';
+import { SendEmailDto } from 'mail/dto/send-mail.dto';
 
 @Controller('accounts')
 @ApiTags('Accounts')
 export class AccountsController {
-  constructor(private readonly accountsService: AccountsService) {}
+  constructor(
+    private readonly accountsService: AccountsService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Get('get-all')
   @ApiQuery({ type: PaginationDto })
@@ -178,6 +183,39 @@ export class AccountsController {
         err,
       );
     return new ResponseObject(HttpStatus.OK, 'Update Role Success', data, err);
+  }
+
+  @Roles(RoleEnum.MANAGER)
+  @Post('users/active-account/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async activeUserAccount(@Param('id') id: string) {
+    let dto: SendEmailDto;
+    try {
+      dto = await this.accountsService.activeAccount(id);
+    } catch (err) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Active Account Failed',
+        null,
+        err.message,
+      );
+    }
+    const [result, error] = await this.mailService.sendAnnouncementEmail(dto);
+    if (result) {
+      return new ResponseObject(
+        HttpStatus.OK,
+        'Active Account and Send Mail Success',
+        result,
+        null,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.BAD_REQUEST,
+      'Active Account Success BUT Send Mail Failed',
+      null,
+      error,
+    );
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)

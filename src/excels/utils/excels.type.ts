@@ -1,11 +1,11 @@
 export type TeamExcel = {
-    groupName: string;
-    schoolName: string;
-    member?: MemberExcel[];
-}
+  groupName: string;
+  schoolName: string;
+  member?: MemberExcel[];
+};
 export type MemberExcel = {
-    studentName: string;
-    studentId: string;
-    email: string;
-    phone: string;
-}
+  studentName: string;
+  studentId: string;
+  email: string;
+  phone: string;
+};
