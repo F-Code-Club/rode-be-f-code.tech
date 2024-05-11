@@ -82,12 +82,17 @@ export class GoogleApiService {
     } catch (error) {}
   }
 
-  async downloadTeamsRegisterSheetTemplate(fileId: string):Promise<[Readable, any]> {
-    try{
-      const response = await drive.files.get({fileId, alt: 'media'}, {responseType: 'stream'});
+  async downloadTeamsRegisterSheetTemplate(
+    fileId: string,
+  ): Promise<[Readable, any]> {
+    try {
+      const response = await drive.files.get(
+        { fileId, alt: 'media' },
+        { responseType: 'stream' },
+      );
       return [response.data, null];
-    }catch(error){
-      return [null, "Error When Pull File From Google Drive"];
+    } catch (error) {
+      return [null, 'Error When Pull File From Google Drive'];
     }
   }
 }

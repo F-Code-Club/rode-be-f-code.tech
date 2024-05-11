@@ -14,12 +14,12 @@ export class QuestionService {
     private readonly questionRepository: Repository<Question>,
   ) {}
 
-  async findQuestionStackById(stackId: string){
+  async findQuestionStackById(stackId: string) {
     const quetyResult = await this.questionStackRepository.findOne({
       where: {
         id: stackId,
-        status: QuestionStackStatus.ACTIVE
-      }
+        status: QuestionStackStatus.ACTIVE,
+      },
     });
   }
 }

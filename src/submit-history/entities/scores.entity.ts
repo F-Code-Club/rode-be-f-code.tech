@@ -14,7 +14,7 @@ import { SubmitHistory } from './submit-history.entity';
 @Entity('scores')
 @Check(`"total_score" >= 0`)
 export class Score {
-  @PrimaryGeneratedColumn('uuid', {name: 'id'})
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
   @ManyToOne(() => Room, (room) => room.scores)
@@ -25,13 +25,13 @@ export class Score {
   @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
   team: Team;
 
-  @Column({ name: 'total_score' , type: 'integer', unsigned: true, default: 0})
+  @Column({ name: 'total_score', type: 'integer', unsigned: true, default: 0 })
   totalScore: number;
 
-  @CreateDateColumn({name: 'last_submit_time', type: 'timestamp'})
+  @CreateDateColumn({ name: 'last_submit_time', type: 'timestamp' })
   lastSubmitTime: Date;
 
-  @Column({name: 'penalty', type: 'integer', unsigned: true, default: 0})
+  @Column({ name: 'penalty', type: 'integer', unsigned: true, default: 0 })
   penalty: number;
 
   @OneToMany(() => SubmitHistory, (submitHistory) => submitHistory.score, {

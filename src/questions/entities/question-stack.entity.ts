@@ -5,7 +5,7 @@ import {
   Entity,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Question } from './question.entity';
 import { QuestionStackStatus, RoomTypeEnum } from '@etc/enums';
@@ -13,7 +13,7 @@ import { Room } from '@rooms/entities/room.entity';
 @Entity('question_stacks')
 @Check(`"stack_max" >= 1`)
 export class QuestionStack {
-  @PrimaryGeneratedColumn('uuid', {name: 'id'})
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
   @Column({ name: 'stack_max', type: 'integer', default: 1 })
   stackMax: number;
@@ -24,7 +24,7 @@ export class QuestionStack {
     type: 'enum',
     enum: QuestionStackStatus,
     default: QuestionStackStatus.DRAFT,
-    enumName: 'question_stack_status_enum'
+    enumName: 'question_stack_status_enum',
   })
   status: QuestionStackStatus;
   @CreateDateColumn({ name: 'created_at', type: 'date' })

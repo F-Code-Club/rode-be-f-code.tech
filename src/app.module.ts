@@ -13,6 +13,7 @@ import { SocketsModule } from 'sockets/sockets.module';
 import { GoogleApiModule } from './google-api/google-api.module';
 import { QuestionsModule } from '@questions/questions.module';
 import { TeamsModule } from '@teams/teams.module';
+import { MailModule } from 'mail/mail.module';
 
 @Module({
   imports: [

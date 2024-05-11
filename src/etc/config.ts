@@ -12,7 +12,8 @@ export default class RodeConfig {
   static readonly GOOGLE_CLIENT_ID =
     process.env.GOOGLE_CLIENT_ID || 'google_client_id';
   static readonly JWT_SECRET = process.env.JWT_SECRET || '12345';
-  static readonly JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || '123456789';
+  static readonly JWT_REFRESH_SECRET =
+    process.env.JWT_REFRESH_SECRET || '123456789';
   static readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
   static readonly JWT_REFRESH_EXPIRES_IN =
     process.env.JWT_REFRESH_EXPIRES_IN || '10d';
@@ -26,4 +27,13 @@ export default class RodeConfig {
   static readonly FOLDER_TEMPLATE_ID = process.env.FOLDER_TEMPLATE_ID;
   static readonly FOLDER_TEAMS_EXCEL = process.env.FOLDER_TEAMS_EXCEL;
   static readonly SALT_ROUND = process.env.SALT_ROUND || 3;
+
+  static readonly MAIL_HOST = process.env.MAIL_HOST || 'smtp.gmail.com';
+  static readonly MAIL_PORT = parseInt(process.env.MAIL_PORT || '587');
+  static readonly MAIL_USER = process.env.MAIL_USER || 'rinjin2004@gmail.com';
+  static readonly MAIL_APP_PASSWORD =
+    process.env.MAIL_APP_PASSWORD || 'fagm fstt khqf tjsd';
+  static readonly MAIL_SENDER = process.env.MAIL_SENDER || 'F-Code';
+  static readonly MAIL_SENDER_EMAIL =
+    process.env.MAIL_SENDER_EMAIL || 'fcode@gmail.com ';
 }
