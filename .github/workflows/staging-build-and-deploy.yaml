@@ -56,4 +56,4 @@ jobs:
     - name: DockerHub Login
       run: echo ${{ secrets.F_CODE_DOCKER_PASS }} | docker login -u ${{ secrets.F_CODE_DOCKER_USER }} --password-stdin ${{secrets.F_CODE_DOCKER_REGISTRY_URL}}
     - name: Deploy Socket
-      run: docker compose -f docker-compose.test.yaml -p rode-battle-be-socket-test up -d
+      run: docker compose -f docker-compose.test.yaml -p rode-battle-be-api-test up -d

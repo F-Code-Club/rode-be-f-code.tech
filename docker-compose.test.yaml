@@ -1,40 +1,13 @@
 version: '3.8'
 services:
-  postgresql-rode:
-    container_name: postgresql-rode-database
-    image: postgres:13.14-bullseye
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE}
-    ports:
-      - ${DB_PORT}:${DB_PORT}
-    networks:
-      - rode-networks
-
-  pg-admin-rode:
-    container_name: poesgres-admin-local
-    image: elestio/pgadmin:REL-8_6
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGA_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGA_PASSWORD}
-      PGADMIN_LISTEN_PORT: ${PGA_PORT}
-    networks:
-      - rode-networks
-    ports:
-      - ${PGA_PORT}:${PGA_PORT}
-
   rode-battle-api:
     container_name: rode-battle-api-management
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_HUB_URL}:nightly
     ports:
       - ${PORT}:${PORT}
     environment:
       PORT: ${PORT}
-      DB_HOST: mysql-rode
+      DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
@@ -44,8 +17,11 @@ services:
       REFRESH_TOKEN: ${REFRESH_TOKEN}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_DEFAULT_PASSWORD: ${ADMIN_DEFAULT_PASSWORD}
-    networks:
-      - rode-networks
-
-networks:
-  rode-networks:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URL: ${GOOGLE_REDIRECT_URL}
+      GOOGLE_REFRESH_TOKEN: ${GOOGLE_REFRESH_TOKEN}
+      FOLDER_TEMPLATE_ID: ${FOLDER_TEMPLATE_ID}
+      FOLDER_ID: ${FOLDER_ID}
+      FOLDER_TEAMS_EXCEL: ${FOLDER_TEAMS_EXCEL}
+      SALT_ROUND: ${SALT_ROUND}
