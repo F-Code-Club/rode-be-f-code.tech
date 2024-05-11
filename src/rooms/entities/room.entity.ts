@@ -22,7 +22,7 @@ export class Room {
   @Column({ name: 'code', unique: true })
   code: string;
 
-  @OneToOne(() => QuestionStack, (questionStack) => questionStack.room)
+  @OneToOne(() => QuestionStack, (questionStack) => questionStack.room, {nullable: false})
   @JoinColumn({ name: 'stack_id' })
   questionStack: QuestionStack;
 

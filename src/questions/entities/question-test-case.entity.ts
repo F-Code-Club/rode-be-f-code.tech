@@ -12,7 +12,7 @@ export class QuestionTestCase {
   @Column()
   output: string;
 
-  @ManyToOne(() => Question, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Question, (question) => question.id, { onDelete: 'CASCADE', nullable: false})
   @JoinColumn({name: 'question_id'})
   question: Question;
 }
