@@ -2,7 +2,7 @@ version: '3.8'
 services:
   rode-battle-api:
     container_name: rode-battle-api-management
-    image: ${DOCKER_HUB_URL}:nightly
+    image: ${DOCKER_HUB_URL}/rode-be-api:nightly
     ports:
       - ${PORT}:${PORT}
     environment:
