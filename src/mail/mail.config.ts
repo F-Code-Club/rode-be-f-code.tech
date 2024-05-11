@@ -8,8 +8,8 @@ export const MailConfig: MailerOptions = {
     port: 587,
     secure: false, // Set to true if using SSL/TLS
     auth: {
-      user: 'rinjin2004@gmail.com',
-      pass: 'fagm fstt khqf tjsd',
+      user: RodeConfig.MAIL_USER,
+      pass: RodeConfig.MAIL_APP_PASSWORD,
     },
   },
   defaults: {
