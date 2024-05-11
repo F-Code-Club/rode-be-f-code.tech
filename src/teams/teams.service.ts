@@ -17,15 +17,16 @@ export class TeamService {
     private readonly excelsService: ExcelService,
     private readonly googleApiService: GoogleApiService,
   ) {}
-  async importTeamsFromGoogleForm(duplicateMode: number, fileId: string){
-    const [result, err] = await this.googleApiService.downloadTeamsRegisterSheetTemplate(fileId);
-    if(!err) return [result, err];
+  async importTeamsFromGoogleForm(duplicateMode: number, fileId: string) {
+    const [result, err] =
+      await this.googleApiService.downloadTeamsRegisterSheetTemplate(fileId);
+    if (!err) return [result, err];
     const resultExcel = await this.excelsService.readImportTeamExcel(result);
     for (const teamData of resultExcel) {
       const team = new Team();
       team.name = teamData.groupName;
       team.memberCount = teamData.member.length;
-      team.members = teamData.member.map(memberData => {
+      team.members = teamData.member.map((memberData) => {
         const account = new Account();
         account.email = memberData.email;
         account.fullName = memberData.studentName;
@@ -38,10 +39,10 @@ export class TeamService {
         member.account = account;
         return member;
       });
-      try{
+      try {
         await this.teamRepository.save(team);
-      }catch(error){}
+      } catch (error) {}
     }
-    return ["Load Success", null];
+    return ['Load Success', null];
   }
 }

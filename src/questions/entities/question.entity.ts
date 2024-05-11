@@ -7,7 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { QuestionTestCase } from './question-test-case.entity';
 import { QuestionStack } from './question-stack.entity';
@@ -16,7 +16,7 @@ import { Template } from '@templates/entities/templates.entity';
 @Check(`"score" >= 0`)
 @Check(`"max_submit_time" >= 0`)
 export class Question {
-  @PrimaryGeneratedColumn('uuid', {name: 'id'})
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
   @ManyToOne(() => QuestionStack, (stack) => stack.questions)
@@ -35,7 +35,7 @@ export class Question {
   )
   testCases: QuestionTestCase[];
 
-  @Column({name: 'score', type: 'integer', unsigned: true, default: 0})
+  @Column({ name: 'score', type: 'integer', unsigned: true, default: 0 })
   score: number;
 
   @OneToMany(() => SubmitHistory, (submitHistory) => submitHistory.question)

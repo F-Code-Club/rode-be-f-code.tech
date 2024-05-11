@@ -13,7 +13,7 @@ export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-    private readonly questionService: QuestionService
+    private readonly questionService: QuestionService,
   ) {}
 
   async getAllRoomTypes() {

@@ -28,10 +28,15 @@ export class Room {
 
   @Column({ name: 'size', type: 'integer', default: 1 })
   size: number;
-  @Column({ type: 'enum', enum: RoomTypeEnum, name: 'type', enumName: 'type_enum' })
+  @Column({
+    type: 'enum',
+    enum: RoomTypeEnum,
+    name: 'type',
+    enumName: 'type_enum',
+  })
   type: RoomTypeEnum;
 
-  @Column({ name: 'open_time', type:'timestamp' })
+  @Column({ name: 'open_time', type: 'timestamp' })
   openTime: Date;
 
   @Column({ name: 'close_time', type: 'timestamp' })
