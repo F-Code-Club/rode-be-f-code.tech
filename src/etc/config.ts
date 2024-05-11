@@ -30,10 +30,10 @@ export default class RodeConfig {
 
   static readonly MAIL_HOST = process.env.MAIL_HOST || 'smtp.gmail.com';
   static readonly MAIL_PORT = parseInt(process.env.MAIL_PORT || '587');
-  static readonly MAIL_USER = process.env.MAIL_USER || 'rinjin2004@gmail.com';
+  static readonly MAIL_USER = process.env.MAIL_USER || 'example@gmail.com';
   static readonly MAIL_APP_PASSWORD =
-    process.env.MAIL_APP_PASSWORD || 'fagm fstt khqf tjsd';
+    process.env.MAIL_APP_PASSWORD || 'abcd abcd abcd abcd';
   static readonly MAIL_SENDER = process.env.MAIL_SENDER || 'F-Code';
   static readonly MAIL_SENDER_EMAIL =
-    process.env.MAIL_SENDER_EMAIL || 'fcode@gmail.com ';
+    process.env.MAIL_SENDER_EMAIL || 'f-code.tech@gmail.com ';
 }
