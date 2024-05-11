@@ -11,7 +11,7 @@ export class Template {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
-  @OneToOne(() => Question, (question) => question.template)
+  @OneToOne(() => Question, (question) => question.template, {nullable: false})
   @JoinColumn({ name: 'question_id', referencedColumnName: 'id' })
   question: Question;
 

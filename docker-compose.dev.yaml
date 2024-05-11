@@ -1,15 +1,29 @@
 version: '3.8'
 services:
-  mysql-rode:
-    container_name: mysql-rode-database
-    image: mysql
+  postgresql-rode:
+    container_name: postgresql-rode-database
+    image: postgres:13.14-bullseye
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
     ports:
       - ${DB_PORT}:${DB_PORT}
     networks:
       - rode-networks
+
+  pg-admin-rode:
+    container_name: poesgres-admin-local
+    image: elestio/pgadmin:REL-8_6
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGA_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGA_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGA_PORT}
+    networks:
+      - rode-networks
+    ports:
+      - ${PGA_PORT}:${PGA_PORT}
 
   rode-battle-api:
     container_name: rode-battle-api-management
@@ -23,7 +37,7 @@ services:
       DB_HOST: mysql-rode
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: root
+      DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
