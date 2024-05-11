@@ -26,7 +26,7 @@ export default class RodeConfig {
   static readonly FOLDER_ID = process.env.FOLDER_ID;
   static readonly FOLDER_TEMPLATE_ID = process.env.FOLDER_TEMPLATE_ID;
   static readonly FOLDER_TEAMS_EXCEL = process.env.FOLDER_TEAMS_EXCEL;
-  static readonly SALT_ROUND = process.env.SALT_ROUND || 3;
+  static readonly SALT_ROUND = parseInt(process.env.SALT_ROUND) || 3;
 
   static readonly MAIL_HOST = process.env.MAIL_HOST || 'smtp.gmail.com';
   static readonly MAIL_PORT = parseInt(process.env.MAIL_PORT || '587');

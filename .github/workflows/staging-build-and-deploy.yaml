@@ -55,5 +55,7 @@ jobs:
       uses: actions/checkout@v3
     - name: DockerHub Login
       run: echo ${{ secrets.F_CODE_DOCKER_PASS }} | docker login -u ${{ secrets.F_CODE_DOCKER_USER }} --password-stdin ${{secrets.F_CODE_DOCKER_REGISTRY_URL}}
+    - name: Clean Container, Image And Prepare For Deploy
+      run: docker compose -f docker-compose.test.yaml -p rode-battle-be-api-test down --rmi all -v
     - name: Deploy API
       run: docker compose -f docker-compose.test.yaml -p rode-battle-be-api-test up -d
