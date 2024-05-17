@@ -17,11 +17,11 @@ export class Score {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
-  @ManyToOne(() => Room, (room) => room.scores)
+  @ManyToOne(() => Room, (room) => room.scores, {nullable: false})
   @JoinColumn({ name: 'room_id', referencedColumnName: 'id' })
   room: Room;
 
-  @ManyToOne(() => Team, (team) => team.scores)
+  @ManyToOne(() => Team, (team) => team.scores, {nullable:false})
   @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
   team: Team;
 
