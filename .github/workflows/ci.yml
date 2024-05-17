@@ -2,11 +2,11 @@ on:
   pull_request:
     types: ["opened", "reopened"] 
     branches: 
-      - '*/features/**'
-      - '*/bugfix/**'
-      - '*/perf/**'
-      - '*/feature/**'
-      - '*/bugfixes/**'
+      - '**/features/**'
+      - '**/bugfix/**'
+      - '**/perf/**'
+      - '**/feature/**'
+      - '**/bugfixes/**'
 # refactor, bugfix, perf
 jobs:
   code-unit-testing:
