@@ -14,7 +14,7 @@ import { SubmitHistory } from 'submit-history/entities/submit-history.entity';
 export class Member {
   @PrimaryGeneratedColumn('identity', { name: 'id' })
   id: number;
-  @ManyToOne(() => Team, (team) => team.members)
+  @ManyToOne(() => Team, (team) => team.members, {nullable: false})
   @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
   team: Team;
   @OneToOne(() => Account, (account) => account.member, { nullable: false })
