@@ -38,7 +38,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(
       {
         sub: user.id,
-        username: user.id,
+        username: user.email,
       },
       {
         secret: RodeConfig.JWT_SECRET,

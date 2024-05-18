@@ -14,7 +14,7 @@ services:
       - rode-networks
 
   pg-admin-rode:
-    container_name: poesgres-admin-local
+    container_name: postgres-admin-local
     image: elestio/pgadmin:REL-8_6
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGA_EMAIL}
