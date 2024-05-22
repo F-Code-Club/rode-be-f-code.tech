@@ -6,6 +6,7 @@ import { Member } from './entities/member.entity';
 import { ExcelService } from 'excels/excels.service';
 import { GoogleApiService } from 'google-api/google-api.service';
 import { Account } from '@accounts/entities/account.entity';
+import { AccountsService } from '@accounts/accounts.service';
 
 @Injectable()
 export class TeamService {
@@ -16,6 +17,7 @@ export class TeamService {
     private readonly memberRepository: Repository<Member>,
     private readonly excelsService: ExcelService,
     private readonly googleApiService: GoogleApiService,
+    private readonly accountsService: AccountsService,
   ) {}
   async importTeamsFromGoogleForm(duplicateMode: number, fileId: string) {
     const [result, err] =
@@ -44,5 +46,67 @@ export class TeamService {
       } catch (error) {}
     }
     return ['Load Success', null];
+  }
+
+  async importTeamsFromSheets(fileId: string) {
+    const [result, err] = await this.googleApiService.getTeamsRegisterFromSheet(
+      fileId,
+    );
+    if (err) return [null, err];
+
+    const [resultExcel, errorList] =
+      await this.excelsService.readImportTeamSheets(result);
+    if (errorList.length > 0) errorList.push('');
+
+    for (const teamData of resultExcel) {
+      const team = new Team();
+      team.name = teamData.groupName;
+      team.memberCount = teamData.member.length;
+      try {
+        await this.teamRepository.save(team);
+      } catch (err) {
+        errorList.push(
+          'Error when saving TEAM[' + team.name + ']:  ' + err.message,
+        );
+        continue;
+      }
+
+      for (const memeberData of teamData.member) {
+        let savedAccount: Account;
+        try {
+          savedAccount = await this.accountsService.createImportAccount(
+            memeberData,
+          );
+        } catch (err) {
+          console.log('Error email: ' + memeberData.studentName);
+          errorList.push(
+            'Error when saving ACCOUNT with mail{' +
+              memeberData.studentName +
+              '} in TEAM[' +
+              team.name +
+              ']:  ' +
+              err.message,
+          );
+          continue;
+        }
+        const member = new Member();
+        member.joinRoom = false;
+        member.account = savedAccount;
+        member.team = team;
+
+        try {
+          await this.memberRepository.save(member);
+        } catch (err) {
+          errorList.push(
+            'Error when saving MEMBER in TEAM[' +
+              team.name +
+              ']:  ' +
+              err.message,
+          );
+        }
+      }
+    }
+    if (errorList.length == 0) return ['Import successful', errorList];
+    return ['Import failed at some parts', errorList];
   }
 }

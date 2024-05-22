@@ -40,4 +40,22 @@ export class TeamController {
       err,
     );
   }
+
+  @Post('sheets/import/:fileId')
+  async importUsersInSheets(@Param('fileId') fileId: string) {
+    const [result, err] = await this.teamService.importTeamsFromSheets(fileId);
+    if (result)
+      return new ResponseObject(
+        HttpStatus.OK,
+        'Import Teams By Excel Success',
+        result,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.BAD_REQUEST,
+      'Import Teams By Excel Failed',
+      null,
+      err,
+    );
+  }
 }

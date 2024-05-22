@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { TeamExcel } from './utils/excels.type';
 import { Readable } from 'stream';
+import { ImportTeamDto } from '@teams/dtos/import-team.dto';
 @Injectable()
 export class ExcelService {
   async readImportTeamExcel(stream: Readable) {
@@ -30,5 +31,66 @@ export class ExcelService {
       if (teamTemp.member) data.push(teamTemp);
     });
     return data;
+  }
+
+  async readImportTeamSheets(records): Promise<[ImportTeamDto[], string[]]> {
+    const data: ImportTeamDto[] = [];
+    const errorList: string[] = [];
+
+    for (let row = 0; row < records.length; row++) {
+      if (String(records[row][0]).trim().length == 0) {
+        errorList.push('Record ' + row + ': Missing group name.');
+        continue;
+      }
+      if (String(records[row][1]).trim().length == 0) {
+        errorList.push('Record ' + row + ': Missing school name.');
+        continue;
+      }
+
+      const teamTemp: ImportTeamDto = {
+        groupName: records[row][0],
+        schoolName: records[row][1],
+        member: [],
+      };
+
+      for (let col = 2; col < records[row].length; col += 5) {
+        const studentName =
+          String(records[row][col]).trim().length != 0
+            ? records[row][col]
+            : errorList.push(
+                'Record ' + row + '-' + col + ': Missing student name.',
+              );
+        const studentId =
+          String(records[row][col + 1]).trim().length != 0
+            ? records[row][col + 1]
+            : errorList.push(
+                'Record ' + row + '-' + (col + 1) + ': Missing student id.',
+              );
+        const email =
+          String(records[row][col + 2]).trim().length != 0
+            ? records[row][col + 2]
+            : errorList.push(
+                'Record ' + row + '-' + (col + 2) + ': Missing email.',
+              );
+        const phone =
+          String(records[row][col + 3]).trim().length != 0
+            ? records[row][col + 3]
+            : errorList.push(
+                'Record ' + row + '-' + (col + 3) + ': Missing phone.',
+              );
+        const dob =
+          String(records[row][col + 4]).trim().length != 0
+            ? records[row][col + 4]
+            : errorList.push(
+                'Record ' + row + '-' + (col + 4) + ': Missing date of birth.',
+              );
+
+        if (studentId || email || phone || studentName || dob) {
+          teamTemp.member.push({ studentName, studentId, email, phone, dob });
+        }
+      }
+      if (teamTemp.member) data.push(teamTemp);
+    }
+    return [data, errorList];
   }
 }
