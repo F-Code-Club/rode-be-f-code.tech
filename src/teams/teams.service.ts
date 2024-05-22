@@ -78,7 +78,6 @@ export class TeamService {
             memeberData,
           );
         } catch (err) {
-          console.log('Error email: ' + memeberData.studentName);
           errorList.push(
             'Error when saving ACCOUNT with mail{' +
               memeberData.studentName +
