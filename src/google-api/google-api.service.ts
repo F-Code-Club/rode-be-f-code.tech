@@ -10,10 +10,12 @@ const oauth2Client = new google.auth.OAuth2(
   RodeConfig.CLIENT_ID,
   RodeConfig.CLIENT_SECRET,
   RodeConfig.REDIRECT_URL,
-);
+)
 
-const serviceAuth = new google.auth.GoogleAuth({
-  keyFile: 'credentials.json',
+const serviceAuth = new google.auth.JWT({
+  email: RodeConfig.SERVICE_ACCOUNT_EMAIL,
+  key: RodeConfig.SERVICE_PRIVATE_KEY,
+  keyId: RodeConfig.SERVICE_PRIVATE_KEY_ID,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
@@ -112,10 +114,10 @@ export class GoogleApiService {
         range: 'Sheet1!A2:Q',
       });
     } catch (err) {
-      return [null, err.message];
+      return [null,'Error when getting data on sheets: '+ err.message];
     }
     const rows = metadata.data.values;
-    if (rows.length === 0) return [null, 'No data found!'];
+    if (rows.length == 0) return [null, 'No data found!'];
     return [rows, null];
   }
 }
