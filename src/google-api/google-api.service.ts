@@ -111,7 +111,7 @@ export class GoogleApiService {
       metadata = await sheets.spreadsheets.values.get({
         auth: serviceAuth,
         spreadsheetId: fileId,
-        range: 'Sheet1!A2:Q',
+        range: 'Sheet1!A2:V',
       });
     } catch (err) {
       return [null,'Error when getting data on sheets: '+ err.message];

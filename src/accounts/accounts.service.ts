@@ -10,7 +10,7 @@ import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 import AccountsUtils from './accounts.utils';
 import { SendEmailDto } from 'mail/dto/send-mail.dto';
 import { Utils } from '@etc/utils';
-import { ImportMemberDto } from '@teams/dtos/import-team.dto';
+import { MemberExcel } from 'excels/utils/excels.type';
 
 @Injectable()
 export class AccountsService {
@@ -293,7 +293,7 @@ export class AccountsService {
     return ['Remove account successful!', null];
   }
 
-  async createImportAccount(memberData: ImportMemberDto) {
+  async createImportAccount(memberData: MemberExcel) {
     const account = new Account();
     account.email = memberData.email;
     account.fullName = memberData.studentName;
