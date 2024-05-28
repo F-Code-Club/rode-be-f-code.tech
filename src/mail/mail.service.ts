@@ -14,9 +14,9 @@ export class MailService {
         template: 'active-user', // Template file name without extension
         context: dto.placeholderReplacement,
       });
-      return [result, null];
+      return result;
     } catch (err) {
-      return [null, err];
+      throw new Error('Send mail failed - ' + err.message);
     }
   }
 }

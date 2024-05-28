@@ -19,7 +19,9 @@ export class Question {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
-  @ManyToOne(() => QuestionStack, (stack) => stack.questions, {nullable: false})
+  @ManyToOne(() => QuestionStack, (stack) => stack.questions, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'stack_id' })
   stack: QuestionStack;
 
