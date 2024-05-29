@@ -10,6 +10,7 @@ import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 import AccountsUtils from './accounts.utils';
 import { SendEmailDto } from 'mail/dto/send-mail.dto';
 import { Utils } from '@etc/utils';
+import { MemberExcel } from 'excels/utils/excels.type';
 
 @Injectable()
 export class AccountsService {
@@ -290,5 +291,19 @@ export class AccountsService {
 
     await this.accountRepository.remove(removeAccount);
     return ['Remove account successful!', null];
+  }
+
+  async createImportAccount(memberData: MemberExcel) {
+    const account = new Account();
+    account.email = memberData.email;
+    account.fullName = memberData.studentName;
+    account.phone = memberData.phone;
+    account.studentId = memberData.studentId;
+    account.dob = memberData.dob;
+    account.isEnabled = false;
+    account.isLocked = false;
+    account.role = RoleEnum.USER;
+
+    return await this.accountRepository.save(account);
   }
 }

@@ -29,7 +29,12 @@ export class QuestionStack {
   status: QuestionStackStatus;
   @CreateDateColumn({ name: 'created_at', type: 'date' })
   createdAt: Date;
-  @Column({ name: 'type', type: 'enum', enum: RoomTypeEnum, enumName: 'type_enum' })
+  @Column({
+    name: 'type',
+    type: 'enum',
+    enum: RoomTypeEnum,
+    enumName: 'type_enum',
+  })
   type: RoomTypeEnum;
   @OneToMany(() => Question, (question) => question.stack)
   questions: Question[];

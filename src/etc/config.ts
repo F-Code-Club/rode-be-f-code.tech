@@ -36,4 +36,8 @@ export default class RodeConfig {
   static readonly MAIL_SENDER = process.env.MAIL_SENDER || 'F-Code';
   static readonly MAIL_SENDER_EMAIL =
     process.env.MAIL_SENDER_EMAIL || 'f-code.tech@gmail.com ';
+
+  static readonly SERVICE_PRIVATE_KEY = process.env.SERVICE_PRIVATE_KEY || '-----BEGIN PRIVATE KEY-----\nyour private key content\n-----END PRIVATE KEY-----\n';
+  static readonly SERVICE_PRIVATE_KEY_ID = process.env.SERVICE_PRIVATE_KEY_ID || '';
+  static readonly SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL || '';
 }
