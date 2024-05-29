@@ -7,10 +7,10 @@ import RodeConfig from '../etc/config';
 import { Readable } from 'stream';
 
 const oauth2Client = new google.auth.OAuth2(
-  RodeConfig.CLIENT_ID,
-  RodeConfig.CLIENT_SECRET,
-  RodeConfig.REDIRECT_URL,
-)
+  RodeConfig.GOOGLE_CLIENT_ID,
+  RodeConfig.GOOGLE_CLIENT_SECRET,
+  RodeConfig.GOOGLE_REDIRECT_URL,
+);
 
 const serviceAuth = new google.auth.JWT({
   email: RodeConfig.SERVICE_ACCOUNT_EMAIL,
@@ -19,7 +19,7 @@ const serviceAuth = new google.auth.JWT({
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
-oauth2Client.setCredentials({ refresh_token: RodeConfig.REFRESH_TOKEN });
+oauth2Client.setCredentials({ refresh_token: RodeConfig.GOOGLE_REFRESH_TOKEN });
 const drive = google.drive({ version: 'v3', auth: oauth2Client });
 const sheets = google.sheets({ version: 'v4', auth: serviceAuth });
 @Injectable()
