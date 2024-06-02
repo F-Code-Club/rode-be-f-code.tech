@@ -10,7 +10,6 @@ import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 import AccountsUtils from './accounts.utils';
 import { SendEmailDto } from 'mail/dto/send-mail.dto';
 import { Utils } from '@etc/utils';
-import { MailService } from 'mail/mail.service';
 
 @Injectable()
 export class AccountsService {
