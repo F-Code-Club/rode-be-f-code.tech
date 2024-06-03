@@ -17,8 +17,8 @@ export class TeamService {
     private readonly memberRepository: Repository<Member>,
     private readonly excelsService: ExcelService,
     private readonly googleApiService: GoogleApiService,
-    private readonly dataSource: DataSource
-  ) { }
+    private readonly dataSource: DataSource,
+  ) {}
   async importTeamsFromGoogleForm(duplicateMode: number, fileId: string) {
     const [result, err] =
       await this.googleApiService.downloadTeamsRegisterSheetTemplate(fileId);
@@ -43,7 +43,7 @@ export class TeamService {
       });
       try {
         await this.teamRepository.save(team);
-      } catch (error) { }
+      } catch (error) {}
     }
     return ['Load Success', null];
   }
@@ -64,7 +64,7 @@ export class TeamService {
       team.memberCount = teamData.member.length;
 
       try {
-        await this.dataSource.transaction(async manager => {
+        await this.dataSource.transaction(async (manager) => {
           for (const memberData of teamData.member) {
             const account = new Account();
             account.email = memberData.email;
@@ -83,13 +83,9 @@ export class TeamService {
             await manager.save(member);
           }
         });
-      }
-      catch (err) {
+      } catch (err) {
         errorList.push(
-          'Error when saving TEAM[' +
-          team.name +
-          ']:  ' +
-          err.message,
+          'Error when saving TEAM[' + team.name + ']:  ' + err.message,
         );
       }
     }

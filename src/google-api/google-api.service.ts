@@ -114,7 +114,7 @@ export class GoogleApiService {
         range: 'Sheet1!A2:V',
       });
     } catch (err) {
-      return [null,'Error when getting data on sheets: '+ err.message];
+      return [null, 'Error when getting data on sheets: ' + err.message];
     }
     const rows = metadata.data.values;
     if (rows.length == 0) return [null, 'No data found!'];
