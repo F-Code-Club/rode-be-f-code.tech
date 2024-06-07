@@ -4,11 +4,13 @@ import { QuestionStack } from './entities/question-stack.entity';
 import { Repository } from 'typeorm';
 import { Question } from './entities/question.entity';
 import { QuestionStackStatus } from '@etc/enums';
-import { CreateQuestionStackDto } from './dtos/create-question-stack.dto';
-import { CreateQuestionDto } from './dtos/create-question.dto';
+import {
+  CreateQuestionStackDto,
+  UpdateQuestionStackDto,
+} from './dtos/question-stack.dto';
+import { CreateQuestionDto } from './dtos/question.dto';
 import { QuestionTestCase } from './entities/question-test-case.entity';
-import { CreateTestCaseDto } from './dtos/create-test-case.dto';
-
+import { CreateTestCaseDto } from './dtos/test-case.dto';
 @Injectable()
 export class QuestionService {
   constructor(
@@ -20,13 +22,30 @@ export class QuestionService {
     private readonly questionTestCaeRepository: Repository<QuestionTestCase>,
   ) {}
 
-  async findQuestionStackById(stackId: string) {
-    const quetyResult = await this.questionStackRepository.findOne({
-      where: {
-        id: stackId,
-        status: QuestionStackStatus.ACTIVE,
-      },
-    });
+  async findOneQuestionStackById(stackId: string) {
+    const queryResult = await this.questionStackRepository
+      .findOne({
+        where: {
+          id: stackId,
+        },
+      })
+      .then((question) => [question, null])
+      .then((err) => [null, err]);
+
+    return queryResult;
+  }
+
+  async findQuestionsStackByStatus(status: QuestionStackStatus) {
+    const queryResult = await this.questionStackRepository
+      .find({
+        where: {
+          status: status,
+        },
+      })
+      .then((questions) => [questions, null])
+      .catch((err) => [null, err.message]);
+
+    return queryResult;
   }
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
@@ -42,6 +61,38 @@ export class QuestionService {
       error = err.message;
     }
     return [null, error];
+  }
+
+  async updateQuestionStack(
+    stack_id: string,
+    updatedFields: UpdateQuestionStackDto,
+  ) {
+    let qs = await this.questionStackRepository.findOne({
+      where: { id: stack_id },
+      select: ['id', 'name', 'status', 'type', 'stackMax'],
+    });
+
+    if (
+      qs.stackMax === updatedFields.stack_max ||
+      qs.name === updatedFields.name ||
+      qs.status === updatedFields.status ||
+      qs.type === updatedFields.type
+    ) {
+      return [null, 'Your change is the same with previous version!'];
+    }
+
+    if (!qs) return [null, 'Not Found!'];
+
+    if (qs.status !== QuestionStackStatus.USED) {
+      const result = await this.questionStackRepository
+        .update({ id: stack_id }, updatedFields)
+        .then((result) => [result, null])
+        .catch((err) => [null, err.message]);
+
+      return result;
+    } else {
+      return [null, 'Question Stack Is Used!'];
+    }
   }
 
   async createQuestion(dto: CreateQuestionDto) {
@@ -64,6 +115,8 @@ export class QuestionService {
     }
     return [null, error];
   }
+
+  async updateQuestion() {}
 
   async createTestCase(dto: CreateTestCaseDto) {
     let error;

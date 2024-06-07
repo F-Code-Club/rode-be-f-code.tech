@@ -9,29 +9,80 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { QuestionService } from './questions.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 import Roles from '@decorators/roles.decorator';
-import { RoleEnum } from '@etc/enums';
+import { QuestionStackStatus, RoleEnum } from '@etc/enums';
 import { RoleGuard } from '@auth/role.guard';
-import { CreateQuestionStackDto } from './dtos/create-question-stack.dto';
+import {
+  CreateQuestionStackDto,
+  UpdateQuestionStackDto,
+} from './dtos/question-stack.dto';
 import ResponseObject from '@etc/response-object';
-import { CreateQuestionDto } from './dtos/create-question.dto';
-import { CreateTestCaseDto } from './dtos/create-test-case.dto';
+import { CreateQuestionDto } from './dtos/question.dto';
+import { CreateTestCaseDto } from './dtos/test-case.dto';
+import { UpdateQuestionDto } from '@rooms/dtos/update-question.dto';
 
 @Controller('questions')
-@ApiTags('Accounts')
+@ApiTags('Questions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('stacks/:id')
-  async findOneStack(@Param('id') stackId) {}
+  async findOneStack(@Param('id') stackId: string) {
+    const [data, err] = await this.questionService.findOneQuestionStackById(
+      stackId,
+    );
 
-  @Get('stacks')
-  async getAllStackActive(@Query('active') isActive?: boolean) {}
+    if (!data) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get Stack Failed!',
+        data,
+        err,
+      );
+    }
 
-  @Roles(RoleEnum.MANAGER)
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get Stack Successful!',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Get('stacks/')
+  async getAllStackActive(@Query('status') status: QuestionStackStatus) {
+    const [data, err] = await this.questionService.findQuestionsStackByStatus(
+      status,
+    );
+
+    if (!data) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get All Stack Failed!',
+        data,
+        err,
+      );
+    }
+
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get All Stack Successful!',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('create-stack')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -47,6 +98,35 @@ export class QuestionController {
     return new ResponseObject(
       HttpStatus.OK,
       'Create Question Stack Successful',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Post('update-stack/:stack_id')
+  @ApiBody({ type: UpdateQuestionStackDto })
+  async updateQuestionStack(
+    @Param('stack_id') stack_id: string,
+    @Body() updatedFields: UpdateQuestionStackDto,
+  ) {
+    const [data, err] = await this.questionService.updateQuestionStack(
+      stack_id,
+      updatedFields,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Update Question Stack Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Update Question Stack Successful!',
       data,
       err,
     );
