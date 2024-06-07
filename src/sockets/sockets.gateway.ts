@@ -16,7 +16,6 @@ import { ViewLeaderboardDto } from './dtos/view-leaderboard.dto';
 import { content } from 'googleapis/build/src/apis/content';
 import { RoomsService } from '@rooms/rooms.service';
 import { ScoresService } from 'scores/scores.service';
-import { error } from 'console';
 
 @WebSocketGateway({ namespace: 'polls', cors: true })
 export class SocketsGateWay
