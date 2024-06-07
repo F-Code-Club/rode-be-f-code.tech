@@ -201,4 +201,19 @@ export class RoomsService {
     });
     return result;
   }
+
+  async isNotOneHourLeft(roomId: string) {
+    const room = await this.roomRepository.findOne({
+      where: {
+        id: parseInt(roomId),
+      },
+    });
+
+    if (!room) throw new Error('Room cannot be found!');
+    const currentTime = new Date();
+    const oneHourBeforeCloseTime = new Date(
+      room.closeTime.getTime() - 60 * 60 * 1000,
+    );
+    return currentTime < oneHourBeforeCloseTime;
+  }
 }
