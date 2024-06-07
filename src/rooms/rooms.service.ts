@@ -7,6 +7,7 @@ import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 import { QuestionService } from '@questions/questions.service';
+import { error } from 'console';
 
 @Injectable()
 export class RoomsService {
@@ -217,8 +218,8 @@ export class RoomsService {
         );
         return currentTime < oneHourBeforeCloseTime;
       })
-      .catch(() => {
-        throw new Error('Error when querying rooms!');
+      .catch((error) => {
+        throw new Error(error);
       });
   }
 }

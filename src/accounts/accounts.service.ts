@@ -224,13 +224,14 @@ export class AccountsService {
     });
     //Account User with Role User,
     //locked is false, not enable and password is null
-
+    if (!activeAccount) {
+      errorList.push('Account is not found!');
+      return [null, errorList];
+    }
     if (activeAccount.role !== RoleEnum.USER)
       errorList.push('Account must be user account to be actived');
     if (activeAccount.isLocked) errorList.push('Account has been locked');
     if (activeAccount.isEnabled) errorList.push('Account has been actived');
-    if (activeAccount.password)
-      errorList.push('Account password has been generated');
 
     if (errorList.length > 0) return [null, errorList];
     // Account when active will generate a random password,

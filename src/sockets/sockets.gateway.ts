@@ -76,13 +76,17 @@ export class SocketsGateWay
             dto.roomId,
           );
           this.io.to(dto.roomId).emit('on-view-leaderboard', { data, error });
+          if (error) this.logger.error('GET SCORES ERROR: ' + error);
         } else {
           this.io.to(dto.roomId).emit('on-view-leaderboard', {
             data: null,
             error: 'Time remaining is less than 1 hour.',
           });
+          this.logger.error(
+            'ROOMS TIME ERROR: Time remaining is less than 1 hour.',
+          );
         }
       })
-      .catch((error) => this.logger.error(error));
+      .catch((error) => this.logger.error('GET ROOMS ERROR: ' + error));
   }
 }
