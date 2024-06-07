@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
-import { Not, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Account } from './entities/account.entity';
@@ -10,13 +10,15 @@ import { UpdateRoleAccountDto } from './dtos/update-role-account.dto';
 import AccountsUtils from './accounts.utils';
 import { SendEmailDto } from 'mail/dto/send-mail.dto';
 import { Utils } from '@etc/utils';
-import { MemberExcel } from 'excels/utils/excels.type';
+import { MailService } from 'mail/mail.service';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    private readonly mailService: MailService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async paginateGetAll(query: PaginateQuery, account?: Account) {
@@ -205,6 +207,7 @@ export class AccountsService {
     return 'Active Users Successfully';
   }
   async activeAccount(id: string) {
+    let errorList: string[] = [];
     const activeAccount = await this.accountRepository.findOne({
       where: {
         id: id,
@@ -223,11 +226,13 @@ export class AccountsService {
     //locked is false, not enable and password is null
 
     if (activeAccount.role !== RoleEnum.USER)
-      throw new Error('Account must be user account to be actived');
-    if (activeAccount.isLocked) throw new Error('Account has been locked');
-    if (activeAccount.isEnabled) throw new Error('Account has been actived');
+      errorList.push('Account must be user account to be actived');
+    if (activeAccount.isLocked) errorList.push('Account has been locked');
+    if (activeAccount.isEnabled) errorList.push('Account has been actived');
     if (activeAccount.password)
-      throw new Error('Account password has been generated');
+      errorList.push('Account password has been generated');
+
+    if (errorList.length > 0) return [null, errorList];
     // Account when active will generate a random password,
     const randomPwd = AccountsUtils.generateRandomPassword(12);
     // hash pass
@@ -236,18 +241,27 @@ export class AccountsService {
     //and save in database with enable true
     activeAccount.password = hashPwd;
     activeAccount.isEnabled = true;
-    await this.accountRepository.update({ id: id }, activeAccount);
 
-    const sendEmailDto: SendEmailDto = {
-      recipients: [
-        { name: activeAccount.fullName, address: activeAccount.email },
-      ],
-      placeholderReplacement: {
-        fullName: activeAccount.fullName,
-        password: randomPwd,
-      },
-    };
-    return sendEmailDto;
+    let result = null;
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        await manager.save(activeAccount);
+        const sendEmailDto: SendEmailDto = {
+          recipients: [
+            { name: activeAccount.fullName, address: activeAccount.email },
+          ],
+          placeholderReplacement: {
+            fullName: activeAccount.fullName,
+            password: randomPwd,
+          },
+        };
+        result = await this.mailService.sendAnnouncementEmail(sendEmailDto);
+      });
+    } catch (error) {
+      errorList.push('Active account failed: ' + error.message);
+    }
+
+    return [result, errorList];
   }
 
   async updateUserRole(update: UpdateRoleAccountDto, accountRole: RoleEnum) {
@@ -291,19 +305,5 @@ export class AccountsService {
 
     await this.accountRepository.remove(removeAccount);
     return ['Remove account successful!', null];
-  }
-
-  async createImportAccount(memberData: MemberExcel) {
-    const account = new Account();
-    account.email = memberData.email;
-    account.fullName = memberData.studentName;
-    account.phone = memberData.phone;
-    account.studentId = memberData.studentId;
-    account.dob = memberData.dob;
-    account.isEnabled = false;
-    account.isLocked = false;
-    account.role = RoleEnum.USER;
-
-    return await this.accountRepository.save(account);
   }
 }
