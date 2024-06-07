@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -37,7 +38,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('stacks/:id')
+  @Get('get-one-stack/:id')
   async findOneStack(@Param('id') stackId: string) {
     const [data, err] = await this.questionService.findOneQuestionStackById(
       stackId,
@@ -63,7 +64,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('stacks')
+  @Get('get-all-stacks')
   async getAllStackByStatus(@Query('status') status: QuestionStackStatus) {
     const [data, err] = await this.questionService.findQuestionsStackByStatus(
       status,
@@ -110,7 +111,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Patch('update-stack/:stack_id')
+  @Patch('update-question-stack/:stack_id')
   @ApiBody({ type: UpdateQuestionStackDto })
   async updateQuestionStack(
     @Param('stack_id') stack_id: string,
@@ -136,12 +137,36 @@ export class QuestionController {
     );
   }
 
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Delete('remove-question-stack/:stack_id')
+  async removeQuestionStack(@Param('stack_id') stack_id: string) {
+    const [data, err] = await this.questionService.removeQuestionStackById(
+      stack_id,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Remove Question Stack Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Remove Question Stack Successful!',
+      data,
+      err,
+    );
+  }
+
   //                   //
   /*-----Questions-----*/
   //                   //
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('/:question_id')
+  @Get('get-question/:question_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async findOneQuestion(@Param('question_id') question_id: string) {
@@ -214,11 +239,35 @@ export class QuestionController {
     );
   }
 
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Delete('remove-question/:question_id')
+  async removeQuestion(@Param('question_id') question_id: string) {
+    const [data, err] = await this.questionService.removeQuestionById(
+      question_id,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Remove Question Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Remove Question Successful!',
+      data,
+      err,
+    );
+  }
+
   //                    //
   /*-----Test Cases-----*/
   //                    //
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('/:question_id/:testCase_id')
+  @Get('get-test-case/:testCase_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async findOneTestCaseById(
@@ -226,7 +275,6 @@ export class QuestionController {
     @Param('testCase_id') testCase_id: number,
   ) {
     const [data, err] = await this.questionService.findOneTestCaseById(
-      question_id,
       testCase_id,
     );
 
@@ -267,16 +315,14 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Patch('update-test-case/:question_id/:testCase_id')
+  @Patch('update-test-case/:testCase_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async updateTestCase(
-    @Param('question_id') question_id: string,
     @Param('testCase_id') testCase_id: number,
     @Body() updatedFields: UpdateTestCaseDto,
   ) {
     const [data, err] = await this.questionService.updateTestCase(
-      question_id,
       testCase_id,
       updatedFields,
     );
@@ -291,6 +337,30 @@ export class QuestionController {
     return new ResponseObject(
       HttpStatus.OK,
       'Update Test Case Successful!',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Delete('remove-test-case/:testCase_id')
+  async removeTestCase(@Param('testCase_id') testCase_id: number) {
+    const [data, err] = await this.questionService.removeTestCaseById(
+      testCase_id,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Remove Test Case Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Remove Test Case Successful!',
       data,
       err,
     );

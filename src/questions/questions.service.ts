@@ -35,7 +35,7 @@ export class QuestionService {
         if (!stack) return [null, 'Question Stack Is Not Found!'];
         return [stack, null];
       })
-      .catch((_) => [null, 'Cannot Get Question Stack!']);
+      .catch((err) => [null, 'Cannot Get Question Stack!']);
 
     return queryResult;
   }
@@ -91,13 +91,23 @@ export class QuestionService {
     if (questionStack.status !== QuestionStackStatus.USED) {
       const result = await this.questionStackRepository
         .update({ id: stack_id }, updatedFields)
-        .then((result) => [result, null])
+        .then((_) => ['Updated Question Stack!', null])
         .catch((_) => [null, 'Cannot Update The Question Stack!']);
 
       return result;
     } else {
       return [null, 'Question Stack Is Used!'];
     }
+  }
+
+  async removeQuestionStackById(stack_id: string) {
+    const questionStack = await this.questionStackRepository.findOne({
+      where: { id: stack_id },
+    });
+    if (!questionStack) return [null, 'Question Stack Is Not Found!'];
+
+    await this.questionRepository.delete({ stack: questionStack });
+    return [await this.questionStackRepository.remove(questionStack), null];
   }
 
   // Question
@@ -137,7 +147,6 @@ export class QuestionService {
 
     return question;
   }
-  async findAllQuestion() {}
 
   async updateQuestion(question_id: string, updateFields: UpdateQuestionDto) {
     const question = await this.questionRepository.findOne({
@@ -167,19 +176,29 @@ export class QuestionService {
     if (updateFields.maxSubmitTimes)
       question.maxSubmitTimes = updateFields.maxSubmitTimes;
 
-    return [await this.questionRepository.save(question), null];
+    const result = await this.questionRepository
+      .save(question)
+      .then((_) => ['Updated Question!', null])
+      .catch((_) => [null, 'Cannot Update Question']);
+
+    return result;
   }
 
-  // Test case
-  async findOneTestCaseById(question_id: string, testCase_id: number) {
+  async removeQuestionById(question_id: string) {
     const question = await this.questionRepository.findOne({
       where: { id: question_id },
     });
     if (!question) return [null, 'Question Is Not Found!'];
 
+    this.questionTestCaeRepository.delete({ question: question });
+    return [await this.questionRepository.remove(question), null];
+  }
+
+  // Test case
+  async findOneTestCaseById(testCase_id: number) {
     const queryResult = await this.questionTestCaeRepository
       .findOne({
-        where: { id: testCase_id, question: question },
+        where: { id: testCase_id },
       })
       .then((testCase) => {
         if (!testCase) {
@@ -192,7 +211,18 @@ export class QuestionService {
 
     return queryResult;
   }
-  async findAllTestCase() {}
+  async findAllTestCaseByQuestion(question_id: string) {
+    const question = await this.questionRepository.findOne({
+      where: { id: question_id },
+    });
+    if (!question) return [null, 'Question Is Not Found!'];
+
+    const testCases = await this.questionTestCaeRepository.find({
+      where: { question: question },
+    });
+
+    return testCases;
+  }
 
   async createTestCase(dto: CreateTestCaseDto) {
     let error;
@@ -215,18 +245,9 @@ export class QuestionService {
     return [null, error];
   }
 
-  async updateTestCase(
-    question_id: string,
-    testCase_id: number,
-    updatedFields: UpdateTestCaseDto,
-  ) {
-    const question = await this.questionRepository.findOne({
-      where: { id: question_id },
-    });
-    if (!question) return [null, 'Question Is Not Found!'];
-
+  async updateTestCase(testCase_id: number, updatedFields: UpdateTestCaseDto) {
     const testCase = await this.questionTestCaeRepository.findOne({
-      where: { id: testCase_id, question: question },
+      where: { id: testCase_id },
     });
 
     if (!testCase) {
@@ -248,5 +269,14 @@ export class QuestionService {
     }
 
     return [await this.questionTestCaeRepository.save(testCase), null];
+  }
+
+  async removeTestCaseById(testCase_id: number) {
+    const result = this.questionTestCaeRepository
+      .delete({ id: testCase_id })
+      .then((_) => ['Removed Test Case!', null])
+      .catch((_) => [null, 'Cannot Remove Test Case!']);
+
+    return result;
   }
 }
