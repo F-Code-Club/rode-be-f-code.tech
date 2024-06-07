@@ -11,17 +11,19 @@ export class ScoresService {
   ) {}
 
   async getLeaderboard(roomId) {
-    try {
-      const data = await this.scoreRepository
-        .createQueryBuilder('scores')
-        .select(['scores.total_score', 'scores.penalty', 'teams.name'])
-        .leftJoin('scores.team', 'teams')
-        .where('scores.room_id = :roomId', { roomId })
-        .orderBy('scores.total_score', 'DESC')
-        .getRawMany();
-      return [data, null];
-    } catch (err) {
-      return [null, err.message];
-    }
+    return await this.scoreRepository
+      .createQueryBuilder('scores')
+      .select(['teams.name', 'scores.total_score', 'scores.penalty'])
+      .leftJoin('scores.team', 'teams')
+      .where('scores.room_id = :roomId', { roomId })
+      .orderBy('scores.total_score', 'DESC')
+      .getRawMany()
+      .then((result) => {
+        if (result) return [result, null];
+        return [null, 'Cannot found any scores!'];
+      })
+      .catch(() => {
+        return [null, 'Error when querying scores'];
+      });
   }
 }

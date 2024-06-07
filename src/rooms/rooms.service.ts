@@ -203,17 +203,22 @@ export class RoomsService {
   }
 
   async isNotOneHourLeft(roomId: string) {
-    const room = await this.roomRepository.findOne({
-      where: {
-        id: parseInt(roomId),
-      },
-    });
-
-    if (!room) throw new Error('Room cannot be found!');
-    const currentTime = new Date();
-    const oneHourBeforeCloseTime = new Date(
-      room.closeTime.getTime() - 60 * 60 * 1000,
-    );
-    return currentTime < oneHourBeforeCloseTime;
+    return await this.roomRepository
+      .findOne({
+        where: {
+          id: parseInt(roomId),
+        },
+      })
+      .then((result) => {
+        if (!result) throw new Error('Room cannot be found!');
+        const currentTime = new Date();
+        const oneHourBeforeCloseTime = new Date(
+          result.closeTime.getTime() - 60 * 60 * 1000,
+        );
+        return currentTime < oneHourBeforeCloseTime;
+      })
+      .catch(() => {
+        throw new Error('Error when querying rooms!');
+      });
   }
 }
