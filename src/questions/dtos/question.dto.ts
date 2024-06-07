@@ -17,4 +17,18 @@ export class CreateQuestionDto {
   score: number;
 }
 
-export class UpdateQuestionDto {}
+export class UpdateQuestionDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  stack_id: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  maxSubmitTimes: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  score: number;
+}

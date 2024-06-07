@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -19,9 +20,8 @@ import {
   UpdateQuestionStackDto,
 } from './dtos/question-stack.dto';
 import ResponseObject from '@etc/response-object';
-import { CreateQuestionDto } from './dtos/question.dto';
-import { CreateTestCaseDto } from './dtos/test-case.dto';
-import { UpdateQuestionDto } from '@rooms/dtos/update-question.dto';
+import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
+import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
 
 @Controller('questions')
 @ApiTags('Questions')
@@ -29,6 +29,10 @@ import { UpdateQuestionDto } from '@rooms/dtos/update-question.dto';
 @ApiBearerAuth()
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
+
+  //                         //
+  /*-----Question Stacks-----*/
+  //                         //
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
@@ -59,8 +63,8 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('stacks/')
-  async getAllStackActive(@Query('status') status: QuestionStackStatus) {
+  @Get('stacks')
+  async getAllStackByStatus(@Query('status') status: QuestionStackStatus) {
     const [data, err] = await this.questionService.findQuestionsStackByStatus(
       status,
     );
@@ -106,7 +110,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Post('update-stack/:stack_id')
+  @Patch('update-stack/:stack_id')
   @ApiBody({ type: UpdateQuestionStackDto })
   async updateQuestionStack(
     @Param('stack_id') stack_id: string,
@@ -132,7 +136,35 @@ export class QuestionController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER)
+  //                   //
+  /*-----Questions-----*/
+  //                   //
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Get('/:question_id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async findOneQuestion(@Param('question_id') question_id: string) {
+    const [data, err] = await this.questionService.findOneQuestionById(
+      question_id,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Find A Question Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Find A Question Successful!',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('create-question')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -153,7 +185,67 @@ export class QuestionController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER)
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Patch('update-question/:question_id')
+  @ApiBody({ type: UpdateQuestionDto })
+  async updateQuestion(
+    @Param('question_id') question_id: string,
+    @Body() updatedFields: UpdateQuestionDto,
+  ) {
+    const [data, err] = await this.questionService.updateQuestion(
+      question_id,
+      updatedFields,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Update Question Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Update Question Successful!',
+      data,
+      err,
+    );
+  }
+
+  //                    //
+  /*-----Test Cases-----*/
+  //                    //
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Get('/:question_id/:testCase_id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async findOneTestCaseById(
+    @Param('question_id') question_id: string,
+    @Param('testCase_id') testCase_id: number,
+  ) {
+    const [data, err] = await this.questionService.findOneTestCaseById(
+      question_id,
+      testCase_id,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Get Test Case Failed',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Get Test Case Successful',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('create-test-case')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -169,6 +261,36 @@ export class QuestionController {
     return new ResponseObject(
       HttpStatus.OK,
       'Create Test Case Successful',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Patch('update-test-case/:question_id/:testCase_id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async updateTestCase(
+    @Param('question_id') question_id: string,
+    @Param('testCase_id') testCase_id: number,
+    @Body() updatedFields: UpdateTestCaseDto,
+  ) {
+    const [data, err] = await this.questionService.updateTestCase(
+      question_id,
+      testCase_id,
+      updatedFields,
+    );
+
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Update Test Case Failed!',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Update Test Case Successful!',
       data,
       err,
     );

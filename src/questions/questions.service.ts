@@ -8,9 +8,9 @@ import {
   CreateQuestionStackDto,
   UpdateQuestionStackDto,
 } from './dtos/question-stack.dto';
-import { CreateQuestionDto } from './dtos/question.dto';
+import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
 import { QuestionTestCase } from './entities/question-test-case.entity';
-import { CreateTestCaseDto } from './dtos/test-case.dto';
+import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
 @Injectable()
 export class QuestionService {
   constructor(
@@ -22,15 +22,20 @@ export class QuestionService {
     private readonly questionTestCaeRepository: Repository<QuestionTestCase>,
   ) {}
 
+  // Question stack
   async findOneQuestionStackById(stackId: string) {
     const queryResult = await this.questionStackRepository
       .findOne({
         where: {
           id: stackId,
         },
+        relations: ['questions'],
       })
-      .then((question) => [question, null])
-      .then((err) => [null, err]);
+      .then((stack) => {
+        if (!stack) return [null, 'Question Stack Is Not Found!'];
+        return [stack, null];
+      })
+      .catch((_) => [null, 'Cannot Get Question Stack!']);
 
     return queryResult;
   }
@@ -42,8 +47,8 @@ export class QuestionService {
           status: status,
         },
       })
-      .then((questions) => [questions, null])
-      .catch((err) => [null, err.message]);
+      .then((stacks) => [stacks, null])
+      .catch((_) => [null, 'Cannot Get Question Stacks!']);
 
     return queryResult;
   }
@@ -60,34 +65,34 @@ export class QuestionService {
     } catch (err) {
       error = err.message;
     }
-    return [null, error];
+    return [null, 'Cannot Create Question Stack!'];
   }
 
   async updateQuestionStack(
     stack_id: string,
     updatedFields: UpdateQuestionStackDto,
   ) {
-    let qs = await this.questionStackRepository.findOne({
+    let questionStack = await this.questionStackRepository.findOne({
       where: { id: stack_id },
       select: ['id', 'name', 'status', 'type', 'stackMax'],
     });
 
     if (
-      qs.stackMax === updatedFields.stack_max ||
-      qs.name === updatedFields.name ||
-      qs.status === updatedFields.status ||
-      qs.type === updatedFields.type
+      questionStack.stackMax === updatedFields.stack_max ||
+      questionStack.name === updatedFields.name ||
+      questionStack.status === updatedFields.status ||
+      questionStack.type === updatedFields.type
     ) {
-      return [null, 'Your change is the same with previous version!'];
+      return [null, 'Your Change Is The Same With Previous Version!'];
     }
 
-    if (!qs) return [null, 'Not Found!'];
+    if (!questionStack) return [null, 'Not Found!'];
 
-    if (qs.status !== QuestionStackStatus.USED) {
+    if (questionStack.status !== QuestionStackStatus.USED) {
       const result = await this.questionStackRepository
         .update({ id: stack_id }, updatedFields)
         .then((result) => [result, null])
-        .catch((err) => [null, err.message]);
+        .catch((_) => [null, 'Cannot Update The Question Stack!']);
 
       return result;
     } else {
@@ -95,6 +100,7 @@ export class QuestionService {
     }
   }
 
+  // Question
   async createQuestion(dto: CreateQuestionDto) {
     let error;
     try {
@@ -116,7 +122,77 @@ export class QuestionService {
     return [null, error];
   }
 
-  async updateQuestion() {}
+  async findOneQuestionById(question_id: string) {
+    const question = await this.questionRepository
+      .findOne({
+        where: { id: question_id },
+        select: ['id'],
+        relations: ['testCases'],
+      })
+      .then((question) => {
+        if (!question) return [null, 'Question Is Not Found!'];
+        return [question, null];
+      })
+      .catch((_) => [null, 'Cannot Get The Question!']);
+
+    return question;
+  }
+  async findAllQuestion() {}
+
+  async updateQuestion(question_id: string, updateFields: UpdateQuestionDto) {
+    const question = await this.questionRepository.findOne({
+      where: { id: question_id },
+    });
+    if (!question) return [null, 'Question Is Not Found!'];
+
+    if (
+      question.id === updateFields.stack_id ||
+      question.score === updateFields.score ||
+      question.maxSubmitTimes === updateFields.maxSubmitTimes
+    ) {
+      return [null, 'Your Change Is The Same With Previous Version!'];
+    }
+
+    if (updateFields.stack_id) {
+      const questionStack = await this.questionStackRepository.findOne({
+        where: { id: updateFields.stack_id },
+      });
+
+      if (!questionStack) return [null, 'Question Stack Is Not Found!'];
+
+      question.stack = questionStack;
+    }
+
+    if (updateFields.score) question.score = updateFields.score;
+    if (updateFields.maxSubmitTimes)
+      question.maxSubmitTimes = updateFields.maxSubmitTimes;
+
+    return [await this.questionRepository.save(question), null];
+  }
+
+  // Test case
+  async findOneTestCaseById(question_id: string, testCase_id: number) {
+    const question = await this.questionRepository.findOne({
+      where: { id: question_id },
+    });
+    if (!question) return [null, 'Question Is Not Found!'];
+
+    const queryResult = await this.questionTestCaeRepository
+      .findOne({
+        where: { id: testCase_id, question: question },
+      })
+      .then((testCase) => {
+        if (!testCase) {
+          return [null, 'Test Case Is Not Found!'];
+        }
+
+        return [testCase, null];
+      })
+      .catch((_) => [null, 'Cannot Get Test Case!']);
+
+    return queryResult;
+  }
+  async findAllTestCase() {}
 
   async createTestCase(dto: CreateTestCaseDto) {
     let error;
@@ -137,5 +213,40 @@ export class QuestionService {
       error = err.message;
     }
     return [null, error];
+  }
+
+  async updateTestCase(
+    question_id: string,
+    testCase_id: number,
+    updatedFields: UpdateTestCaseDto,
+  ) {
+    const question = await this.questionRepository.findOne({
+      where: { id: question_id },
+    });
+    if (!question) return [null, 'Question Is Not Found!'];
+
+    const testCase = await this.questionTestCaeRepository.findOne({
+      where: { id: testCase_id, question: question },
+    });
+
+    if (!testCase) {
+      return [null, 'Test Case Is Not Found!'];
+    }
+
+    if (
+      testCase.input === updatedFields.input ||
+      testCase.output === updatedFields.output
+    ) {
+      return [null, 'Your Change Is The Same With Previous Version!'];
+    }
+
+    if (updatedFields.input) {
+      testCase.input = updatedFields.input;
+    }
+    if (updatedFields.output) {
+      testCase.output = updatedFields.output;
+    }
+
+    return [await this.questionTestCaeRepository.save(testCase), null];
   }
 }
