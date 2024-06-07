@@ -7,6 +7,7 @@ import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 import { QuestionService } from '@questions/questions.service';
+import { error } from 'console';
 
 @Injectable()
 export class RoomsService {
@@ -200,5 +201,25 @@ export class RoomsService {
       },
     });
     return result;
+  }
+
+  async isNotOneHourLeft(roomId: string) {
+    return await this.roomRepository
+      .findOne({
+        where: {
+          id: parseInt(roomId),
+        },
+      })
+      .then((result) => {
+        if (!result) throw new Error('Room cannot be found!');
+        const currentTime = new Date();
+        const oneHourBeforeCloseTime = new Date(
+          result.closeTime.getTime() - 60 * 60 * 1000,
+        );
+        return currentTime < oneHourBeforeCloseTime;
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 }

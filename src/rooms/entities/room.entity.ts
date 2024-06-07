@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RoomTypeEnum } from '../../etc/enums';
-import { Score } from 'submit-history/entities/scores.entity';
 import { QuestionStack } from '@questions/entities/question-stack.entity';
+import { Score } from 'scores/entities/scores.entity';
 
 @Entity('rooms')
 @Check(`"size" >= 1`)

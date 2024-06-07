@@ -5,7 +5,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 export const MailConfig: MailerOptions = {
   transport: {
     host: RodeConfig.MAIL_HOST,
-    port: 587,
+    port: RodeConfig.MAIL_PORT,
     secure: false, // Set to true if using SSL/TLS
     auth: {
       user: RodeConfig.MAIL_USER,

@@ -10,7 +10,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SubmitHistory } from './submit-history.entity';
+import { SubmitHistory } from '../../submit-history/entities/submit-history.entity';
 @Entity('scores')
 @Check(`"total_score" >= 0`)
 export class Score {

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { ProgrammingLangEnum } from '@etc/enums';
 import { Member } from 'teams/entities/member.entity';
-import { Score } from './scores.entity';
+import { Score } from 'scores/entities/scores.entity';
 
 @Entity('submit_histories')
 @Check(`"submit_number" >= 1`)

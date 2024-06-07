@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Member } from './member.entity';
-import { Score } from 'submit-history/entities/scores.entity';
+import { Score } from 'scores/entities/scores.entity';
 
 @Entity({ name: 'teams' })
 @Check(`"member_count" >= 1`)
