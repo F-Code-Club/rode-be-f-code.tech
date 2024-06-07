@@ -66,19 +66,8 @@ export class SocketsGateWay
     this.io.to(client.id).emit('connected', { message: 'Logged in' });
   }
 
-  @SubscribeMessage('join-room')
-  async joinRoom(client: Socket, dto: ViewLeaderboardDto) {
-    // Find if it is one hour left
-    console.log('Room id: ' + dto.roomId);
-    if (await this.roomsService.isNotOneHourLeft(dto.roomId)) {
-      this.logger.log('Joinning room');
-      client.join(dto.roomId);
-      client.emit('Join room: ' + dto.roomId);
-    }
-  }
-
   @SubscribeMessage('change-leaderboard')
-  async viewLeaderboard(@MessageBody() dto: ViewLeaderboardDto) {
+  async changeLeaderboard(@MessageBody() dto: ViewLeaderboardDto) {
     // Find if it is one hour left
     this.roomsService
       .isNotOneHourLeft(dto.roomId)
