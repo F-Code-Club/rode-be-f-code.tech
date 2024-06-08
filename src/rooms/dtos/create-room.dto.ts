@@ -4,17 +4,12 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
-  IsDefined,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
-  Min,
   MinDate,
-  ValidateNested,
 } from 'class-validator';
 import { RoomTypeEnum } from '../../etc/enums';
-import { CreateQuestionDto } from './create-question.dto';
 
 export class CreateRoomDto {
   @ApiProperty()
@@ -36,12 +31,6 @@ export class CreateRoomDto {
   @IsOptional()
   closeTime: Date;
 
-  @ApiProperty()
-  @IsNumber()
-  @Min(1)
-  @IsOptional()
-  duration: number;
-
   @ApiProperty({ enum: RoomTypeEnum })
   @IsEnum(RoomTypeEnum)
   type: RoomTypeEnum;
@@ -50,9 +39,6 @@ export class CreateRoomDto {
   @IsBoolean()
   isPrivate: boolean;
 
-  @ApiProperty({ type: [CreateQuestionDto] })
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => CreateQuestionDto)
-  questions: CreateQuestionDto[];
+  @ApiProperty()
+  questionStackId: string;
 }

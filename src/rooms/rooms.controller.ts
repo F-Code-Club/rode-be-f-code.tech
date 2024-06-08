@@ -1,5 +1,13 @@
 import { Controller } from '@nestjs/common';
-import { Body, Get, Param, Post, UseGuards } from '@nestjs/common/decorators';
+import {
+  Body,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '../etc/response-object';
@@ -12,6 +20,8 @@ import { RoomsService } from './rooms.service';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginationDto } from '@etc/pagination.dto';
+import { CreateScoreTeamDto } from './dtos/create-score-team';
+import { UpdateRoomQuestionStackDto } from './dtos/update-room-question-stack';
 
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
@@ -20,7 +30,7 @@ import { PaginationDto } from '@etc/pagination.dto';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Get('get-all-room-type')
+  @Get('types')
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async getAllRoomType() {
@@ -41,7 +51,7 @@ export class RoomsController {
     );
   }
 
-  @Post('create-one')
+  @Post()
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async createOne(@Body() info: CreateRoomDto) {
@@ -58,6 +68,48 @@ export class RoomsController {
       HttpStatus.OK,
       'Create room success!',
       room,
+      null,
+    );
+  }
+
+  @Post('teams')
+  @UseGuards(RoleGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async addTeamToRoom(@Body() roomTeam: CreateScoreTeamDto) {
+    const [data, err] = await this.roomsService.addAllTeamsToRoom(roomTeam);
+    if (!data) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Add teams failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(HttpStatus.OK, 'Add teams success!', data, null);
+  }
+
+  @Patch('stacks')
+  @UseGuards(RoleGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async changeRoomQuestionStack(
+    @Body() changeRoom: UpdateRoomQuestionStackDto,
+  ) {
+    const [data, err] = await this.roomsService.updateRoomQuestionStack(
+      changeRoom.stackId,
+      changeRoom.roomId,
+    );
+    if (!data) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Update Question Stack For Room Failed!',
+        null,
+        err,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Update Question Stack For Room Success!',
+      data,
       null,
     );
   }
@@ -108,7 +160,7 @@ export class RoomsController {
     );
   }
 
-  @Get('get-one-by-id/:id')
+  @Get('/:id')
   @ApiParam({ name: 'id', description: 'Room ID' })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
@@ -125,7 +177,7 @@ export class RoomsController {
     return new ResponseObject(HttpStatus.OK, 'Get room success!', room, null);
   }
 
-  @Get('get-one-by-code/:code')
+  @Get('codes/:code')
   @ApiParam({ name: 'code', description: 'Room code' })
   async getOneByCode(@Param('code') code: string) {
     const [room, err] = await this.roomsService.findOneByCode(code);
@@ -140,7 +192,7 @@ export class RoomsController {
     return new ResponseObject(HttpStatus.OK, 'Get room success!', room, null);
   }
 
-  @Post('update-one-by-id/:id')
+  @Put('/:id')
   @ApiParam({ name: 'id', description: 'Room ID' })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)

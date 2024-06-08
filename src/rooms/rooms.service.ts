@@ -1,20 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoomTypeEnum } from '@etc/enums';
-import { Repository } from 'typeorm';
+import { QuestionStackStatus, RoomTypeEnum } from '@etc/enums';
+import { DataSource, Repository } from 'typeorm';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
-import { QuestionService } from '@questions/questions.service';
-import { error } from 'console';
+import { QuestionStack } from '@questions/entities/question-stack.entity';
+import { Score } from 'scores/entities/scores.entity';
+import { CreateScoreTeamDto } from './dtos/create-score-team';
+import { Team } from '@teams/entities/team.entity';
+import { LogService } from '@logger/logger.service';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
-    private readonly questionService: QuestionService,
+    @InjectRepository(QuestionStack)
+    private readonly questionStackRepository: Repository<QuestionStack>,
+    private readonly dataSource: DataSource,
+    private readonly logger: LogService,
   ) {}
 
   async getAllRoomTypes() {
@@ -80,6 +86,13 @@ export class RoomsService {
    */
   async createOne(info: CreateRoomDto) {
     const errs = [];
+    const questionStack: QuestionStack | undefined =
+      await this.questionStackRepository.findOne({
+        where: {
+          id: info.questionStackId,
+          status: QuestionStackStatus.ACTIVE,
+        },
+      });
     const checkCode = await this.roomRepository.findOne({
       where: {
         code: info.code,
@@ -91,13 +104,19 @@ export class RoomsService {
         message: 'Room code already exists',
       });
     }
-    if (!info.isPrivate && (info.closeTime || info.duration)) {
+    if (!questionStack) {
+      errs.push({
+        at: 'questionStackId',
+        message: 'Not found stack with this id or this stack is not active',
+      });
+    }
+    if (!info.isPrivate && info.closeTime) {
       errs.push({
         at: 'all',
         message: 'Public room should not have close time or duration',
       });
     }
-    if (info.isPrivate && (!info.closeTime || !info.duration)) {
+    if (info.isPrivate && !info.closeTime) {
       errs.push({
         at: 'all',
         message: 'Private room must have close time and duration',
@@ -106,27 +125,25 @@ export class RoomsService {
     if (errs.length > 0) {
       return [null, errs];
     }
-    const room = await this.roomRepository.save({
-      code: info.code,
-      closeTime: info.closeTime,
-      openTime: info.openTime,
-      duration: info.duration,
-      type: info.type,
-      isPrivate: info.isPrivate,
-      questions: info.questions.map((question) => ({
-        questionImage: question.questionImage,
-        maxSubmitTimes: question.maxSubmitTimes,
-        colors: question.colors,
-        codeTemplate: question.codeTemplate,
-        testCases: question.testCases
-          ? question.testCases.map((testCase) => ({
-              input: testCase.input,
-              output: testCase.output,
-            }))
-          : [],
-      })),
-    });
-    return [room, null];
+    let result;
+    try {
+      this.dataSource.transaction(async (manager) => {
+        result = await manager.save(Room, {
+          code: info.code,
+          closeTime: info.closeTime,
+          openTime: info.openTime,
+          type: info.type,
+          isPrivate: info.isPrivate,
+          questionStack: questionStack,
+        });
+        questionStack.status = QuestionStackStatus.USED;
+        await manager.save(QuestionStack, questionStack);
+      });
+    } catch (err) {
+      this.logger.error(err);
+      return [null, 'Create room failed'];
+    }
+    return [result, null];
   }
 
   /**
@@ -141,6 +158,7 @@ export class RoomsService {
     const room = await this.roomRepository.findOne({
       where: {
         id: id,
+        isPrivate: true,
       },
     });
     if (!room) {
@@ -221,5 +239,75 @@ export class RoomsService {
       .catch((error) => {
         throw new Error(error);
       });
+  }
+
+  async updateRoomQuestionStack(stackId: string, roomId: number) {
+    const roomResult: Room | undefined = await this.roomRepository.findOne({
+      where: { id: roomId },
+    });
+    if (!roomResult) return [null, 'Room Id is not corrected'];
+    const stackResult: QuestionStack | undefined =
+      await this.questionStackRepository.findOne({
+        where: {
+          id: stackId,
+        },
+      });
+    if (!stackResult) return [null, 'Room Id is not corrected'];
+    const currentTime = new Date();
+    if (roomResult.openTime > currentTime)
+      return [null, 'Room is started, cant update any more'];
+    const currentStack = roomResult.questionStack;
+    currentStack.status = QuestionStackStatus.ACTIVE;
+    stackResult.status = QuestionStackStatus.USED;
+    roomResult.questionStack = stackResult;
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        await manager.save(roomResult);
+        await manager.save(stackResult);
+        await manager.save(currentStack);
+      });
+    } catch (err) {
+      this.logger.error(err);
+      return [null, 'Errors when changing question stack'];
+    }
+    return [roomResult, null];
+  }
+
+  async addAllTeamsToRoom(roomTeam: CreateScoreTeamDto) {
+    if (!roomTeam?.roomCode) return [null, 'Enter room code and try again'];
+    const roomEntity: Room = await this.roomRepository.findOne({
+      where: {
+        code: roomTeam.roomCode,
+      },
+    });
+    if (roomTeam.teamIds.length == 0) return ['Adding successfully', null];
+    const teamList = await this.dataSource
+      .getRepository(Team)
+      .createQueryBuilder('teams')
+      .select('*')
+      .where('id IN (:...ids)', { ids: roomTeam.teamIds })
+      .getMany();
+    for (const team of teamList) {
+      if (!roomTeam.teamIds.includes(team.id))
+        return [null, `Not found team with id ${team.id}`];
+    }
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        const scoreList: Score[] = [];
+        teamList.forEach((team) => {
+          const tempScore = new Score();
+          tempScore.room = roomEntity;
+          tempScore.penalty = 0;
+          tempScore.totalScore = 0;
+          tempScore.team = team;
+          scoreList.push(tempScore);
+        });
+        await manager.save(teamList);
+      });
+    } catch (err) {
+      this.logger.error(err);
+      return [null, 'Error when adding team to room'];
+    }
+    return ['Adding team success', null];
   }
 }
