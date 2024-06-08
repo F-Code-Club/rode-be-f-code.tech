@@ -11,7 +11,6 @@ import { Score } from 'scores/entities/scores.entity';
 import { CreateScoreTeamDto } from './dtos/create-score-team';
 import { Team } from '@teams/entities/team.entity';
 import { LogService } from '@logger/logger.service';
-import { error } from 'console';
 
 @Injectable()
 export class RoomsService {
