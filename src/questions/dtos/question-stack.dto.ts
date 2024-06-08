@@ -22,25 +22,21 @@ export class CreateQuestionStackDto {
 }
 
 export class UpdateQuestionStackDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty()
   @IsNotEmpty()
-  name?: string;
+  name: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty()
   @IsNumber()
-  stack_max?: number;
+  stack_max: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty()
   @IsNotEmpty()
-  status?: QuestionStackStatus;
+  status: QuestionStackStatus;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty()
   @IsNotEmpty()
-  type?: RoomTypeEnum;
+  type: RoomTypeEnum;
 }
 
 export class RemoveQuestionStackDto {}

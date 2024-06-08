@@ -24,7 +24,7 @@ import ResponseObject from '@etc/response-object';
 import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
 import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
 
-@Controller('questions')
+@Controller('question-stacks')
 @ApiTags('Questions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -38,7 +38,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('get-one-stack/:id')
+  @Get('/:id')
   async findOneStack(@Param('id') stackId: string) {
     const [data, err] = await this.questionService.findOneQuestionStackById(
       stackId,
@@ -64,7 +64,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('get-all-stacks')
+  @Get()
   async getAllStackByStatus(@Query('status') status: QuestionStackStatus) {
     const [data, err] = await this.questionService.findQuestionsStackByStatus(
       status,
@@ -111,10 +111,10 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Patch('update-question-stack/:stack_id')
+  @Patch('/:id')
   @ApiBody({ type: UpdateQuestionStackDto })
   async updateQuestionStack(
-    @Param('stack_id') stack_id: string,
+    @Param('id') stack_id: string,
     @Body() updatedFields: UpdateQuestionStackDto,
   ) {
     const [data, err] = await this.questionService.updateQuestionStack(
@@ -140,8 +140,8 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Delete('remove-question-stack/:stack_id')
-  async removeQuestionStack(@Param('stack_id') stack_id: string) {
+  @Delete('/:id')
+  async removeQuestionStack(@Param('id') stack_id: string) {
     const [data, err] = await this.questionService.removeQuestionStackById(
       stack_id,
     );
@@ -166,10 +166,10 @@ export class QuestionController {
   //                   //
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('get-question/:question_id')
+  @Get('questions/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async findOneQuestion(@Param('question_id') question_id: string) {
+  async findOneQuestion(@Param('id') question_id: string) {
     const [data, err] = await this.questionService.findOneQuestionById(
       question_id,
     );
@@ -213,10 +213,10 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Patch('update-question/:question_id')
+  @Patch('questions/:id')
   @ApiBody({ type: UpdateQuestionDto })
   async updateQuestion(
-    @Param('question_id') question_id: string,
+    @Param('id') question_id: string,
     @Body() updatedFields: UpdateQuestionDto,
   ) {
     const [data, err] = await this.questionService.updateQuestion(
@@ -242,8 +242,8 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Delete('remove-question/:question_id')
-  async removeQuestion(@Param('question_id') question_id: string) {
+  @Delete('questions/:id')
+  async removeQuestion(@Param('id') question_id: string) {
     const [data, err] = await this.questionService.removeQuestionById(
       question_id,
     );
@@ -267,13 +267,10 @@ export class QuestionController {
   /*-----Test Cases-----*/
   //                    //
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('get-test-case/:testCase_id')
+  @Get('test-case/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async findOneTestCaseById(
-    @Param('question_id') question_id: string,
-    @Param('testCase_id') testCase_id: number,
-  ) {
+  async findOneTestCaseById(@Param('id') testCase_id: number) {
     const [data, err] = await this.questionService.findOneTestCaseById(
       testCase_id,
     );
@@ -315,11 +312,11 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Patch('update-test-case/:testCase_id')
+  @Patch('test-case/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async updateTestCase(
-    @Param('testCase_id') testCase_id: number,
+    @Param('id') testCase_id: number,
     @Body() updatedFields: UpdateTestCaseDto,
   ) {
     const [data, err] = await this.questionService.updateTestCase(
@@ -345,8 +342,8 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Delete('remove-test-case/:testCase_id')
-  async removeTestCase(@Param('testCase_id') testCase_id: number) {
+  @Delete('test-case/:id')
+  async removeTestCase(@Param('id') testCase_id: number) {
     const [data, err] = await this.questionService.removeTestCaseById(
       testCase_id,
     );
