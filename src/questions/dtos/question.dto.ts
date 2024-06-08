@@ -4,12 +4,12 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 export class CreateQuestionDto {
   @ApiProperty()
   @IsNotEmpty()
-  stack_id: string;
+  stackId: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  max_submit_time: number;
+  maxSubmitTime: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -20,7 +20,7 @@ export class CreateQuestionDto {
 export class UpdateQuestionDto {
   @ApiProperty()
   @IsNotEmpty()
-  stack_id: string;
+  stackId: string;
 
   @ApiProperty()
   @IsNotEmpty()

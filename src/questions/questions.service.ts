@@ -65,7 +65,7 @@ export class QuestionService {
     try {
       let qs: QuestionStack = new QuestionStack();
       qs.name = dto.name;
-      qs.stackMax = dto.stack_max;
+      qs.stackMax = dto.stackMax;
       qs.status = dto.status;
       qs.type = dto.type;
       return [await this.questionStackRepository.save(qs), null];
@@ -129,13 +129,13 @@ export class QuestionService {
     try {
       let qs: QuestionStack = await this.questionStackRepository.findOne({
         where: {
-          id: dto.stack_id,
+          id: dto.stackId,
         },
       });
       if (qs) {
         let question: Question = new Question();
         question.stack = qs;
-        question.maxSubmitTimes = dto.max_submit_time;
+        question.maxSubmitTimes = dto.maxSubmitTime;
         question.score = dto.score;
         return [await this.questionRepository.save(question), null];
       } else [null, 'Question Stack Is Not Found!'];
@@ -170,9 +170,9 @@ export class QuestionService {
     });
     if (!question) return [null, 'Question Is Not Found!'];
 
-    if (updateFields.stack_id) {
+    if (updateFields.stackId) {
       const questionStack = await this.questionStackRepository.findOne({
-        where: { id: updateFields.stack_id },
+        where: { id: updateFields.stackId },
       });
 
       if (!questionStack) return [null, 'Question Stack Is Not Found!'];
@@ -268,7 +268,7 @@ export class QuestionService {
     try {
       let question: Question = await this.questionRepository.findOne({
         where: {
-          id: dto.question_id,
+          id: dto.questionId,
         },
       });
       if (question) {

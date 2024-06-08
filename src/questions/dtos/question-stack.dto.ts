@@ -10,7 +10,7 @@ export class CreateQuestionStackDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  stack_max: number;
+  stackMax: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -28,7 +28,7 @@ export class UpdateQuestionStackDto {
 
   @ApiProperty()
   @IsNumber()
-  stack_max: number;
+  stackMax: number;
 
   @ApiProperty()
   @IsNotEmpty()

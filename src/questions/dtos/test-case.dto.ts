@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateTestCaseDto {
   @IsNotEmpty()
-  question_id: string;
+  questionId: string;
 
   @IsNotEmpty()
   input: string;
