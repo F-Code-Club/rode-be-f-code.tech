@@ -63,7 +63,7 @@ export class QuestionService {
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
     try {
-      let qs: QuestionStack = new QuestionStack();
+      const qs: QuestionStack = new QuestionStack();
       qs.name = dto.name;
       qs.stackMax = dto.stackMax;
       qs.status = dto.status;
@@ -79,7 +79,7 @@ export class QuestionService {
     stack_id: string,
     updatedFields: UpdateQuestionStackDto,
   ) {
-    let questionStack = await this.questionStackRepository.findOne({
+    const questionStack = await this.questionStackRepository.findOne({
       where: { id: stack_id },
       select: ['status'],
     });
@@ -127,13 +127,13 @@ export class QuestionService {
   // Question
   async createQuestion(dto: CreateQuestionDto) {
     try {
-      let qs: QuestionStack = await this.questionStackRepository.findOne({
+      const qs: QuestionStack = await this.questionStackRepository.findOne({
         where: {
           id: dto.stackId,
         },
       });
       if (qs) {
-        let question: Question = new Question();
+        const question: Question = new Question();
         question.stack = qs;
         question.maxSubmitTimes = dto.maxSubmitTime;
         question.score = dto.score;
@@ -266,13 +266,13 @@ export class QuestionService {
 
   async createTestCase(dto: CreateTestCaseDto) {
     try {
-      let question: Question = await this.questionRepository.findOne({
+      const question: Question = await this.questionRepository.findOne({
         where: {
           id: dto.questionId,
         },
       });
       if (question) {
-        let qtc: QuestionTestCase = new QuestionTestCase();
+        const qtc: QuestionTestCase = new QuestionTestCase();
         qtc.question = question;
         qtc.input = dto.input;
         qtc.output = dto.output;
