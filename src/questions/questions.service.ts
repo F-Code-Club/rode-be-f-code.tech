@@ -81,7 +81,7 @@ export class QuestionService {
   ) {
     let questionStack = await this.questionStackRepository.findOne({
       where: { id: stack_id },
-      select: ['id', 'name', 'status', 'type', 'stackMax'],
+      select: ['status'],
     });
 
     if (!questionStack) return [null, 'Not Found!'];
@@ -196,13 +196,27 @@ export class QuestionService {
   }
 
   async removeQuestionById(question_id: string) {
-    const question = await this.questionRepository.findOne({
-      where: { id: question_id },
-    });
+    const question = await this.questionRepository
+      .findOne({
+        where: { id: question_id },
+      })
+      .then((question) => {
+        if (!question) return null;
+        return question;
+      })
+      .catch((err) => this.logger.error(err));
+
     if (!question) return [null, 'Question Is Not Found!'];
 
-    this.questionTestCaeRepository.delete({ question: question });
-    return [await this.questionRepository.remove(question), null];
+    await this.questionTestCaeRepository
+      .delete({ question: question })
+      .catch((err) => this.logger.error(err));
+
+    await this.questionRepository
+      .remove(question)
+      .catch((err) => this.logger.error(err));
+
+    return [, null];
   }
 
   // Test case
@@ -251,7 +265,6 @@ export class QuestionService {
   }
 
   async createTestCase(dto: CreateTestCaseDto) {
-    let error;
     try {
       let question: Question = await this.questionRepository.findOne({
         where: {
@@ -286,19 +299,8 @@ export class QuestionService {
       return [null, 'Test Case Is Not Found!'];
     }
 
-    if (
-      testCase.input === updatedFields.input ||
-      testCase.output === updatedFields.output
-    ) {
-      return [null, 'Your Change Is The Same With Previous Version!'];
-    }
-
-    if (updatedFields.input) {
-      testCase.input = updatedFields.input;
-    }
-    if (updatedFields.output) {
-      testCase.output = updatedFields.output;
-    }
+    testCase.input = updatedFields.input;
+    testCase.output = updatedFields.output;
 
     await this.questionTestCaeRepository
       .save(testCase)

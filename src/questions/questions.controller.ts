@@ -88,7 +88,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post('create-stack')
+  @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async createQuestionStack(@Body() dto: CreateQuestionStackDto) {
@@ -190,7 +190,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post('create-question')
+  @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async createQuestion(@Body() dto: CreateQuestionDto) {
@@ -291,7 +291,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post('create-test-case')
+  @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async createTestCase(@Body() dto: CreateTestCaseDto) {
