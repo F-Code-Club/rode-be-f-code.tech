@@ -250,9 +250,10 @@ export class RoomsService {
       await this.questionStackRepository.findOne({
         where: {
           id: stackId,
+          status: QuestionStackStatus.ACTIVE,
         },
       });
-    if (!stackResult) return [null, 'Room Id is not corrected'];
+    if (!stackResult) return [null, 'Stack Id is not corrected'];
     const currentTime = new Date();
     if (roomResult.openTime > currentTime)
       return [null, 'Room is started, cant update any more'];
@@ -275,15 +276,17 @@ export class RoomsService {
 
   async addAllTeamsToRoom(roomTeam: CreateScoreTeamDto) {
     if (!roomTeam?.roomCode) return [null, 'Enter room code and try again'];
-    const roomEntity: Room = await this.roomRepository.findOne({
+    const roomEntity: Room | undefined = await this.roomRepository.findOne({
       where: {
         code: roomTeam.roomCode,
       },
     });
-    if (roomTeam.teamIds.length == 0) return ['Adding successfully', null];
+    if (!roomEntity)
+      return [null, `Not found room with code ${roomTeam.roomCode}`];
+    if (roomTeam.teamIds.length == 0) return ['Adding team successfully', null];
     const teamList = await this.dataSource
       .getRepository(Team)
-      .createQueryBuilder('teams')
+      .createQueryBuilder()
       .select('*')
       .where('id IN (:...ids)', { ids: roomTeam.teamIds })
       .getMany();
@@ -302,11 +305,18 @@ export class RoomsService {
           tempScore.team = team;
           scoreList.push(tempScore);
         });
-        await manager.save(teamList);
+        await manager.save(scoreList);
+        const teamListCount = await manager.getRepository(Score).count({
+          where: {
+            room: roomEntity,
+          },
+        });
+        if (teamListCount > roomEntity.size)
+          throw new Error('Room has maximum size');
       });
     } catch (err) {
       this.logger.error(err);
-      return [null, 'Error when adding team to room'];
+      return [null, `Error when adding team to room with: ${err?.message}`];
     }
     return ['Adding team success', null];
   }
