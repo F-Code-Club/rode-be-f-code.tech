@@ -295,34 +295,34 @@ export class RoomsService {
         if (!roomTeam.teamIds.includes(team.id))
           return [null, `Not found team with id ${team.id}`];
       }
-    }
-    try {
-      await this.dataSource
-        .transaction(async (manager) => {
-          const scoreList: Score[] = [];
-          teamList.forEach((team) => {
-            const tempScore = new Score();
-            tempScore.room = roomEntity;
-            tempScore.penalty = 0;
-            tempScore.totalScore = 0;
-            tempScore.team = team;
-            scoreList.push(tempScore);
+      try {
+        await this.dataSource
+          .transaction(async (manager) => {
+            const scoreList: Score[] = [];
+            teamList.forEach((team) => {
+              const tempScore = new Score();
+              tempScore.room = roomEntity;
+              tempScore.penalty = 0;
+              tempScore.totalScore = 0;
+              tempScore.team = team;
+              scoreList.push(tempScore);
+            });
+            await manager.save(scoreList);
+            const teamListCount = await manager.getRepository(Score).count({
+              where: {
+                room: roomEntity,
+              },
+            });
+            if (teamListCount > roomEntity.size)
+              throw new Error('Room has maximum size');
+          })
+          .catch((error) => {
+            throw new Error(error);
           });
-          await manager.save(scoreList);
-          const teamListCount = await manager.getRepository(Score).count({
-            where: {
-              room: roomEntity,
-            },
-          });
-          if (teamListCount > roomEntity.size)
-            throw new Error('Room has maximum size');
-        })
-        .catch((error) => {
-          throw new Error(error);
-        });
-    } catch (err) {
-      this.logger.error(err);
-      return [null, `Error when adding team to room with: ${err?.message}`];
+      } catch (err) {
+        this.logger.error(err);
+        return [null, `Error when adding team to room with: ${err?.message}`];
+      }
     }
     return ['Adding team success', null];
   }
