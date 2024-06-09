@@ -3,6 +3,7 @@ services:
   rode-battle-api:
     container_name: rode-battle-api-management
     image: ${DOCKER_HUB_URL}/rode-be-api:nightly
+    restart: unless-stopped
     ports:
       - ${PORT}:${PORT}
     environment:
