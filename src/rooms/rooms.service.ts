@@ -192,7 +192,7 @@ export class RoomsService {
   async findOneByCode(code: string): Promise<[Room, any]> {
     const room = await this.roomRepository.findOne({
       where: {
-        code: code,
+        code: code.toUpperCase(),
       },
     });
     if (!room) {

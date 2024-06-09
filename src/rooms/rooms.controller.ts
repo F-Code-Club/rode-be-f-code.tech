@@ -12,6 +12,7 @@ import { HttpStatus } from '@nestjs/common/enums';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -60,6 +61,12 @@ export class RoomsController {
   @Post()
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'This is use for create room' })
+  @ApiBody({
+    type: CreateRoomDto,
+    description:
+      'Need code not duplicate, the question stack is active and have save room type, open day < close day, all field is not null or undefined',
+  })
   async createOne(@Body() info: CreateRoomDto) {
     const [room, err] = await this.roomsService.createOne(info);
     if (!room) {
@@ -98,6 +105,7 @@ export class RoomsController {
   @Patch('stacks')
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @ApiBody({ type: UpdateRoomQuestionStackDto })
   async changeRoomQuestionStack(
     @Body() changeRoom: UpdateRoomQuestionStackDto,
   ) {
@@ -121,7 +129,7 @@ export class RoomsController {
     );
   }
 
-  @Get('admin-get-all')
+  @Get()
   @ApiQuery({ required: false, type: PaginationDto })
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN)
@@ -129,28 +137,6 @@ export class RoomsController {
     const [rooms, err] = await this.roomsService.paginationGetAllForAdmin(
       query,
     );
-    if (!rooms) {
-      return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Get all rooms failed!',
-        null,
-        err,
-      );
-    }
-    return new ResponseObject(
-      HttpStatus.OK,
-      'Get all rooms success!',
-      rooms,
-      null,
-    );
-  }
-
-  @Get('user-get-all')
-  @ApiQuery({ required: false, type: PaginationDto })
-  @UseGuards(RoleGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.USER)
-  async getAll(@Paginate() query: PaginateQuery) {
-    const [rooms, err] = await this.roomsService.paginationGetAllForUser(query);
     if (!rooms) {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
@@ -184,7 +170,7 @@ export class RoomsController {
     return new ResponseObject(HttpStatus.OK, 'Get room success!', room, null);
   }
 
-  @Get('codes/:code')
+  @Get('code/:code')
   @ApiParam({ name: 'code', description: 'Room code' })
   async getOneByCode(@Param('code') code: string) {
     const [room, err] = await this.roomsService.findOneByCode(code);
