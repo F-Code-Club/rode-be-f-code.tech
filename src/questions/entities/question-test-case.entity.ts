@@ -21,6 +21,7 @@ export class QuestionTestCase {
   @ManyToOne(() => Question, (question) => question.id, {
     onDelete: 'CASCADE',
     nullable: false,
+    eager: true,
   })
   @JoinColumn({ name: 'question_id' })
   question: Question;

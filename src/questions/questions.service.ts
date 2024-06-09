@@ -30,59 +30,60 @@ export class QuestionService {
   }
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
-    let error;
     try {
-      let qs: QuestionStack = new QuestionStack();
-      qs.name = dto.name;
-      qs.stackMax = dto.stack_max;
-      qs.status = dto.status;
-      qs.type = dto.type;
-      return [await this.questionStackRepository.save(qs), null];
+      await this.questionStackRepository.insert({
+        name: dto.name,
+        stackMax: dto.stack_max,
+        status: dto.status,
+        type: dto.type,
+      });
+      return ['Create question stack successful', null];
     } catch (err) {
-      error = err.message;
+      return [null, 'Cannot insert question stack'];
     }
-    return [null, error];
   }
 
-  async createQuestion(dto: CreateQuestionDto) {
-    let error;
+  async createQuestion(stackId: string, dto: CreateQuestionDto) {
+    const qs: QuestionStack = await this.questionStackRepository.findOne({
+      where: {
+        id: stackId,
+      },
+    });
+
+    if (!qs) return [null, 'Cannot found question_stack'];
+    if (qs.status == QuestionStackStatus.USED)
+      return [null, 'Question Stack is in USED'];
+
     try {
-      let qs: QuestionStack = await this.questionStackRepository.findOne({
-        where: {
-          id: dto.stack_id,
-        },
+      await this.questionRepository.insert({
+        stack: qs,
+        maxSubmitTimes: dto.max_submit_time,
+        score: dto.score,
       });
-      if (qs) {
-        let question: Question = new Question();
-        question.stack = qs;
-        question.maxSubmitTimes = dto.max_submit_time;
-        question.score = dto.score;
-        return [await this.questionRepository.save(question), null];
-      } else error = 'Cannot found question_stack';
+      return ['Create question successful', null];
     } catch (err) {
-      error = err.message;
+      return [null, 'Insert question fail'];
     }
-    return [null, error];
   }
 
-  async createTestCase(dto: CreateTestCaseDto) {
-    let error;
+  async createTestCase(questionId: string, dto: CreateTestCaseDto) {
+    const question: Question = await this.questionRepository.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+    if (!question) return [null, 'Cannot found question'];
+    if (question.stack.status == QuestionStackStatus.USED)
+      return [null, 'Question Stack is in USED'];
     try {
-      let question: Question = await this.questionRepository.findOne({
-        where: {
-          id: dto.question_id,
-        },
+      await this.questionTestCaeRepository.insert({
+        question: question,
+        input: dto.input,
+        output: dto.output,
       });
-      if (question) {
-        let qtc: QuestionTestCase = new QuestionTestCase();
-        qtc.question = question;
-        qtc.input = dto.input;
-        qtc.output = dto.output;
-        return [await this.questionTestCaeRepository.save(qtc), null];
-      } else error = 'Cannot found question';
+      return ['Create test case successful', null];
     } catch (err) {
-      error = err.message;
+      return [null, 'Cannot insert testcase'];
     }
-    return [null, error];
   }
 }

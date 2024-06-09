@@ -21,6 +21,7 @@ export class Question {
 
   @ManyToOne(() => QuestionStack, (stack) => stack.questions, {
     nullable: false,
+    eager: true,
   })
   @JoinColumn({ name: 'stack_id' })
   stack: QuestionStack;

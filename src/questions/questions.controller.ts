@@ -20,7 +20,7 @@ import { CreateQuestionDto } from './dtos/create-question.dto';
 import { CreateTestCaseDto } from './dtos/create-test-case.dto';
 
 @Controller('questions')
-@ApiTags('Accounts')
+@ApiTags('Questions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class QuestionController {
@@ -31,10 +31,10 @@ export class QuestionController {
   @Get('stacks')
   async getAllStackActive(@Query('active') isActive?: boolean) {}
 
-  @Roles(RoleEnum.MANAGER)
   @Post('create-stack')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async createQuestionStack(@Body() dto: CreateQuestionStackDto) {
     const [data, err] = await this.questionService.createQuestionStack(dto);
     if (!data)
@@ -52,12 +52,15 @@ export class QuestionController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER)
-  @Post('create-question')
+  @Post('create-question/:stack_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async createQuestion(@Body() dto: CreateQuestionDto) {
-    const [data, err] = await this.questionService.createQuestion(dto);
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async createQuestion(
+    @Param('stack_id') stackId: string,
+    @Body() dto: CreateQuestionDto,
+  ) {
+    const [data, err] = await this.questionService.createQuestion(stackId, dto);
     if (!data)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
@@ -73,12 +76,18 @@ export class QuestionController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER)
-  @Post('create-test-case')
+  @Post('create-test-case/:question_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async createTestCase(@Body() dto: CreateTestCaseDto) {
-    const [data, err] = await this.questionService.createTestCase(dto);
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async createTestCase(
+    @Param('question_id') questionId: string,
+    @Body() dto: CreateTestCaseDto,
+  ) {
+    const [data, err] = await this.questionService.createTestCase(
+      questionId,
+      dto,
+    );
     if (!data)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
