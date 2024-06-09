@@ -27,7 +27,7 @@ export class TemplateService {
     let uploadFileId = null;
     try {
       await this.dataSource.transaction(async (manager) => {
-        uploadFileId = await this.googleApiService.uploadTemplate(
+        uploadFileId = await this.googleApiService.uploadFileBuffer(
           fileName,
           fileBuffer,
         );

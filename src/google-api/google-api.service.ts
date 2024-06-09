@@ -55,7 +55,7 @@ export class GoogleApiService {
       return null;
     }
   }
-  async uploadTemplate(fileName: string, fileBuffer: Buffer) {
+  async uploadFileBuffer(fileName: string, fileBuffer: Buffer) {
     try {
       const response = await drive.files.create({
         requestBody: {
