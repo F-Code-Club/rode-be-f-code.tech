@@ -24,6 +24,7 @@ export class Room {
 
   @OneToOne(() => QuestionStack, (questionStack) => questionStack.room, {
     nullable: false,
+    eager: true,
   })
   @JoinColumn({ name: 'stack_id' })
   questionStack: QuestionStack;

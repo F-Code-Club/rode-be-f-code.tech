@@ -91,6 +91,7 @@ export class QuestionController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
+  @ApiBody({ type: CreateQuestionStackDto })
   async createQuestionStack(@Body() dto: CreateQuestionStackDto) {
     const [data, err] = await this.questionService.createQuestionStack(dto);
     if (!data)
