@@ -298,10 +298,12 @@ export class RoomsService {
         .findAndCount({
           where: {
             room: roomEntity,
-            team: In([teamList]),
+            team: In(roomTeam.teamIds),
           },
+          relations: ['team'],
+          loadEagerRelations: false,
         });
-      if (!count[1]) {
+      if (count[1]) {
         const idTeamMatch: number[] = count[0].map((value) => {
           return value.team.id;
         });
