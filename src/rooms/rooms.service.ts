@@ -86,11 +86,13 @@ export class RoomsService {
    */
   async createOne(info: CreateRoomDto) {
     const errs = [];
+    this.logger.debug(info.questionStackId);
     const questionStack: QuestionStack | undefined =
       await this.questionStackRepository.findOne({
         where: {
           id: info.questionStackId,
           status: QuestionStackStatus.ACTIVE,
+          type: info.type,
         },
       });
     const checkCode = await this.roomRepository.findOne({
@@ -110,25 +112,12 @@ export class RoomsService {
         message: 'Not found stack with this id or this stack is not active',
       });
     }
-    if (!info.isPrivate && info.closeTime) {
-      errs.push({
-        at: 'all',
-        message: 'Public room should not have close time or duration',
-      });
-    }
-    if (info.isPrivate && !info.closeTime) {
-      errs.push({
-        at: 'all',
-        message: 'Private room must have close time and duration',
-      });
-    }
     if (errs.length > 0) {
       return [null, errs];
     }
-    let result;
     try {
       this.dataSource.transaction(async (manager) => {
-        result = await manager.save(Room, {
+        await manager.save(Room, {
           code: info.code,
           closeTime: info.closeTime,
           openTime: info.openTime,
@@ -143,7 +132,7 @@ export class RoomsService {
       this.logger.error(err);
       return [null, 'Create room failed'];
     }
-    return [result, null];
+    return ['Create room success', null];
   }
 
   /**
@@ -213,7 +202,7 @@ export class RoomsService {
   }
 
   async isExisted(id: number): Promise<boolean> {
-    const result = await this.roomRepository.exist({
+    const result = await this.roomRepository.exists({
       where: {
         id,
       },
@@ -246,18 +235,24 @@ export class RoomsService {
       where: { id: roomId },
     });
     if (!roomResult) return [null, 'Room Id is not corrected'];
+    const currentTime = new Date();
+    if (roomResult.openTime < currentTime)
+      return [null, 'Room is started, cant update any more'];
     const stackResult: QuestionStack | undefined =
       await this.questionStackRepository.findOne({
         where: {
           id: stackId,
           status: QuestionStackStatus.ACTIVE,
+          type: roomResult.type,
         },
       });
-    if (!stackResult) return [null, 'Stack Id is not corrected'];
-    const currentTime = new Date();
-    if (roomResult.openTime > currentTime)
-      return [null, 'Room is started, cant update any more'];
+    if (!stackResult)
+      return [
+        null,
+        'Stack Id is not corrected or stack is not right type of room',
+      ];
     const currentStack = roomResult.questionStack;
+    console.log(currentStack.status);
     currentStack.status = QuestionStackStatus.ACTIVE;
     stackResult.status = QuestionStackStatus.USED;
     roomResult.questionStack = stackResult;
@@ -290,9 +285,13 @@ export class RoomsService {
       .where('id IN (:...ids)', { ids: roomTeam.teamIds })
       .getMany();
     if (teamList?.length) {
-      for (const team of teamList) {
-        if (!roomTeam.teamIds.includes(team.id))
-          return [null, `Not found team with id ${team.id}`];
+      if (teamList.length != roomTeam.teamIds.length) {
+        return [
+          null,
+          `Check groups of team id again, wrong ${Math.abs(
+            roomTeam.teamIds.length - teamList.length,
+          )} of ${roomTeam.teamIds.length}`,
+        ];
       }
       try {
         await this.dataSource

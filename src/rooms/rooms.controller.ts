@@ -9,7 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import ResponseObject from '../etc/response-object';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -75,6 +81,7 @@ export class RoomsController {
   @Post('teams')
   @UseGuards(RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @ApiBody({ type: CreateScoreTeamDto })
   async addTeamToRoom(@Body() roomTeam: CreateScoreTeamDto) {
     const [data, err] = await this.roomsService.addAllTeamsToRoom(roomTeam);
     if (!data) {
