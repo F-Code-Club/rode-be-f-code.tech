@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionStackStatus, RoomTypeEnum } from '@etc/enums';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dtos/update-room.dto';
@@ -291,6 +291,23 @@ export class RoomsService {
           `Check groups of team id again, wrong ${Math.abs(
             roomTeam.teamIds.length - teamList.length,
           )} of ${roomTeam.teamIds.length}`,
+        ];
+      }
+      const count: [Score[], number] = await this.dataSource
+        .getRepository(Score)
+        .findAndCount({
+          where: {
+            room: roomEntity,
+            team: In([teamList]),
+          },
+        });
+      if (!count[1]) {
+        const idTeamMatch: number[] = count[0].map((value) => {
+          return value.team.id;
+        });
+        return [
+          null,
+          `This team with this ids: ${idTeamMatch}, has been added to room, please select again`,
         ];
       }
       try {
