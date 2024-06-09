@@ -252,7 +252,6 @@ export class RoomsService {
         'Stack Id is not corrected or stack is not right type of room',
       ];
     const currentStack = roomResult.questionStack;
-    console.log(currentStack.status);
     currentStack.status = QuestionStackStatus.ACTIVE;
     stackResult.status = QuestionStackStatus.USED;
     roomResult.questionStack = stackResult;
