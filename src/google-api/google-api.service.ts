@@ -16,11 +16,14 @@ const serviceAuth = new google.auth.JWT({
   email: RodeConfig.SERVICE_ACCOUNT_EMAIL,
   key: RodeConfig.SERVICE_PRIVATE_KEY,
   keyId: RodeConfig.SERVICE_PRIVATE_KEY_ID,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  scopes: [
+    'https://www.googleapis.com/auth/spreadsheets.readonly',
+    'https://www.googleapis.com/auth/drive.file',
+  ],
 });
 
 oauth2Client.setCredentials({ refresh_token: RodeConfig.GOOGLE_REFRESH_TOKEN });
-const drive = google.drive({ version: 'v3', auth: oauth2Client });
+const drive = google.drive({ version: 'v3', auth: serviceAuth });
 const sheets = google.sheets({ version: 'v4', auth: serviceAuth });
 @Injectable()
 export class GoogleApiService {
@@ -50,6 +53,24 @@ export class GoogleApiService {
     } catch (error) {
       console.log(error.message);
       return null;
+    }
+  }
+  async uploadFileBuffer(fileName: string, fileBuffer: Buffer) {
+    try {
+      const response = await drive.files.create({
+        requestBody: {
+          name: fileName,
+          // mimeType: file.mimetype,
+          parents: [RodeConfig.FOLDER_TEMPLATE_ID],
+        },
+        media: {
+          // mimeType: file.mimetype,
+          body: Readable.from(fileBuffer),
+        },
+      });
+      return response.data.id;
+    } catch (error) {
+      throw new Error('Cannot upload template: ' + error.message);
     }
   }
 
@@ -82,7 +103,9 @@ export class GoogleApiService {
       await drive.files.delete({
         fileId,
       });
-    } catch (error) {}
+    } catch (error) {
+      throw new Error('Error when delete file!');
+    }
   }
 
   async deleteMultipleFiles(fileIds: string[]) {
