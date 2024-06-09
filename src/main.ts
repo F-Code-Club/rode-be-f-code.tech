@@ -23,8 +23,7 @@ async function bootstrap() {
 
   const originList: string[] = [];
   originList.push(RodeConfig.ORIGIN_DOMAIN_LOCAL);
-  if (RodeConfig.ORIGIN_DOMAIN.length)
-    originList.push(RodeConfig.ORIGIN_DOMAIN);
+  if (RodeConfig.ORIGIN_DOMAIN) originList.push(RodeConfig.ORIGIN_DOMAIN);
   const header = [
     'Accept',
     'Access-Control-Allow-Headers',
