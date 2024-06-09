@@ -31,6 +31,8 @@ jobs:
       DB_PASSWORD: ${{secrets.DB_PASSWORD}}
       DB_DATABASE: ${{secrets.DB_DATABASE}}
 
+      ORIGIN_DOMAIN: ${{secrets.ORIGIN_DOMAIN}}
+      
       JWT_SECRET: ${{secrets.JWT_SECRET}}
       JWT_EXPIRES_IN: ${{secrets.JWT_EXPIRES_IN}}
       JWT_REFRESH_SECRET: ${{secrets.JWT_REFRESH_SECRET}}
