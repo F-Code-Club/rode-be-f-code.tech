@@ -21,7 +21,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(new RodeValidationPipe());
 
-  const originList: string[] = ['http://localhost:3000'];
+  const originList: string[] = [];
+  originList.push(RodeConfig.ORIGIN_DOMAIN_LOCAL);
   if (RodeConfig.ORIGIN_DOMAIN.length)
     originList.push(RodeConfig.ORIGIN_DOMAIN);
   const header = [

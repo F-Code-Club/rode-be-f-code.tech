@@ -46,4 +46,7 @@ export default class RodeConfig {
     process.env.SERVICE_ACCOUNT_EMAIL || '';
 
   static readonly ORIGIN_DOMAIN = process.env.ORIGIN_DOMAIN || '';
+
+  static readonly ORIGIN_DOMAIN_LOCAL =
+    process.env.ORIGIN_DOMAIN_LOCAL || 'http://localhost:3000';
 }

@@ -25,6 +25,7 @@ jobs:
     env:
       PORT: ${{secrets.PORT}}
       ORIGIN_DOMAIN: ${{secrets.ORIGIN_DOMAIN}}
+      ORIGIN_DOMAIN_LOCAL: ${{secrets.ORIGIN_DOMAIN_LOCAL}}
 
       DB_HOST: ${{secrets.DB_HOST}}
       DB_PORT: ${{secrets.DB_PORT}}
