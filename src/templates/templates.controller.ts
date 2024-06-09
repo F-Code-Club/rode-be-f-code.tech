@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   HttpStatus,
   Param,
@@ -13,13 +12,7 @@ import { RoleEnum } from '@etc/enums';
 import Roles from '@decorators/roles.decorator';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 import { RoleGuard } from '@auth/role.guard';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '@etc/response-object';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import FileUploadDto from './dtos/file-upload.dto';
@@ -42,7 +35,6 @@ export class TemplateController {
     @Param('question_id') questionId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log('File name' + file);
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
       file.originalname,
