@@ -309,7 +309,9 @@ export class RoomsService {
         });
         return [
           null,
-          `This team with this ids: ${idTeamMatch}, has been added to room, please select again`,
+          `This team with this ids: ${idTeamMatch.join(
+            ', ',
+          )}, has been added to room, please select again`,
         ];
       }
       try {
