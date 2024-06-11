@@ -21,7 +21,26 @@ async function bootstrap() {
 
   app.useGlobalPipes(new RodeValidationPipe());
 
-  app.enableCors();
+  const originList: string[] = [];
+  originList.push(RodeConfig.ORIGIN_DOMAIN_LOCAL);
+  if (RodeConfig.ORIGIN_DOMAIN) originList.push(RodeConfig.ORIGIN_DOMAIN);
+  const header = [
+    'Accept',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Origin',
+    'Authorization',
+    'Content-Type',
+    'Origin',
+    'X-Requested-With',
+  ];
+  app.enableCors({
+    origin: originList,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: header,
+    exposedHeaders: header,
+    credentials: true,
+  });
 
   app.useWebSocketAdapter(
     new SocketIoAdapter(app, await app.resolve(LogService)),

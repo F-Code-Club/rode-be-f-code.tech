@@ -79,7 +79,7 @@ export class QuestionService {
     stack_id: string,
     updatedFields: UpdateQuestionStackDto,
   ) {
-    let questionStack = await this.questionStackRepository.findOne({
+    const questionStack = await this.questionStackRepository.findOne({
       where: { id: stack_id },
       select: ['status'],
     });

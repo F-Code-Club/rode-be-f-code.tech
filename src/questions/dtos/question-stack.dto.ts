@@ -2,6 +2,7 @@ import { QuestionStackStatus, RoomTypeEnum } from '@etc/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
+export class RemoveQuestionStackDto {}
 export class CreateQuestionStackDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -38,5 +39,3 @@ export class UpdateQuestionStackDto {
   @IsNotEmpty()
   type: RoomTypeEnum;
 }
-
-export class RemoveQuestionStackDto {}
