@@ -15,10 +15,6 @@ export class CreateQuestionStackDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  status: QuestionStackStatus;
-
-  @ApiProperty()
-  @IsNotEmpty()
   type: RoomTypeEnum;
 }
 

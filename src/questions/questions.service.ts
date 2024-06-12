@@ -66,7 +66,7 @@ export class QuestionService {
       await this.questionStackRepository.insert({
         name: dto.name,
         stackMax: dto.stackMax,
-        status: dto.status,
+        status: QuestionStackStatus.DRAFT,
         type: dto.type,
       });
       return ['Create question stack successful', null];
