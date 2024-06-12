@@ -275,7 +275,8 @@ export class QuestionService {
       },
     });
     if (!question) return [null, 'Cannot found question'];
-    if (question.stack && question.stack.status == QuestionStackStatus.USED)
+    if (!question.stack) return [null, 'Cannot found question stack'];
+    if (question.stack.status == QuestionStackStatus.USED)
       return [null, 'Question Stack is in USED'];
     try {
       await this.questionTestCaeRepository.insert({
