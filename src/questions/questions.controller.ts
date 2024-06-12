@@ -24,7 +24,7 @@ import ResponseObject from '@etc/response-object';
 import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
 import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
 
-@Controller('questions')
+@Controller('question-stacks')
 @ApiTags('Questions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()

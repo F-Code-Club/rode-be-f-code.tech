@@ -71,6 +71,7 @@ export class QuestionService {
       });
       return ['Create question stack successful', null];
     } catch (err) {
+      this.logger.error('CANNOT INSERT QUESTION STACK: ' + err.message);
       return [null, 'Cannot insert question stack'];
     }
   }
@@ -129,12 +130,11 @@ export class QuestionService {
     const qs: QuestionStack = await this.questionStackRepository.findOne({
       where: {
         id: stackId,
+        status: QuestionStackStatus.USED,
       },
     });
 
     if (!qs) return [null, 'Cannot found question_stack'];
-    if (qs.status == QuestionStackStatus.USED)
-      return [null, 'Question Stack is in USED'];
 
     try {
       await this.questionRepository.insert({
@@ -144,6 +144,7 @@ export class QuestionService {
       });
       return ['Create question successful', null];
     } catch (err) {
+      this.logger.error('CANNOT INSERT QUESTION: ' + err.message);
       return [null, 'Insert question fail'];
     }
   }
@@ -274,7 +275,7 @@ export class QuestionService {
       },
     });
     if (!question) return [null, 'Cannot found question'];
-    if (question.stack.status == QuestionStackStatus.USED)
+    if (question.stack && question.stack.status == QuestionStackStatus.USED)
       return [null, 'Question Stack is in USED'];
     try {
       await this.questionTestCaeRepository.insert({
