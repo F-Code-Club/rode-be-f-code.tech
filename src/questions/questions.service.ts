@@ -114,14 +114,24 @@ export class QuestionService {
       .catch((err) => this.logger.error(err));
     if (!questionStack) return [null, 'Question Stack Is Not Found!'];
 
+    let error = null;
+
     await this.questionRepository
       .delete({ stack: questionStack })
-      .catch((err) => this.logger.error('REMOVE QUESTION: ' + err));
+      .then(() => {})
+      .catch((err) => {
+        error = 'Cannot remove question';
+        this.logger.error('REMOVE QUESTION: ' + err);
+      });
 
-    await this.questionStackRepository
-      .remove(questionStack)
-      .catch((err) => this.logger.error('REMOVE QUESTION STACK: ' + err));
+    if (!error) {
+      await this.questionStackRepository.remove(questionStack).catch((err) => {
+        error = 'Cannot remove question stack';
+        this.logger.error('REMOVE QUESTION STACK: ' + err);
+      });
+    }
 
+    if (error) return [null, error];
     return ['Removed Question Stack!', null];
   }
 
