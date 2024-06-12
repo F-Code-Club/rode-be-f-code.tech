@@ -272,7 +272,7 @@ export class QuestionController {
   /*-----Test Cases-----*/
   //                    //
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('test-case/:id')
+  @Get('test-cases/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async findOneTestCaseById(@Param('id') testCase_id: number) {
@@ -296,7 +296,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post('test-case/:question_id')
+  @Post('test-cases/:question_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async createTestCase(
@@ -323,7 +323,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Patch('test-case/:id')
+  @Patch('test-cases/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async updateTestCase(
@@ -353,7 +353,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Delete('test-case/:id')
+  @Delete('test-cases/:id')
   async removeTestCase(@Param('id') testCase_id: number) {
     const [data, err] = await this.questionService.removeTestCaseById(
       testCase_id,
