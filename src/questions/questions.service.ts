@@ -222,14 +222,23 @@ export class QuestionService {
 
     if (!question) return [null, 'Question Is Not Found!'];
 
+    let error = null;
+
     await this.questionTestCaseRepository
       .delete({ question: question })
-      .catch((err) => this.logger.error('DELETE TEST CASE: ' + err));
+      .catch((err) => {
+        error = 'Cannot delete test case';
+        this.logger.error('DELETE TEST CASE: ' + err);
+      });
 
-    await this.questionRepository
-      .remove(question)
-      .catch((err) => this.logger.error('REMOVE QUESTION: ' + err));
+    if (!error) {
+      await this.questionRepository.remove(question).catch((err) => {
+        error = 'Cannot remove question';
+        this.logger.error('REMOVE QUESTION: ' + err);
+      });
+    }
 
+    if (error) return [null, error];
     return ['Remove question success', null];
   }
 
