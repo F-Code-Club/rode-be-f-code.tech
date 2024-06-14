@@ -20,7 +20,7 @@ export class QuestionService {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
     @InjectRepository(QuestionTestCase)
-    private readonly questionTestCaeRepository: Repository<QuestionTestCase>,
+    private readonly questionTestCaseRepository: Repository<QuestionTestCase>,
     private readonly logger: LogService,
   ) {}
 
@@ -38,7 +38,7 @@ export class QuestionService {
         return [stack, null];
       })
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('GET QUESION STACK: ' + err);
         return [null, 'Cannot Get Question Stack!'];
       });
 
@@ -54,7 +54,7 @@ export class QuestionService {
       })
       .then((stacks) => [stacks, null])
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('GET QUESTION STACK: ' + err);
         return [null, 'Cannot Get Question Stacks!'];
       });
 
@@ -63,15 +63,16 @@ export class QuestionService {
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
     try {
-      const qs: QuestionStack = new QuestionStack();
-      qs.name = dto.name;
-      qs.stackMax = dto.stackMax;
-      qs.status = dto.status;
-      qs.type = dto.type;
-      return [await this.questionStackRepository.save(qs), null];
+      await this.questionStackRepository.insert({
+        name: dto.name,
+        stackMax: dto.stackMax,
+        status: QuestionStackStatus.DRAFT,
+        type: dto.type,
+      });
+      return ['Create question stack successful', null];
     } catch (err) {
-      this.logger.error(err);
-      return [null, 'Cannot Create Question Stack!'];
+      this.logger.error('INSERT QUESTION STACK: ' + err);
+      return [null, 'Cannot insert question stack'];
     }
   }
 
@@ -91,7 +92,7 @@ export class QuestionService {
         .update({ id: stack_id }, updatedFields)
         .then((_) => ['Updated Question Stack!', null])
         .catch((err) => {
-          this.logger.error(err);
+          this.logger.error('UPDATE QUESTION STACK: ' + err);
           return [null, 'Cannot Update The Question Stack!'];
         });
 
@@ -113,35 +114,48 @@ export class QuestionService {
       .catch((err) => this.logger.error(err));
     if (!questionStack) return [null, 'Question Stack Is Not Found!'];
 
+    let error = null;
+
     await this.questionRepository
       .delete({ stack: questionStack })
-      .catch((err) => this.logger.error(err));
+      .then(() => {})
+      .catch((err) => {
+        error = 'Cannot remove question';
+        this.logger.error('REMOVE QUESTION: ' + err);
+      });
 
-    await this.questionStackRepository
-      .remove(questionStack)
-      .catch((err) => this.logger.error(err));
+    if (!error) {
+      await this.questionStackRepository.remove(questionStack).catch((err) => {
+        error = 'Cannot remove question stack';
+        this.logger.error('REMOVE QUESTION STACK: ' + err);
+      });
+    }
 
+    if (error) return [null, error];
     return ['Removed Question Stack!', null];
   }
 
   // Question
-  async createQuestion(dto: CreateQuestionDto) {
+  async createQuestion(stackId: string, dto: CreateQuestionDto) {
+    const qs: QuestionStack = await this.questionStackRepository.findOne({
+      where: {
+        id: stackId,
+        status: QuestionStackStatus.USED,
+      },
+    });
+
+    if (!qs) return [null, 'Cannot found question_stack'];
+
     try {
-      const qs: QuestionStack = await this.questionStackRepository.findOne({
-        where: {
-          id: dto.stackId,
-        },
+      await this.questionRepository.insert({
+        stack: qs,
+        maxSubmitTimes: dto.maxSubmitTime,
+        score: dto.score,
       });
-      if (qs) {
-        const question: Question = new Question();
-        question.stack = qs;
-        question.maxSubmitTimes = dto.maxSubmitTime;
-        question.score = dto.score;
-        return [await this.questionRepository.save(question), null];
-      } else [null, 'Question Stack Is Not Found!'];
+      return ['Create question successful', null];
     } catch (err) {
-      this.logger.error(err);
-      return [null, 'Cannot Create Question!'];
+      this.logger.error('INSERT QUESTION: ' + err);
+      return [null, 'Insert question fail'];
     }
   }
 
@@ -157,7 +171,7 @@ export class QuestionService {
         return [question, null];
       })
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('GET QUESTION: ' + err);
         return [null, 'Cannot Get The Question!'];
       });
 
@@ -188,7 +202,7 @@ export class QuestionService {
       .save(question)
       .then((_) => ['Updated Question!', null])
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('UPDATE QUESTION: ' + err);
         return [null, 'Cannot Update Question'];
       });
 
@@ -204,24 +218,33 @@ export class QuestionService {
         if (!question) return null;
         return question;
       })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('GET QUESTION BY ID: ' + err));
 
     if (!question) return [null, 'Question Is Not Found!'];
 
-    await this.questionTestCaeRepository
+    let error = null;
+
+    await this.questionTestCaseRepository
       .delete({ question: question })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => {
+        error = 'Cannot delete test case';
+        this.logger.error('DELETE TEST CASE: ' + err);
+      });
 
-    await this.questionRepository
-      .remove(question)
-      .catch((err) => this.logger.error(err));
+    if (!error) {
+      await this.questionRepository.remove(question).catch((err) => {
+        error = 'Cannot remove question';
+        this.logger.error('REMOVE QUESTION: ' + err);
+      });
+    }
 
-    return [, null];
+    if (error) return [null, error];
+    return ['Remove question success', null];
   }
 
   // Test case
   async findOneTestCaseById(testCase_id: number) {
-    const queryResult = await this.questionTestCaeRepository
+    const queryResult = await this.questionTestCaseRepository
       .findOne({
         where: { id: testCase_id },
       })
@@ -233,7 +256,7 @@ export class QuestionService {
         return [testCase, null];
       })
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('GET TEST CASE: ' + err);
         return [null, 'Cannot Get Test Case!'];
       });
 
@@ -248,10 +271,10 @@ export class QuestionService {
         if (!question) return null;
         return question;
       })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('GET QUESTION: ' + err));
     if (!question) return [null, 'Question Is Not Found!'];
 
-    const testCases = await this.questionTestCaeRepository
+    const testCases = await this.questionTestCaseRepository
       .find({
         where: { question: question },
       })
@@ -259,33 +282,36 @@ export class QuestionService {
         if (!testCase) return null;
         return testCase;
       })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('GET TEST CASES: ' + err));
 
     return testCases;
   }
 
-  async createTestCase(dto: CreateTestCaseDto) {
+  async createTestCase(questionId: string, dto: CreateTestCaseDto) {
+    const question: Question = await this.questionRepository.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+    if (!question) return [null, 'Cannot found question'];
+    if (!question.stack) return [null, 'Cannot found question stack'];
+    if (question.stack.status == QuestionStackStatus.USED)
+      return [null, 'Question Stack is in USED'];
     try {
-      const question: Question = await this.questionRepository.findOne({
-        where: {
-          id: dto.questionId,
-        },
+      await this.questionTestCaseRepository.insert({
+        question: question,
+        input: dto.input,
+        output: dto.output,
       });
-      if (question) {
-        const qtc: QuestionTestCase = new QuestionTestCase();
-        qtc.question = question;
-        qtc.input = dto.input;
-        qtc.output = dto.output;
-        return [await this.questionTestCaeRepository.save(qtc), null];
-      } else return [null, 'Cannot found question'];
+      return ['Create test case successful', null];
     } catch (err) {
-      this.logger.error(err);
-      return [null, 'Cannot Create Test Case!'];
+      this.logger.error('INSERT TEST CASE: ' + err.message);
+      return [null, 'Cannot insert testcase'];
     }
   }
 
   async updateTestCase(testCase_id: number, updatedFields: UpdateTestCaseDto) {
-    const testCase = await this.questionTestCaeRepository
+    const testCase = await this.questionTestCaseRepository
       .findOne({
         where: { id: testCase_id },
       })
@@ -293,7 +319,7 @@ export class QuestionService {
         if (!testCase) return null;
         return testCase;
       })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('GET TEST CASE: ' + err));
 
     if (!testCase) {
       return [null, 'Test Case Is Not Found!'];
@@ -302,19 +328,19 @@ export class QuestionService {
     testCase.input = updatedFields.input;
     testCase.output = updatedFields.output;
 
-    await this.questionTestCaeRepository
+    await this.questionTestCaseRepository
       .save(testCase)
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('UPDATE TEST CASE: ' + err));
 
     return ['Updated Test Case!', null];
   }
 
   async removeTestCaseById(testCase_id: number) {
-    const result = this.questionTestCaeRepository
+    const result = this.questionTestCaseRepository
       .delete({ id: testCase_id })
       .then((_) => ['Removed Test Case!', null])
       .catch((err) => {
-        this.logger.error(err);
+        this.logger.error('REMOVE TEST CASE: ' + err);
         return [null, 'Cannot Remove Test Case!'];
       });
 

@@ -191,11 +191,15 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post()
+  @Post('question/:stack_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async createQuestion(@Body() dto: CreateQuestionDto) {
-    const [data, err] = await this.questionService.createQuestion(dto);
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async createQuestion(
+    @Param('stack_id') stackId: string,
+    @Body() dto: CreateQuestionDto,
+  ) {
+    const [data, err] = await this.questionService.createQuestion(stackId, dto);
     if (!data)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
@@ -268,7 +272,7 @@ export class QuestionController {
   /*-----Test Cases-----*/
   //                    //
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Get('test-case/:id')
+  @Get('test-cases/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async findOneTestCaseById(@Param('id') testCase_id: number) {
@@ -292,11 +296,17 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Post()
+  @Post('test-cases/:question_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async createTestCase(@Body() dto: CreateTestCaseDto) {
-    const [data, err] = await this.questionService.createTestCase(dto);
+  async createTestCase(
+    @Param('question_id') questionId: string,
+    @Body() dto: CreateTestCaseDto,
+  ) {
+    const [data, err] = await this.questionService.createTestCase(
+      questionId,
+      dto,
+    );
     if (!data)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
@@ -313,7 +323,7 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
-  @Patch('test-case/:id')
+  @Patch('test-cases/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
   async updateTestCase(
@@ -343,7 +353,7 @@ export class QuestionController {
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Delete('test-case/:id')
+  @Delete('test-cases/:id')
   async removeTestCase(@Param('id') testCase_id: number) {
     const [data, err] = await this.questionService.removeTestCaseById(
       testCase_id,

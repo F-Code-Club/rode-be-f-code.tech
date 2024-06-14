@@ -1,13 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateTestCaseDto {
-  @IsNotEmpty()
-  questionId: string;
-
+  @ApiProperty()
   @IsNotEmpty()
   input: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   output: string;
 }

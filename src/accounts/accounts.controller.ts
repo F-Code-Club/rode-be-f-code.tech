@@ -9,7 +9,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiQuery,
+  ApiTags,
+  OmitType,
+} from '@nestjs/swagger';
 import { RoleGuard } from '../auth/role.guard';
 import Roles from '../decorators/roles.decorator';
 import { RoleEnum } from '../etc/enums';
@@ -101,6 +107,7 @@ export class AccountsController {
 
   @Post('update-one/:id')
   @ApiBearerAuth()
+  @ApiBody({ type: OmitType(CreateAccountDto, ['email'] as const) })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async updateOne(
