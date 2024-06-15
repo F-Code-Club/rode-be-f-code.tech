@@ -5,7 +5,7 @@ export class CreateScoreTeamDto {
   @ApiProperty()
   @IsNotEmpty()
   roomCode: string;
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ type: [Number] })
+  @IsArray({ each: true })
   teamIds: number[];
 }

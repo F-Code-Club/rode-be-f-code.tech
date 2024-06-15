@@ -51,18 +51,18 @@ export class SocketsGateWay
     this.logger.log(`Client connected: ${client.id} - ${account.email}`);
     this.logger.debug(`Number of clients: ${sockets.size}`);
     //Update status isLoggedIn = true
-    const [result, error] = await this.accountsService.updateLoggedIn(
-      account.id,
-      true,
-    );
-    if (!result) {
-      this.io.to(client.id).emit('error', { message: error.toString() });
-      this.logger.error(error.toString());
-      client.data.account = null;
-      client.disconnect();
-      return new Error(error.toString());
-    }
-    this.io.to(client.id).emit('connected', { message: 'Logged in' });
+    // const [result, error] = await this.accountsService.updateLoggedIn(
+    //   account.id,
+    //   true,
+    // );
+    // if (!result) {
+    //   this.io.to(client.id).emit('error', { message: error.toString() });
+    //   this.logger.error(error.toString());
+    //   client.data.account = null;
+    //   client.disconnect();
+    //   return new Error(error.toString());
+    // }
+    this.io.to(client.id).emit('connected', { message: 'Connected' });
   }
 
   @SubscribeMessage('change-leaderboard')
