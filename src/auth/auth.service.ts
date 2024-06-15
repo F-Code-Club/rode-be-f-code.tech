@@ -6,6 +6,7 @@ import { AuthLogin } from './dtos/auth.login.dto';
 import { Account } from '@accounts/entities/account.entity';
 import { Utils } from '@etc/utils';
 import { AuthTokenReturn } from './dtos/auth.token.dto';
+import { RoleEnum } from '@etc/enums';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     );
     if (!isCorrectPassword)
       return [null, 'Password Is Not Correct, Please Check Password Again'];
-    this.accountsService.updateLoggedIn(user.id, true);
+    // this.accountsService.updateLoggedIn(user.id, true);
     const key = await this.generateToken(user);
     return [
       new AuthTokenReturn(key[0], user.role).setRefreshToken(key[1]),
@@ -54,6 +55,8 @@ export class AuthService {
     }
     if (!user.isEnabled || user.isLocked)
       return [null, 'This Account Is Not Active Or Locked'];
+    if (![RoleEnum.ADMIN, RoleEnum.MANAGER].includes(user.role))
+      return [null, 'This Login Is Not For User'];
     if (user.isLoggedIn) {
       return [null, 'This Account Is Already Login'];
     }

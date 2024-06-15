@@ -7,7 +7,6 @@ import {
   HttpException,
   HttpStatus,
   INestApplicationContext,
-  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
