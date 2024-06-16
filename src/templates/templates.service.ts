@@ -7,6 +7,7 @@ import { QuestionService } from '@questions/questions.service';
 import { FileUploadDto } from './dtos/file-upload.dto';
 import RodeConfig from '@etc/config';
 import { LogService } from '@logger/logger.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class TemplateService {
@@ -42,9 +43,15 @@ export class TemplateService {
     const shareableLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
     let errorList = [];
     try {
+      const uuid = randomUUID();
       await this.templateRepository.insert({
+        id: uuid,
         question: question,
-        localPath: RodeConfig.TEMPLATE_LOCAL_PATH,
+        localPath:
+          RodeConfig.TEMPLATE_LOCAL_PATH +
+          uuid +
+          '.' +
+          fileName.split('.').pop(),
         url: shareableLink,
         colorCode: dto.colorCode,
       });
