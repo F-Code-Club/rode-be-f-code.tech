@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpStatus,
   Param,
@@ -15,7 +16,7 @@ import { RoleGuard } from '@auth/role.guard';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '@etc/response-object';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
-import FileUploadDto from './dtos/file-upload.dto';
+import { FileUploadDto } from './dtos/file-upload.dto';
 
 @Controller('templates')
 @ApiTags('Templates')
@@ -33,10 +34,12 @@ export class TemplateController {
   })
   async uploadFile(
     @Param('question_id') questionId: string,
+    @Body() dto: FileUploadDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
+      dto,
       file.originalname,
       file.buffer,
     );
@@ -52,7 +55,7 @@ export class TemplateController {
       HttpStatus.OK,
       'Upload Template Successful!',
       data,
-      errlist,
+      null,
     );
   }
 }

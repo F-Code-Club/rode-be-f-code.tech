@@ -16,16 +16,8 @@ export default class RodeConfig {
   static readonly JWT_REFRESH_EXPIRES_IN =
     process.env.JWT_REFRESH_EXPIRES_IN || '10d';
 
-  static readonly CHROMIUM_PATH = process.env.CHROMIUM_PATH;
-  static readonly GOOGLE_CLIENT_ID =
-    process.env.GOOGLE_CLIENT_ID || 'google_client_id';
-  static readonly GOOGLE_CLIENT_SECRET = process.env.CLIENT_SECRET;
-  static readonly GOOGLE_REDIRECT_URL = process.env.REDIRECT_URL;
-  static readonly GOOGLE_REFRESH_TOKEN =
-    process.env.REFRESH_TOKEN || '123456789';
   static readonly FOLDER_ID = process.env.FOLDER_ID;
-  static readonly FOLDER_TEMPLATE_ID = process.env.FOLDER_TEMPLATE_ID;
-  static readonly FOLDER_TEAMS_EXCEL = process.env.FOLDER_TEAMS_EXCEL;
+  static readonly FOLDER_TEMPLATE_ID = process.env.FOLDER_TEMPLATE_ID || '';
   static readonly SALT_ROUND = parseInt(process.env.SALT_ROUND) || 3;
 
   static readonly MAIL_HOST = process.env.MAIL_HOST || 'smtp.gmail.com';
@@ -39,7 +31,7 @@ export default class RodeConfig {
 
   static readonly SERVICE_PRIVATE_KEY =
     process.env.SERVICE_PRIVATE_KEY ||
-    '-----BEGIN PRIVATE KEY-----\nyour private key content\n-----END PRIVATE KEY-----\n';
+    '-----BEGIN PRIVATE KEY-----\nyour private key\n-----END PRIVATE KEY-----\n';
   static readonly SERVICE_PRIVATE_KEY_ID =
     process.env.SERVICE_PRIVATE_KEY_ID || '';
   static readonly SERVICE_ACCOUNT_EMAIL =
@@ -49,4 +41,7 @@ export default class RodeConfig {
 
   static readonly ORIGIN_DOMAIN_LOCAL =
     process.env.ORIGIN_DOMAIN_LOCAL || 'http://localhost:3000';
+
+  static readonly TEMPLATE_LOCAL_PATH =
+    process.env.TEMPLATE_LOCAL_PATH || 'localpath';
 }

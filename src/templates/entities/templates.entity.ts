@@ -20,6 +20,9 @@ export class Template {
   @Column({ name: 'local_path', type: 'varchar', length: 64 })
   localPath: string;
 
-  @Column({ name: 'url', type: 'varchar', length: 64 })
+  @Column({ name: 'url', type: 'varchar', length: 128 })
   url: string;
+
+  @Column({ name: 'color_code', type: 'varchar', length: 64, nullable: true })
+  colorCode: string;
 }
