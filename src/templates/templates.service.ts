@@ -36,7 +36,7 @@ export class TemplateService {
       );
     } catch (err) {
       this.logger.error('UPLOAD FILE ON DRIVE: ' + err);
-      return [null, 'Cannot upload file on drive'];
+      return [null, 'Cannot upload file on drive: ' + err];
     }
 
     const shareableLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
