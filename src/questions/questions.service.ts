@@ -140,11 +140,13 @@ export class QuestionService {
     const qs: QuestionStack = await this.questionStackRepository.findOne({
       where: {
         id: stackId,
-        status: QuestionStackStatus.USED,
       },
     });
 
     if (!qs) return [null, 'Cannot found question_stack'];
+
+    if (qs.status == QuestionStackStatus.USED)
+      return [null, 'Question stack is USED!'];
 
     try {
       await this.questionRepository.insert({
