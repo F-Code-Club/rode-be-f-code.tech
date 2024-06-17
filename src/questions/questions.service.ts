@@ -178,14 +178,6 @@ export class QuestionService {
     return question;
   }
 
-  async getQuestionById(question_id: string) {
-    return await this.questionRepository.findOne({
-      where: {
-        id: question_id,
-      },
-    });
-  }
-
   async updateQuestion(question_id: string, updateFields: UpdateQuestionDto) {
     const question = await this.questionRepository.findOne({
       where: { id: question_id },

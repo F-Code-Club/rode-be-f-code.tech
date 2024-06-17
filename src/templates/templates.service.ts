@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Template } from './entities/templates.entity';
 import { GoogleApiService } from 'google-api/google-api.service';
-import { QuestionService } from '@questions/questions.service';
 import { FileUploadDto } from './dtos/file-upload.dto';
 import RodeConfig from '@etc/config';
 import { LogService } from '@logger/logger.service';
 import { randomUUID } from 'crypto';
+import { Question } from '@questions/entities/question.entity';
 
 @Injectable()
 export class TemplateService {
   constructor(
     @InjectRepository(Template)
     private readonly templateRepository: Repository<Template>,
-    private readonly questionService: QuestionService,
     private readonly googleApiService: GoogleApiService,
+    private readonly dataSource: DataSource,
     private readonly logger: LogService,
   ) {}
 
@@ -26,13 +26,18 @@ export class TemplateService {
     fileBuffer: Buffer,
   ) {
     let fileId = null;
-    const question = await this.questionService.getQuestionById(questionId);
+    const random_uuid = randomUUID();
 
+    const question = await this.dataSource.getRepository(Question).findOne({
+      where: {
+        id: questionId,
+      },
+    });
     if (!question) return [null, 'Cannot found question'];
 
     try {
       fileId = await this.googleApiService.uploadFileBuffer(
-        fileName,
+        random_uuid,
         fileBuffer,
       );
     } catch (err) {
@@ -41,15 +46,16 @@ export class TemplateService {
     }
 
     const shareableLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
-    let errorList = [];
+    const errorList = [];
     try {
-      const uuid = randomUUID();
       await this.templateRepository.insert({
-        id: uuid,
         question: question,
         localPath:
           RodeConfig.TEMPLATE_LOCAL_PATH +
-          uuid +
+          '/' +
+          question.stack.id +
+          '/' +
+          random_uuid +
           '.' +
           fileName.split('.').pop(),
         url: shareableLink,

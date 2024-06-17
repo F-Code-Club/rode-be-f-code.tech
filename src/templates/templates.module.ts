@@ -7,11 +7,7 @@ import { GoogleApiModule } from 'google-api/google-api.module';
 import { QuestionsModule } from '@questions/questions.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Template]),
-    GoogleApiModule,
-    QuestionsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Template]), GoogleApiModule],
   controllers: [TemplateController],
   providers: [TemplateService],
   exports: [TemplateService],
