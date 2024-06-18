@@ -317,7 +317,7 @@ export class QuestionService {
         question: question,
         input: dto.input,
         output: dto.output,
-        isVisiable: dto.isVisiable,
+        isVisible: dto.isVisible,
       });
       return ['Create test case successful', null];
     } catch (err) {
@@ -343,7 +343,7 @@ export class QuestionService {
 
     testCase.input = updatedFields.input;
     testCase.output = updatedFields.output;
-    testCase.isVisiable = updatedFields.isVisiable;
+    testCase.isVisible = updatedFields.isVisible;
 
     await this.questionTestCaseRepository
       .save(testCase)
