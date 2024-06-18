@@ -162,7 +162,7 @@ export class QuestionService {
         maxSubmitTimes: dto.maxSubmitTime,
         score: dto.score,
       });
-      return [result, null];
+      return [result.generatedMaps, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION: ' + err);
       return [null, 'Insert question fail'];
