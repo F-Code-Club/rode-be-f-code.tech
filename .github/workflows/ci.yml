@@ -1,6 +1,5 @@
 on:
   pull_request:
-    types: ["opened", "reopened"] 
     branches:   
       - develop
 # refactor, bugfix, perf
@@ -23,7 +22,7 @@ jobs:
       timeout-minutes: 5
       env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
+
     - name: Eslint clean code check
       uses: actions/setup-node@v3
       with:
