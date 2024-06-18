@@ -18,8 +18,8 @@ export class QuestionTestCase {
   @Column()
   output: string;
 
-  @Column({ default: false, name: 'is_visiable' })
-  isVisiable: boolean;
+  @Column({ default: false, name: 'is_visible' })
+  isVisible: boolean;
 
   @ManyToOne(() => Question, (question) => question.id, {
     onDelete: 'CASCADE',

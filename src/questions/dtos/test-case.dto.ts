@@ -12,7 +12,7 @@ export class CreateTestCaseDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  isVisiable: boolean;
+  isVisible: boolean;
 }
 
 export class UpdateTestCaseDto {
@@ -26,5 +26,5 @@ export class UpdateTestCaseDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  isVisiable: boolean;
+  isVisible: boolean;
 }
