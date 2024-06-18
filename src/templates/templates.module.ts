@@ -4,6 +4,7 @@ import { TemplateController } from '@templates/templates.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Template } from './entities/templates.entity';
 import { GoogleApiModule } from 'google-api/google-api.module';
+import { QuestionsModule } from '@questions/questions.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Template]), GoogleApiModule],

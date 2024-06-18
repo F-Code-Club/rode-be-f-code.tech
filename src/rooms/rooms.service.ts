@@ -210,11 +210,11 @@ export class RoomsService {
     return result;
   }
 
-  async isNotOneHourLeft(roomId: string) {
+  async isNotOneHourLeft(roomId: number) {
     return await this.roomRepository
       .findOne({
         where: {
-          id: parseInt(roomId),
+          id: roomId,
         },
       })
       .then((result) => {

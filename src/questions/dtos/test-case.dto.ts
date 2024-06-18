@@ -9,6 +9,10 @@ export class CreateTestCaseDto {
   @ApiProperty()
   @IsNotEmpty()
   output: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  isVisiable: boolean;
 }
 
 export class UpdateTestCaseDto {
@@ -19,4 +23,8 @@ export class UpdateTestCaseDto {
   @ApiProperty()
   @IsNotEmpty()
   output: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  isVisiable: boolean;
 }

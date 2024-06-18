@@ -3,6 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Template } from './entities/templates.entity';
 import { GoogleApiService } from 'google-api/google-api.service';
+import { FileUploadDto } from './dtos/file-upload.dto';
+import RodeConfig from '@etc/config';
+import { LogService } from '@logger/logger.service';
+import { randomUUID } from 'crypto';
+import { Question } from '@questions/entities/question.entity';
 
 @Injectable()
 export class TemplateService {
@@ -11,63 +16,63 @@ export class TemplateService {
     private readonly templateRepository: Repository<Template>,
     private readonly googleApiService: GoogleApiService,
     private readonly dataSource: DataSource,
+    private readonly logger: LogService,
   ) {}
 
-  async uploadOne(questionId: string, fileName: string, fileBuffer: Buffer) {
-    let errorList = [];
-    const template = await this.templateRepository
-      .createQueryBuilder('templates')
-      .where('templates.question_id = :questionId', { questionId })
-      .getOne();
-    if (!template) {
-      errorList.push('Cannot found template to upload');
-      return [null, errorList];
-    }
-    const oldUrl = template.url;
-    let uploadFileId = null;
+  async uploadOne(
+    questionId: string,
+    dto: FileUploadDto,
+    fileName: string,
+    fileBuffer: Buffer,
+  ) {
+    let fileId = null;
+    const random_uuid = randomUUID();
+
+    const question = await this.dataSource.getRepository(Question).findOne({
+      where: {
+        id: questionId,
+      },
+    });
+    if (!question) return [null, 'Cannot found question'];
+
     try {
-      await this.dataSource.transaction(async (manager) => {
-        uploadFileId = await this.googleApiService.uploadFileBuffer(
-          fileName,
-          fileBuffer,
-        );
-        template.url = uploadFileId;
-        await manager.save(template);
-        //Delete old file on drive
-        if (oldUrl) {
-          await this.googleApiService
-            .deleteFileById(oldUrl)
-            .catch(() =>
-              errorList.push('Cannot delete old template on drive!'),
-            );
-        }
-      });
-      return ['Upload successful', errorList];
+      fileId = await this.googleApiService.uploadFileBuffer(
+        random_uuid,
+        fileBuffer,
+      );
     } catch (err) {
-      errorList.push(err.message);
-      //Delete uploaded file
-      if (uploadFileId)
-        await this.googleApiService
-          .deleteFileById(uploadFileId)
-          .catch(() =>
-            errorList.push('Cannot delete uploaded template  on drive!'),
-          );
+      this.logger.error('UPLOAD FILE ON DRIVE: ' + err);
+      return [null, 'Cannot upload file on drive: ' + err];
+    }
+
+    const shareableLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
+    const errorList = [];
+    try {
+      await this.templateRepository.insert({
+        question: question,
+        localPath:
+          RodeConfig.TEMPLATE_LOCAL_PATH +
+          '/' +
+          question.stack.id +
+          '/' +
+          random_uuid +
+          '.' +
+          fileName.split('.').pop(),
+        url: shareableLink,
+        colorCode: dto.colorCode,
+      });
+      return ['Upload file successful', null];
+    } catch (err) {
+      this.logger.error('INSERT TEMPLATE: ' + err);
+      errorList.push('Cannot insert template');
+      // Delete uploaded file
+      if (fileId) {
+        await this.googleApiService.deleteFileById(fileId).catch(() => {
+          this.logger.error('INSERT TEMPLATE: ' + err);
+          errorList.push('Cannot delete uploaded template on drive!');
+        });
+      }
     }
     return [null, errorList];
   }
-
-  // async uploadAll() {
-  //   let errorList: string[] = [];
-  //   const templateList: Template[] = await this.templateRepository.find({});
-  //   if (templateList) {
-  //     templateList.forEach(async (template) => {
-  //       try {
-  //         const res = await this.googleApiService.uploadTemplate(template.localPath);
-  //       } catch (err) {
-  //         errorList.push('Error when upload template: ' + err.message);
-  //       }
-  //     });
-  //   } else errorList.push('There are no template to upload');
-  //   return [true, errorList];
-  // }
 }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpStatus,
   Param,
@@ -12,10 +13,10 @@ import { RoleEnum } from '@etc/enums';
 import Roles from '@decorators/roles.decorator';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 import { RoleGuard } from '@auth/role.guard';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '@etc/response-object';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
-import FileUploadDto from './dtos/file-upload.dto';
+import { FileUploadDto } from './dtos/file-upload.dto';
 
 @Controller('templates')
 @ApiTags('Templates')
@@ -23,9 +24,10 @@ export class TemplateController {
   constructor(private readonly templatesService: TemplateService) {}
 
   @Post('upload/:question_id')
-  @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthGuard, RoleGuard)
+  @ApiBearerAuth()
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Template File',
@@ -33,10 +35,12 @@ export class TemplateController {
   })
   async uploadFile(
     @Param('question_id') questionId: string,
+    @Body() dto: FileUploadDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
+      dto,
       file.originalname,
       file.buffer,
     );
@@ -52,7 +56,7 @@ export class TemplateController {
       HttpStatus.OK,
       'Upload Template Successful!',
       data,
-      errlist,
+      null,
     );
   }
 }

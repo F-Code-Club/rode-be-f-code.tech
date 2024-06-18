@@ -65,6 +65,32 @@ export class SocketsGateWay
     this.io.to(client.id).emit('connected', { message: 'Connected' });
   }
 
+  @SubscribeMessage('join-room')
+  async joinRoom(client: Socket, dto: ViewLeaderboardDto) {
+    this.roomsService
+      .isNotOneHourLeft(dto.roomId)
+      .then((result) => {
+        if (result) {
+          client.join(dto.roomId.toString());
+          client.emit(`Join room ${dto.roomId} successful`);
+        }
+      })
+      .catch((error) => this.logger.error('GET ROOMS ERROR: ' + error));
+  }
+
+  @SubscribeMessage('leave-room')
+  async leaveRoom(client: Socket, dto: ViewLeaderboardDto) {
+    this.roomsService
+      .findOneById(dto.roomId)
+      .then(([data, err]) => {
+        if (data) {
+          client.leave(dto.roomId.toString());
+          client.emit(`Leave room ${dto.roomId} successful`);
+        }
+      })
+      .catch((error) => this.logger.error('GET ROOMS ERROR: ' + error));
+  }
+
   @SubscribeMessage('change-leaderboard')
   async changeLeaderboard(@MessageBody() dto: ViewLeaderboardDto) {
     // Find if it is one hour left
@@ -75,10 +101,12 @@ export class SocketsGateWay
           const [data, error] = await this.scoresService.getLeaderboard(
             dto.roomId,
           );
-          this.io.to(dto.roomId).emit('on-view-leaderboard', { data, error });
+          this.io
+            .to(dto.roomId.toString())
+            .emit('on-view-leaderboard', { data, error });
           if (error) this.logger.error('GET SCORES ERROR: ' + error);
         } else {
-          this.io.to(dto.roomId).emit('on-view-leaderboard', {
+          this.io.to(dto.roomId.toString()).emit('on-view-leaderboard', {
             data: null,
             error: 'Time remaining is less than 1 hour.',
           });

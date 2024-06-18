@@ -1,6 +1,5 @@
 on:
   pull_request:
-    types: ["opened", "reopened"] 
     branches:   
       - develop
 # refactor, bugfix, perf
@@ -9,10 +8,8 @@ jobs:
     name: Clean Code Testing
     runs-on: ubuntu-latest
     steps:
-    - name: Checking out
+    - name: Checkout Develop
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
@@ -24,22 +21,16 @@ jobs:
       uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Comment on PR if tests fail
-      if: failure()
-      uses: actions/github-script@v6
+    - name: Eslint clean code check
+      uses: actions/setup-node@v3
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { context } = require('@actions/github');
-          const issueComment = context.issue.number
-          await github.issues.createComment({
-            issue_number: issueComment,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '🚨 The SonarQube Test have failed. Please check the details and fix the issues.'
-          });
-
-
-
+        node-version: 18
+    - run: yarn install
+    - uses: sibiraj-s/action-eslint@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        eslint-args: '--ignore-path=.gitignore --quiet'
+        extensions: 'js,jsx,ts,tsx'
+        annotations: true

@@ -1,3 +1,3 @@
 export type ViewLeaderboardDto = {
-  roomId: string;
+  roomId: number;
 };

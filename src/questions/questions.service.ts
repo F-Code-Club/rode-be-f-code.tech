@@ -80,10 +80,14 @@ export class QuestionService {
     stack_id: string,
     updatedFields: UpdateQuestionStackDto,
   ) {
-    const questionStack = await this.questionStackRepository.findOne({
-      where: { id: stack_id },
-      select: ['status'],
-    });
+    const questionStack = await this.questionStackRepository
+      .findOne({
+        where: { id: stack_id },
+        select: ['status'],
+      })
+      .catch((err) => {
+        this.logger.error('FIND STACK: ' + err);
+      });
 
     if (!questionStack) return [null, 'Not Found!'];
 
@@ -137,14 +141,20 @@ export class QuestionService {
 
   // Question
   async createQuestion(stackId: string, dto: CreateQuestionDto) {
-    const qs: QuestionStack = await this.questionStackRepository.findOne({
-      where: {
-        id: stackId,
-        status: QuestionStackStatus.USED,
-      },
-    });
+    const qs = await this.questionStackRepository
+      .findOne({
+        where: {
+          id: stackId,
+        },
+      })
+      .catch((err) => {
+        this.logger.error('FIND STACK: ' + err);
+      });
 
     if (!qs) return [null, 'Cannot found question_stack'];
+
+    if (qs.status == QuestionStackStatus.USED)
+      return [null, 'Question stack is USED!'];
 
     try {
       await this.questionRepository.insert({
@@ -288,11 +298,16 @@ export class QuestionService {
   }
 
   async createTestCase(questionId: string, dto: CreateTestCaseDto) {
-    const question: Question = await this.questionRepository.findOne({
-      where: {
-        id: questionId,
-      },
-    });
+    const question = await this.questionRepository
+      .findOne({
+        where: {
+          id: questionId,
+        },
+      })
+      .catch((err) => {
+        this.logger.error('FIND QUESTION: ' + err);
+      });
+
     if (!question) return [null, 'Cannot found question'];
     if (!question.stack) return [null, 'Cannot found question stack'];
     if (question.stack.status == QuestionStackStatus.USED)
@@ -302,6 +317,7 @@ export class QuestionService {
         question: question,
         input: dto.input,
         output: dto.output,
+        isVisiable: dto.isVisiable,
       });
       return ['Create test case successful', null];
     } catch (err) {
@@ -327,6 +343,7 @@ export class QuestionService {
 
     testCase.input = updatedFields.input;
     testCase.output = updatedFields.output;
+    testCase.isVisiable = updatedFields.isVisiable;
 
     await this.questionTestCaseRepository
       .save(testCase)
