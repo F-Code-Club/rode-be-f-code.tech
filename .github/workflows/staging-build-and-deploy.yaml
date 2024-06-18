@@ -41,20 +41,22 @@ jobs:
       ADMIN_EMAIL: ${{secrets.ADMIN_EMAIL}}
       ADMIN_DEFAULT_PASSWORD: ${{secrets.ADMIN_DEFAULT_PASSWORD}}
 
-      GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
-      GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-      GOOGLE_REDIRECT_URL: ${{secrets.GOOGLE_REDIRECT_URL}}
-      GOOGLE_REFRESH_TOKEN: ${{secrets.GOOGLE_REFRESH_TOKEN}}
       SERVICE_PRIVATE_KEY: ${{secrets.F_CODE_GOOGLE_PRIVATE_KEY}}
       SERVICE_PRIVATE_KEY_ID: ${{secrets.F_CODE_GOOGLE_PRIVATE_KEY_ID}}
       SERVICE_ACCOUNT_EMAIL: ${{secrets.F_CODE_GOOGLE_CLIENT_EMAIL}}
 
+      MAIL_USER: ${{secrets.MAIL_USER}}
+      MAIL_SENDER: ${{secrets.MAIL_SENDER}}
+      MAIL_APP_PASSWORD: ${{secrets.MAIL_APP_PASSWORD}}
+      MAIL_SENDER_EMAIL: ${{secrets.MAIL_SENDER_EMAIL}}
+
       FOLDER_TEMPLATE_ID: ${{secrets.FOLDER_TEMPLATE_ID}}
-      FOLDER_ID: ${{secrets.FOLDER_ID}}
-      FOLDER_TEAMS_EXCEL: ${{secrets.FOLDER_TEAMS_EXCEL}}
 
       SALT_ROUND: ${{secrets.SALT_ROUND}}
       DOCKER_HUB_URL: ${{ secrets.F_CODE_DOCKER_REGISTRY_URL }}
+      
+      TEMPLATE_LOCAL_PATH: ${{secrets.TEMPLATE_LOCAL_PATH}}
+      
     steps:
     - name: Checkout Develop
       uses: actions/checkout@v3
