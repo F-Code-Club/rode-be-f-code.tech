@@ -16,7 +16,6 @@ export default class RodeConfig {
   static readonly JWT_REFRESH_EXPIRES_IN =
     process.env.JWT_REFRESH_EXPIRES_IN || '10d';
 
-  static readonly FOLDER_ID = process.env.FOLDER_ID;
   static readonly FOLDER_TEMPLATE_ID = process.env.FOLDER_TEMPLATE_ID || '';
   static readonly SALT_ROUND = parseInt(process.env.SALT_ROUND) || 3;
 

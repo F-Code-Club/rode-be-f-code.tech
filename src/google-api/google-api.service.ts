@@ -48,18 +48,6 @@ export class GoogleApiService {
     }
   }
 
-  async getFileByName(fileName: string) {
-    try {
-      const result = await drive.files.list({
-        q: `'${RodeConfig.FOLDER_ID}' in parents and name ='${fileName}'`,
-        fields: 'files(id, name, mimeType)',
-      });
-      return result.data.files[0];
-    } catch (error) {
-      return null;
-    }
-  }
-
   async deleteFileById(fileId: string) {
     try {
       await drive.files.delete({
@@ -68,12 +56,6 @@ export class GoogleApiService {
     } catch (error) {
       throw new Error('Error when delete file!');
     }
-  }
-
-  async deleteMultipleFiles(fileIds: string[]) {
-    try {
-      await drive.files.delete({ fileId: fileIds.join(',') });
-    } catch (error) {}
   }
 
   async downloadTeamsRegisterSheetTemplate(
