@@ -63,12 +63,12 @@ export class QuestionService {
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
     try {
-      const stack = await this.questionStackRepository.insert({
-        name: dto.name,
-        stackMax: dto.stackMax,
-        status: QuestionStackStatus.DRAFT,
-        type: dto.type,
-      });
+      const stack = new QuestionStack();
+      stack.name = dto.name;
+      stack.stackMax = dto.stackMax;
+      stack.status = QuestionStackStatus.DRAFT;
+      stack.type = dto.type;
+      await this.questionStackRepository.save(stack);
       return [stack, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION STACK: ' + err);
@@ -157,11 +157,11 @@ export class QuestionService {
       return [null, 'Question stack is USED!'];
 
     try {
-      const question = await this.questionRepository.insert({
-        stack: qs,
-        maxSubmitTimes: dto.maxSubmitTime,
-        score: dto.score,
-      });
+      const question = new Question();
+      question.stack = qs;
+      question.maxSubmitTimes = dto.maxSubmitTime;
+      question.score = dto.score;
+      await this.questionRepository.save(question);
       return [question, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION: ' + err);
@@ -313,12 +313,11 @@ export class QuestionService {
     if (question.stack.status == QuestionStackStatus.USED)
       return [null, 'Question Stack is in USED'];
     try {
-      const tc = await this.questionTestCaseRepository.insert({
-        question: question,
-        input: dto.input,
-        output: dto.output,
-        isVisible: dto.isVisible,
-      });
+      const tc = new QuestionTestCase();
+      tc.question = question;
+      tc.input = dto.input;
+      tc.output = dto.output;
+      tc.isVisible = dto.isVisible;
       return [tc, null];
     } catch (err) {
       this.logger.error('INSERT TEST CASE: ' + err.message);
