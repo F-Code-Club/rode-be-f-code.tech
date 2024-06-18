@@ -157,12 +157,12 @@ export class QuestionService {
       return [null, 'Question stack is USED!'];
 
     try {
-      await this.questionRepository.insert({
+      const result = await this.questionRepository.insert({
         stack: qs,
         maxSubmitTimes: dto.maxSubmitTime,
         score: dto.score,
       });
-      return ['Create question successful', null];
+      return [result, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION: ' + err);
       return [null, 'Insert question fail'];
