@@ -22,12 +22,12 @@ export class TemplateService {
   async uploadOne(
     questionId: string,
     dto: FileUploadDto,
-    fileName: string,
-    fileBuffer: Buffer,
+    file: Express.Multer.File,
   ) {
+    if (!file) return [null, 'File is empty'];
+
     let fileId = null;
     const random_uuid = randomUUID();
-
     const question = await this.dataSource.getRepository(Question).findOne({
       where: {
         id: questionId,
@@ -38,7 +38,7 @@ export class TemplateService {
     try {
       fileId = await this.googleApiService.uploadFileBuffer(
         random_uuid,
-        fileBuffer,
+        file.buffer,
       );
     } catch (err) {
       this.logger.error('UPLOAD FILE ON DRIVE: ' + err);
@@ -57,7 +57,7 @@ export class TemplateService {
           '/' +
           random_uuid +
           '.' +
-          fileName.split('.').pop(),
+          file.originalname.split('.').pop(),
         url: shareableLink,
         colorCode: dto.colorCode,
       });

@@ -38,18 +38,10 @@ export class TemplateController {
     @Body() dto: FileUploadDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file)
-      return new ResponseObject(
-        HttpStatus.BAD_REQUEST,
-        'Upload Template Failed!',
-        null,
-        'File is empty',
-      );
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
       dto,
-      file.originalname,
-      file.buffer,
+      file,
     );
     if (!data) {
       return new ResponseObject(
