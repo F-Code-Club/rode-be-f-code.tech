@@ -15,7 +15,7 @@ import { Score } from 'scores/entities/scores.entity';
 @Entity('submit_histories')
 @Check(`"submit_number" >= 1`)
 @Check(`"run_time" >= 0`)
-@Check(`"score" >= 1`)
+@Check(`"score" >= 0`)
 @Check(`"character_count" >= 0`)
 export class SubmitHistory {
   @PrimaryColumn({ name: 'score_id' })
