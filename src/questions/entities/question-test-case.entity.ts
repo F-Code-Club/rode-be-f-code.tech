@@ -18,7 +18,7 @@ export class QuestionTestCase {
   @Column()
   output: string;
 
-  @Column({ default: false, name: 'is_visiable' })
+  @Column({ default: false, name: 'is_visible' })
   isVisible: boolean;
 
   @ManyToOne(() => Question, (question) => question.id, {
