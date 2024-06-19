@@ -94,7 +94,7 @@ export class QuestionService {
     if (questionStack.status !== QuestionStackStatus.USED) {
       const result = await this.questionStackRepository
         .update({ id: stack_id }, updatedFields)
-        .then((_) => ['Updated Question Stack!', null])
+        .then(() => ['Updated Question Stack!', null])
         .catch((err) => {
           this.logger.error('UPDATE QUESTION STACK: ' + err);
           return [null, 'Cannot Update The Question Stack!'];
@@ -122,7 +122,6 @@ export class QuestionService {
 
     await this.questionRepository
       .delete({ stack: questionStack })
-      .then(() => {})
       .catch((err) => {
         error = 'Cannot remove question';
         this.logger.error('REMOVE QUESTION: ' + err);
@@ -210,7 +209,7 @@ export class QuestionService {
 
     const result = await this.questionRepository
       .save(question)
-      .then((_) => ['Updated Question!', null])
+      .then(() => ['Updated Question!', null])
       .catch((err) => {
         this.logger.error('UPDATE QUESTION: ' + err);
         return [null, 'Cannot Update Question'];
@@ -354,7 +353,7 @@ export class QuestionService {
   async removeTestCaseById(testCase_id: number) {
     const result = this.questionTestCaseRepository
       .delete({ id: testCase_id })
-      .then((_) => ['Removed Test Case!', null])
+      .then(() => ['Removed Test Case!', null])
       .catch((err) => {
         this.logger.error('REMOVE TEST CASE: ' + err);
         return [null, 'Cannot Remove Test Case!'];
