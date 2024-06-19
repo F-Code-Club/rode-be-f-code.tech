@@ -37,7 +37,13 @@ export class SubmitHistory {
   @JoinColumn({ name: 'member_id', referencedColumnName: 'id' })
   member: Member;
 
-  @Column({ name: 'submit_number', type: 'integer', default: 1 })
+  @Column({
+    name: 'submit_number',
+    type: 'integer',
+    default: 1,
+    primary: true,
+    nullable: false,
+  })
   submitNumber: number;
 
   @Column({ name: 'run_time', type: 'integer', unsigned: true, nullable: true })
