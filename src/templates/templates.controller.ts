@@ -41,8 +41,7 @@ export class TemplateController {
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
       dto,
-      file.originalname,
-      file.buffer,
+      file,
     );
     if (!data) {
       return new ResponseObject(

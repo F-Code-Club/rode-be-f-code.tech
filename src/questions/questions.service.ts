@@ -63,13 +63,13 @@ export class QuestionService {
 
   async createQuestionStack(dto: CreateQuestionStackDto) {
     try {
-      await this.questionStackRepository.insert({
+      const stack = await this.questionStackRepository.save({
         name: dto.name,
         stackMax: dto.stackMax,
         status: QuestionStackStatus.DRAFT,
         type: dto.type,
       });
-      return ['Create question stack successful', null];
+      return [stack, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION STACK: ' + err);
       return [null, 'Cannot insert question stack'];
@@ -94,7 +94,7 @@ export class QuestionService {
     if (questionStack.status !== QuestionStackStatus.USED) {
       const result = await this.questionStackRepository
         .update({ id: stack_id }, updatedFields)
-        .then((_) => ['Updated Question Stack!', null])
+        .then(() => ['Updated Question Stack!', null])
         .catch((err) => {
           this.logger.error('UPDATE QUESTION STACK: ' + err);
           return [null, 'Cannot Update The Question Stack!'];
@@ -122,7 +122,6 @@ export class QuestionService {
 
     await this.questionRepository
       .delete({ stack: questionStack })
-      .then(() => {})
       .catch((err) => {
         error = 'Cannot remove question';
         this.logger.error('REMOVE QUESTION: ' + err);
@@ -157,12 +156,12 @@ export class QuestionService {
       return [null, 'Question stack is USED!'];
 
     try {
-      const result = await this.questionRepository.insert({
+      const question = await this.questionRepository.save({
         stack: qs,
         maxSubmitTimes: dto.maxSubmitTime,
         score: dto.score,
       });
-      return [result.generatedMaps, null];
+      return [question, null];
     } catch (err) {
       this.logger.error('INSERT QUESTION: ' + err);
       return [null, 'Insert question fail'];
@@ -210,7 +209,7 @@ export class QuestionService {
 
     const result = await this.questionRepository
       .save(question)
-      .then((_) => ['Updated Question!', null])
+      .then(() => ['Updated Question!', null])
       .catch((err) => {
         this.logger.error('UPDATE QUESTION: ' + err);
         return [null, 'Cannot Update Question'];
@@ -313,13 +312,13 @@ export class QuestionService {
     if (question.stack.status == QuestionStackStatus.USED)
       return [null, 'Question Stack is in USED'];
     try {
-      await this.questionTestCaseRepository.insert({
+      const tc = await this.questionTestCaseRepository.save({
         question: question,
         input: dto.input,
         output: dto.output,
         isVisible: dto.isVisible,
       });
-      return ['Create test case successful', null];
+      return [tc, null];
     } catch (err) {
       this.logger.error('INSERT TEST CASE: ' + err.message);
       return [null, 'Cannot insert testcase'];
@@ -355,7 +354,7 @@ export class QuestionService {
   async removeTestCaseById(testCase_id: number) {
     const result = this.questionTestCaseRepository
       .delete({ id: testCase_id })
-      .then((_) => ['Removed Test Case!', null])
+      .then(() => ['Removed Test Case!', null])
       .catch((err) => {
         this.logger.error('REMOVE TEST CASE: ' + err);
         return [null, 'Cannot Remove Test Case!'];
