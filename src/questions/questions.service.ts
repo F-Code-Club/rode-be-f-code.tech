@@ -164,7 +164,7 @@ export class QuestionService {
       .findOne({
         where: { id: question_id },
         select: ['id'],
-        relations: ['testCases'],
+        relations: ['testCases', 'template'],
       })
       .then((question) => {
         if (!question) return [null, 'Question Is Not Found!'];
