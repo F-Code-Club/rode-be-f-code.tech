@@ -28,12 +28,17 @@ export class TemplateService {
 
     let fileId = null;
     const random_uuid = randomUUID();
-    const question = await this.dataSource.getRepository(Question).findOne({
-      where: {
-        id: questionId,
-      },
-    });
-    if (!question) return [null, 'Cannot found question'];
+    const question = await this.dataSource
+      .getRepository(Question)
+      .findOne({
+        where: {
+          id: questionId,
+        },
+      })
+      .catch((error) => {
+        this.logger.error('FIND QUESTION: ' + error);
+      });
+    if (!question) return [null, 'Cannot find question'];
 
     try {
       fileId = await this.googleApiService.uploadFileBuffer(
@@ -64,7 +69,9 @@ export class TemplateService {
       return ['Upload file successful', null];
     } catch (err) {
       this.logger.error('INSERT TEMPLATE: ' + err);
-      errorList.push('Cannot insert template');
+      errorList.push(
+        'Cannot insert template, maybe this question has had a template',
+      );
       // Delete uploaded file
       if (fileId) {
         await this.googleApiService.deleteFileById(fileId).catch(() => {
