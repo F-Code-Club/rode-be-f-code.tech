@@ -19,9 +19,6 @@ const sheets = google.sheets({ version: 'v4', auth: serviceAuth });
 export class GoogleApiService {
   async uploadFileBuffer(fileName: string, fileBuffer: Buffer) {
     try {
-      console.log('PRIVATE KEY = ' + RodeConfig.SERVICE_PRIVATE_KEY);
-      console.log('EMAIL = ' + RodeConfig.SERVICE_ACCOUNT_EMAIL);
-      console.log('FOLDER ID = ' + RodeConfig.FOLDER_TEMPLATE_ID);
       const response = await drive.files.create({
         requestBody: {
           name: fileName,
