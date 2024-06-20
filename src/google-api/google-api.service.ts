@@ -32,7 +32,7 @@ export class GoogleApiService {
       });
       return response.data.id;
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.message);
     }
   }
 
