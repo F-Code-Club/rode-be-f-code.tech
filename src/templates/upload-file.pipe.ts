@@ -36,7 +36,6 @@ export class FileValidationPipe implements PipeTransform {
   }
 
   private isValidType(mime: string): boolean {
-    console.log(mime);
     return Object.values<string>(FileMimeTypeEnum).includes(mime);
   }
 }
