@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -17,6 +20,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import ResponseObject from '@etc/response-object';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { FileUploadDto } from './dtos/file-upload.dto';
+import { FileValidationPipe } from './upload-file.pipe';
 
 @Controller('templates')
 @ApiTags('Templates')
@@ -36,7 +40,7 @@ export class TemplateController {
   async uploadFile(
     @Param('question_id') questionId: string,
     @Body() dto: FileUploadDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(FileValidationPipe) file: Express.Multer.File,
   ) {
     const [data, errlist] = await this.templatesService.uploadOne(
       questionId,
@@ -47,7 +51,7 @@ export class TemplateController {
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
         'Upload Template Failed!',
-        data,
+        null,
         errlist,
       );
     }

@@ -30,6 +30,13 @@ export class GoogleApiService {
           body: Readable.from(fileBuffer),
         },
       });
+      await drive.permissions.create({
+        fileId: response.data.id,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
       return response.data.id;
     } catch (error) {
       throw new Error(error.message);
