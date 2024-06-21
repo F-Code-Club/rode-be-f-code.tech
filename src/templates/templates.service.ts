@@ -24,8 +24,6 @@ export class TemplateService {
     dto: FileUploadDto,
     file: Express.Multer.File,
   ) {
-    if (!file) return [null, 'File is empty'];
-
     let fileId = null;
     const random_uuid = randomUUID();
     const question = await this.dataSource
@@ -53,7 +51,7 @@ export class TemplateService {
     const shareableLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
     const errorList = [];
     try {
-      await this.templateRepository.insert({
+      const template = await this.templateRepository.save({
         question: question,
         localPath:
           RodeConfig.TEMPLATE_LOCAL_PATH +
@@ -66,7 +64,7 @@ export class TemplateService {
         url: shareableLink,
         colorCode: dto.colorCode,
       });
-      return ['Upload file successful', null];
+      return [template, null];
     } catch (err) {
       this.logger.error('INSERT TEMPLATE: ' + err);
       errorList.push(
