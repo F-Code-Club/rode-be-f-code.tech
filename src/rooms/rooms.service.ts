@@ -110,7 +110,7 @@ export class RoomsService {
         message: 'Not found stack with this id',
       });
     }
-    if (questionStack.status != QuestionStackStatus.ACTIVE) {
+    if (questionStack.status !== QuestionStackStatus.ACTIVE) {
       errs.push({
         at: 'questionStackStatus',
         message: 'Question stack is USED or not ACTIVE!',
