@@ -244,8 +244,8 @@ export class AccountsService {
     activeAccount.isEnabled = true;
 
     let result = null;
-    await this.dataSource
-      .transaction(async (manager) => {
+    try {
+      await this.dataSource.transaction(async (manager) => {
         await manager.save(activeAccount);
         const sendEmailDto: SendEmailDto = {
           recipients: [
@@ -257,10 +257,10 @@ export class AccountsService {
           },
         };
         result = await this.mailService.sendAnnouncementEmail(sendEmailDto);
-      })
-      .catch((error) => {
-        errorList.push('Active account failed: ' + error.message);
       });
+    } catch (error) {
+      errorList.push('Active account failed: ' + error.message);
+    }
     return [result, errorList];
   }
 
