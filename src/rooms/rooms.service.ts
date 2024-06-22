@@ -127,6 +127,13 @@ export class RoomsService {
       return [null, errs];
     }
     try {
+      await this.questionStackRepository
+        .createQueryBuilder()
+        .update(questionStack)
+        .set({ status: QuestionStackStatus.USED })
+        .where('id= :id', { id: questionStack.id })
+        .execute();
+
       const result = await this.dataSource.transaction(async (manager) => {
         const newRoom: Room = await manager.save(Room, {
           code: info.code,
