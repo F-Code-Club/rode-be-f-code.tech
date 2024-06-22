@@ -66,7 +66,8 @@ export class AccountsController {
   }
 
   @Get('get-one/:id')
-  @UseGuards(RoleGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async getById(@Param('id') id: string) {
     const account = await this.accountsService.getById(id);
