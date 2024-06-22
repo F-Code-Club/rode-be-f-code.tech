@@ -64,25 +64,29 @@ export class TeamService {
       team.memberCount = teamData.member.length;
 
       try {
-        await this.dataSource.transaction(async (manager) => {
-          for (const memberData of teamData.member) {
-            const account = new Account();
-            account.email = memberData.email;
-            account.fullName = memberData.studentName;
-            account.phone = memberData.phone;
-            account.studentId = memberData.studentId;
-            account.dob = memberData.dob;
-            account.isEnabled = false;
-            account.isLocked = false;
-            account.role = RoleEnum.USER;
+        await this.dataSource
+          .transaction(async (manager) => {
+            for (const memberData of teamData.member) {
+              const account = new Account();
+              account.email = memberData.email;
+              account.fullName = memberData.studentName;
+              account.phone = memberData.phone;
+              account.studentId = memberData.studentId;
+              account.dob = memberData.dob;
+              account.isEnabled = false;
+              account.isLocked = false;
+              account.role = RoleEnum.USER;
 
-            const member = new Member();
-            member.joinRoom = false;
-            member.account = await manager.save(account);
-            member.team = await manager.save(team);
-            await manager.save(member);
-          }
-        });
+              const member = new Member();
+              member.joinRoom = false;
+              member.account = await manager.save(account);
+              member.team = await manager.save(team);
+              await manager.save(member);
+            }
+          })
+          .catch((err) => {
+            throw new Error(err);
+          });
       } catch (err) {
         errorList.push(
           'Error when saving TEAM[' + team.name + ']:  ' + err.message,
