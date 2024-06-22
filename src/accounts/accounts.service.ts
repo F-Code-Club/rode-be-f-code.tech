@@ -207,7 +207,7 @@ export class AccountsService {
     return 'Active Users Successfully';
   }
   async activeAccount(id: string) {
-    let errorList: string[] = [];
+    const errorList: string[] = [];
     const activeAccount = await this.accountRepository.findOne({
       where: {
         id: id,
