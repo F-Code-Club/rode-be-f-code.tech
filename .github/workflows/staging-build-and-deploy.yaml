@@ -5,7 +5,7 @@ on:
 jobs:
   api-build:
     name: Build source code to Docker image
-    runs-on: fcode-japao-runner 
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
@@ -16,6 +16,7 @@ jobs:
         with:
           context: .
           push: true
+          no-cache: true
           tags: ${{ secrets.F_CODE_DOCKER_REGISTRY_URL }}/rode-be-api:${{ github.ref_name == 'main' && 'stable' || 'nightly' }}
   
   staging-api-deploy:
