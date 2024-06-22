@@ -107,7 +107,7 @@ export class RoomsService {
     if (!questionStack) {
       errs.push({
         at: 'questionStackId',
-        message: 'Not found stack with this id or this stack is not active',
+        message: 'Not found stack with this id',
       });
     }
     if (questionStack.status != QuestionStackStatus.ACTIVE) {
@@ -123,17 +123,10 @@ export class RoomsService {
       });
     }
 
-    if (errs.length > 0) {
+    if (!errs.length) {
       return [null, errs];
     }
     try {
-      await this.questionStackRepository
-        .createQueryBuilder()
-        .update(questionStack)
-        .set({ status: QuestionStackStatus.USED })
-        .where('id= :id', { id: questionStack.id })
-        .execute();
-
       const result = await this.dataSource.transaction(async (manager) => {
         const newRoom: Room = await manager.save(Room, {
           code: info.code,
