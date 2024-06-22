@@ -88,6 +88,9 @@ export class AccountsController {
   }
 
   @Post('create-one')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async createOne(@Body() info: CreateAccountDto) {
     const [account, err] = await this.accountsService.createOne(info);
     if (!account) {
@@ -158,7 +161,7 @@ export class AccountsController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER)
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('users/active-account')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -166,7 +169,7 @@ export class AccountsController {
     return await this.accountsService.activateAllAccount();
   }
 
-  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Roles(RoleEnum.ADMIN)
   @Patch('change-role')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -188,7 +191,7 @@ export class AccountsController {
     return new ResponseObject(HttpStatus.OK, 'Update Role Success', data, err);
   }
 
-  @Roles(RoleEnum.MANAGER)
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('users/active-account/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
