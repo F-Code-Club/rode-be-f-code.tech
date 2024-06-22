@@ -115,8 +115,8 @@ export class RoomsService {
     if (errs.length > 0) {
       return [null, errs];
     }
-    try {
-      this.dataSource.transaction(async (manager) => {
+    this.dataSource
+      .transaction(async (manager) => {
         await manager.save(Room, {
           code: info.code,
           closeTime: info.closeTime,
@@ -127,11 +127,11 @@ export class RoomsService {
         });
         questionStack.status = QuestionStackStatus.USED;
         await manager.save(QuestionStack, questionStack);
+      })
+      .catch((err) => {
+        this.logger.error(err);
+        return [null, 'Create room failed'];
       });
-    } catch (err) {
-      this.logger.error(err);
-      return [null, 'Create room failed'];
-    }
     return ['Create room success', null];
   }
 
@@ -255,16 +255,16 @@ export class RoomsService {
     currentStack.status = QuestionStackStatus.ACTIVE;
     stackResult.status = QuestionStackStatus.USED;
     roomResult.questionStack = stackResult;
-    try {
-      await this.dataSource.transaction(async (manager) => {
+    await this.dataSource
+      .transaction(async (manager) => {
         await manager.save(roomResult);
         await manager.save(stackResult);
         await manager.save(currentStack);
+      })
+      .catch((err) => {
+        this.logger.error(err);
+        return [null, 'Errors when changing question stack'];
       });
-    } catch (err) {
-      this.logger.error(err);
-      return [null, 'Errors when changing question stack'];
-    }
     return [roomResult, null];
   }
 
