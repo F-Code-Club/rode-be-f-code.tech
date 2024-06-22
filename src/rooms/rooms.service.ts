@@ -91,8 +91,6 @@ export class RoomsService {
       await this.questionStackRepository.findOne({
         where: {
           id: info.questionStackId,
-          status: QuestionStackStatus.ACTIVE,
-          type: info.type,
         },
       });
     const checkCode = await this.roomRepository.findOne({
@@ -112,6 +110,19 @@ export class RoomsService {
         message: 'Not found stack with this id or this stack is not active',
       });
     }
+    if (questionStack.status != QuestionStackStatus.ACTIVE) {
+      errs.push({
+        at: 'questionStackStatus',
+        message: 'Question stack is USED or not ACTIVE!',
+      });
+    }
+    if (info.type != questionStack.type) {
+      errs.push({
+        at: 'questionStackType',
+        message: "Question stack's and room's type are not match!",
+      });
+    }
+
     if (errs.length > 0) {
       return [null, errs];
     }
