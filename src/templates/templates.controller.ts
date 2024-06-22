@@ -1,11 +1,8 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   Post,
   UploadedFile,
   UseGuards,
