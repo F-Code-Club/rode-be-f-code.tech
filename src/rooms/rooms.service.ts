@@ -115,9 +115,9 @@ export class RoomsService {
     if (errs.length > 0) {
       return [null, errs];
     }
-    this.dataSource
-      .transaction(async (manager) => {
-        await manager.save(Room, {
+    try {
+      const result = await this.dataSource.transaction(async (manager) => {
+        const newRoom: Room = await manager.save(Room, {
           code: info.code,
           closeTime: info.closeTime,
           openTime: info.openTime,
@@ -127,12 +127,13 @@ export class RoomsService {
         });
         questionStack.status = QuestionStackStatus.USED;
         await manager.save(QuestionStack, questionStack);
-      })
-      .catch((err) => {
-        this.logger.error(err);
-        return [null, 'Create room failed'];
+        return newRoom;
       });
-    return ['Create room success', null];
+      return [result, null];
+    } catch (err) {
+      this.logger.error(err);
+      return [null, 'Create room failed'];
+    }
   }
 
   /**
@@ -255,16 +256,16 @@ export class RoomsService {
     currentStack.status = QuestionStackStatus.ACTIVE;
     stackResult.status = QuestionStackStatus.USED;
     roomResult.questionStack = stackResult;
-    await this.dataSource
-      .transaction(async (manager) => {
+    try {
+      await this.dataSource.transaction(async (manager) => {
         await manager.save(roomResult);
         await manager.save(stackResult);
         await manager.save(currentStack);
-      })
-      .catch((err) => {
-        this.logger.error(err);
-        return [null, 'Errors when changing question stack'];
       });
+    } catch (err) {
+      this.logger.error(err);
+      return [null, 'Errors when changing question stack'];
+    }
     return [roomResult, null];
   }
 

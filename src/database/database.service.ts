@@ -30,7 +30,7 @@ export class DatabaseService implements BeforeApplicationShutdown {
     });
     if (!admin) {
       await this.accountRepository.delete({
-        role: RoleEnum.ADMIN,
+        email: RodeConfig.ADMIN_EMAIL,
       });
       await this.accountRepository.save({
         fullName: 'Super Admin',

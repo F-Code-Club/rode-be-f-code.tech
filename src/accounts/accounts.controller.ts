@@ -33,13 +33,13 @@ import CurrentAccountRole from '@decorators/current-account-role.decorator';
 
 @Controller('accounts')
 @ApiTags('Accounts')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Get('get-all')
   @ApiQuery({ type: PaginationDto })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async getAll(
     @Paginate() query: PaginateQuery,
@@ -66,8 +66,6 @@ export class AccountsController {
   }
 
   @Get('get-one/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async getById(@Param('id') id: string) {
     const account = await this.accountsService.getById(id);
@@ -88,8 +86,6 @@ export class AccountsController {
   }
 
   @Post('create-one')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   async createOne(@Body() info: CreateAccountDto) {
     const [account, err] = await this.accountsService.createOne(info);
@@ -110,9 +106,7 @@ export class AccountsController {
   }
 
   @Post('update-one/:id')
-  @ApiBearerAuth()
   @ApiBody({ type: OmitType(CreateAccountDto, ['email'] as const) })
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async updateOne(
     @Param('id') id: string,
@@ -140,8 +134,6 @@ export class AccountsController {
   }
 
   @Post('toggle-active/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   async toggleActive(@Param('id') id: string) {
     const [account, err] = await this.accountsService.toggleActive(id);
@@ -161,18 +153,14 @@ export class AccountsController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('users/active-account')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   async activeUser() {
     return await this.accountsService.activateAllAccount();
   }
 
-  @Roles(RoleEnum.ADMIN)
   @Patch('change-role')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN)
   async changeUserRole(
     @Body() updateRole: UpdateRoleAccountDto,
     @CurrentAccountRole() role: RoleEnum,
@@ -193,8 +181,6 @@ export class AccountsController {
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Post('users/active-account/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
   async activeUserAccount(@Param('id') id: string) {
     const [result, error] = await this.accountsService.activeAccount(id);
     if (result) {
@@ -213,10 +199,8 @@ export class AccountsController {
     );
   }
 
-  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Delete('remove-account/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   async removeAccount(
     @Param('id') id: string,
     @CurrentAccount() curAccount: Account,
