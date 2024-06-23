@@ -7,11 +7,13 @@ import { QuestionService } from './questions.service';
 import { QuestionTestCase } from './entities/question-test-case.entity';
 import { LogModule } from '@logger/logger.module';
 import { LogService } from '@logger/logger.service';
+import { TemplateModule } from '@templates/templates.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Question, QuestionStack, QuestionTestCase]),
     LogModule,
+    TemplateModule,
   ],
   controllers: [QuestionController],
   providers: [QuestionService, LogService],

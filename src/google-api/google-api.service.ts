@@ -61,7 +61,7 @@ export class GoogleApiService {
         fileId,
       });
     } catch (error) {
-      throw new Error('Error when delete file!');
+      throw new Error(error);
     }
   }
 

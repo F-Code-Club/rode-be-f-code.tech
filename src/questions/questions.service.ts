@@ -12,6 +12,7 @@ import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
 import { QuestionTestCase } from './entities/question-test-case.entity';
 import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
 import { LogService } from '@logger/logger.service';
+import { TemplateService } from '@templates/templates.service';
 @Injectable()
 export class QuestionService {
   constructor(
@@ -21,6 +22,7 @@ export class QuestionService {
     private readonly questionRepository: Repository<Question>,
     @InjectRepository(QuestionTestCase)
     private readonly questionTestCaseRepository: Repository<QuestionTestCase>,
+    private readonly templatesService: TemplateService,
     private readonly logger: LogService,
   ) {}
 
