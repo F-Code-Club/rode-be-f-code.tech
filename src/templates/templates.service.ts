@@ -20,6 +20,23 @@ export class TemplateService {
     private readonly logger: LogService,
   ) {}
 
+  async getOne(questionId: string) {
+    const template = await this.templateRepository
+      .findOne({
+        where: {
+          question: {
+            id: questionId,
+          },
+        },
+      })
+      .catch((err) => {
+        this.logger.error('FIND TEMPLATE: ' + err);
+      });
+
+    if (!template) return [null, 'Cannot find template'];
+    return [template, null];
+  }
+
   async uploadOne(
     questionId: string,
     dto: FileUploadDto,
@@ -80,6 +97,30 @@ export class TemplateService {
       }
     }
     return [null, errorList];
+  }
+
+  async updateColorCode(questionId: string, colorCode: string) {
+    const template = await this.templateRepository
+      .findOne({
+        where: {
+          question: {
+            id: questionId,
+          },
+        },
+      })
+      .catch((err) => {
+        this.logger.error('FIND TEMPLATE: ' + err);
+      });
+    if (!template) return [null, 'Cannot find template'];
+
+    try {
+      template.colorCode = colorCode;
+      const updatedTemplate = await this.templateRepository.save(template);
+      return [updatedTemplate, null];
+    } catch (err) {
+      this.logger.error('UPDATE TEMPLATE: ' + err);
+    }
+    return [null, 'Cannot update template'];
   }
 
   async deleteOne(questionId: string) {

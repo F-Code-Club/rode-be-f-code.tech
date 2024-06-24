@@ -6,3 +6,8 @@ export class FileUploadDto {
   @ApiProperty({ required: false })
   colorCode: string;
 }
+
+export class UpdateTemplateDto {
+  @ApiProperty({ required: false })
+  colorCode: string;
+}
