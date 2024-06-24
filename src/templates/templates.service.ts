@@ -124,8 +124,7 @@ export class TemplateService {
   }
 
   async deleteOne(questionId: string) {
-    const errorlist = [];
-    // 1. Get template base on question id
+    let error = null;
     const template = await this.templateRepository
       .findOne({
         where: {
@@ -139,26 +138,24 @@ export class TemplateService {
       });
     if (!template) return [null, 'Cannot find template'];
 
-    // 2. Delete file on drive
     const fileId = TemplatesUtils.extractFileId(template.url);
-    // If there is file on drive
     if (fileId) {
       await this.googleApiService.deleteFileById(fileId).catch((err) => {
         this.logger.error('DELETE FILE ON DRIVE: ' + err);
-        errorlist.push('Cannot delete file on drive!');
+        error = 'Cannot delete file on drive!';
       });
     } else {
-      errorlist.push('File id not found');
+      error = 'File id not found';
     }
-
-    // 3. Delete template
-    try {
-      await this.templateRepository.remove(template);
-      return [true, errorlist];
-    } catch (err) {
-      this.logger.error('DELETE TEMPLATE: ' + err);
-      errorlist.push('Cannot delete template');
-      return [null, errorlist];
+    if (!error) {
+      try {
+        await this.templateRepository.remove(template);
+        return [true, error];
+      } catch (err) {
+        this.logger.error('DELETE TEMPLATE: ' + err);
+        error = 'Cannot delete template';
+      }
     }
+    return [null, error];
   }
 }
