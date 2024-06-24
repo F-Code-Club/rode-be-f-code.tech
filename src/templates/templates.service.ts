@@ -99,7 +99,7 @@ export class TemplateService {
     if (!template) return [null, 'Cannot find template'];
 
     // 2. Delete file on drive
-    let fileId = TemplatesUtils.extractFileId(template.url);
+    const fileId = TemplatesUtils.extractFileId(template.url);
     // If there is file on drive
     if (fileId) {
       await this.googleApiService.deleteFileById(fileId).catch((err) => {
