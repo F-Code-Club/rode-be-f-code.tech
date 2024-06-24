@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpStatus,
   Param,
   Post,
@@ -57,6 +58,28 @@ export class TemplateController {
       'Upload Template Successful!',
       data,
       null,
+    );
+  }
+
+  @Delete('delete/:question_id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  async deleteTemplate(@Param('question_id') questionId: string) {
+    const [result, errlist] = await this.templatesService.deleteOne(questionId);
+    if (!result) {
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Delete Template Failed!',
+        null,
+        errlist,
+      );
+    }
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Delete Template Successful!',
+      result,
+      errlist,
     );
   }
 }

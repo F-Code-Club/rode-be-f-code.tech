@@ -8,6 +8,7 @@ import RodeConfig from '@etc/config';
 import { LogService } from '@logger/logger.service';
 import { randomUUID } from 'crypto';
 import { Question } from '@questions/entities/question.entity';
+import { TemplatesUtils } from './templates.utils';
 
 @Injectable()
 export class TemplateService {
@@ -73,11 +74,50 @@ export class TemplateService {
       // Delete uploaded file
       if (fileId) {
         await this.googleApiService.deleteFileById(fileId).catch(() => {
-          this.logger.error('INSERT TEMPLATE: ' + err);
+          this.logger.error('DELETE FILE ON DRIVE: ' + err);
           errorList.push('Cannot delete uploaded template on drive!');
         });
       }
     }
     return [null, errorList];
+  }
+
+  async deleteOne(questionId: string) {
+    const errorlist = [];
+    // 1. Get template base on question id
+    const template = await this.templateRepository
+      .findOne({
+        where: {
+          question: {
+            id: questionId,
+          },
+        },
+      })
+      .catch((err) => {
+        this.logger.error('FIND TEMPLATE: ' + err);
+      });
+    if (!template) return [null, 'Cannot find template'];
+
+    // 2. Delete file on drive
+    const fileId = TemplatesUtils.extractFileId(template.url);
+    // If there is file on drive
+    if (fileId) {
+      await this.googleApiService.deleteFileById(fileId).catch((err) => {
+        this.logger.error('DELETE FILE ON DRIVE: ' + err);
+        errorlist.push('Cannot delete file on drive!');
+      });
+    } else {
+      errorlist.push('File id not found');
+    }
+
+    // 3. Delete template
+    try {
+      await this.templateRepository.remove(template);
+      return [true, errorlist];
+    } catch (err) {
+      this.logger.error('DELETE TEMPLATE: ' + err);
+      errorlist.push('Cannot delete template');
+      return [null, errorlist];
+    }
   }
 }

@@ -36,7 +36,9 @@ export class QuestionStack {
     enumName: 'type_enum',
   })
   type: RoomTypeEnum;
-  @OneToMany(() => Question, (question) => question.stack)
+  @OneToMany(() => Question, (question) => question.stack, {
+    onDelete: 'CASCADE',
+  })
   questions: Question[];
   @OneToOne(() => Room, (room) => room.questionStack, { nullable: true })
   room?: Room;
