@@ -113,28 +113,32 @@ export class QuestionService {
       .findOne({
         where: { id: stack_id },
       })
-      .then((questionStack) => {
-        if (!questionStack) return null;
-        return questionStack;
-      })
-      .catch((err) => this.logger.error(err));
+      .catch((err) => this.logger.error('FIND STACK: ' + err));
+
     if (!questionStack) return [null, 'Question Stack Is Not Found!'];
 
     let error = null;
 
-    await this.questionRepository
-      .delete({ stack: questionStack })
-      .catch((err) => {
-        error = 'Cannot remove question';
-        this.logger.error('REMOVE QUESTION: ' + err);
-      });
+    const questions = await this.questionRepository
+      .find({
+        where: {
+          stack: {
+            id: stack_id,
+          },
+        },
+      })
+      .catch((err) => this.logger.error('FIND QUESTIONS: ' + err));
 
-    if (!error) {
-      await this.questionStackRepository.remove(questionStack).catch((err) => {
-        error = 'Cannot remove question stack';
-        this.logger.error('REMOVE QUESTION STACK: ' + err);
-      });
+    if (questions) {
+      for (const question of questions) {
+        await this.templatesService.deleteOne(question.id);
+      }
     }
+
+    await this.questionStackRepository.remove(questionStack).catch((err) => {
+      error = 'Cannot remove question stack';
+      this.logger.error('REMOVE QUESTION STACK: ' + err);
+    });
 
     if (error) return [null, error];
     return ['Removed Question Stack!', null];
@@ -235,12 +239,7 @@ export class QuestionService {
 
     let error = null;
 
-    await this.questionTestCaseRepository
-      .delete({ question: question })
-      .catch((err) => {
-        error = 'Cannot delete test case';
-        this.logger.error('DELETE TEST CASE: ' + err);
-      });
+    await this.templatesService.deleteOne(question.id);
 
     if (!error) {
       await this.questionRepository.remove(question).catch((err) => {

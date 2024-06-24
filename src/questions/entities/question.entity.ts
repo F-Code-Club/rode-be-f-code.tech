@@ -23,6 +23,7 @@ export class Question {
   @ManyToOne(() => QuestionStack, (stack) => stack.questions, {
     nullable: false,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'stack_id' })
   @Exclude()
