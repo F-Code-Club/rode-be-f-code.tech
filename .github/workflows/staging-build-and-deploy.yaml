@@ -5,7 +5,7 @@ on:
 jobs:
   api-build:
     name: Build source code to Docker image
-    runs-on: fcode-japao-runner 
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
