@@ -4,6 +4,8 @@ services:
     container_name: rode-battle-api-management
     image: ${DOCKER_HUB_URL}/rode-be-api:nightly
     restart: unless-stopped
+    networks:
+      - rode-battle-network
     ports:
       - ${PORT}:${PORT}
     environment:
@@ -37,3 +39,7 @@ services:
       MAIL_SENDER: ${MAIL_SENDER}
       MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD}
       MAIL_SENDER_EMAIL: ${MAIL_SENDER_EMAIL}
+
+networks:
+  rode-battle-network:
+    external: true
