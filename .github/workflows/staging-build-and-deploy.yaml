@@ -1,3 +1,4 @@
+name: CI/CD Deploy R.ODE Battle In 2 ENV
 on:
   push:
     branches: ["develop", "main"]
@@ -73,7 +74,7 @@ jobs:
     runs-on: fcode-japao-runner
     needs: staging-api-deploy
     env:
-      PORT: ${{secrets.PORT}}
+      PORT: ${{secrets.PROD_PORT}}
       ORIGIN_DOMAIN: ${{secrets.PROD_ORIGIN_DOMAIN}}
       ORIGIN_DOMAIN_LOCAL: ${{secrets.ORIGIN_DOMAIN_LOCAL}}
 
@@ -105,7 +106,7 @@ jobs:
       SALT_ROUND: ${{secrets.SALT_ROUND}}
       DOCKER_HUB_URL: ${{ secrets.F_CODE_DOCKER_REGISTRY_URL }}
       
-      TEMPLATE_LOCAL_PATH: ${{secrets.TEMPLATE_LOCAL_PATH}}
+      TEMPLATE_LOCAL_PATH: ${{secrets.PROD_TEMPLATE_LOCAL_PATH}}
       
     steps:
     - name: Checkout Develop
