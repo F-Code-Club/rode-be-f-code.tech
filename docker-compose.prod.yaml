@@ -1,11 +1,11 @@
 version: '3.8'
 services:
-  rode-battle-api:
-    container_name: rode-battle-api-management
+  rode-battle-api-prod:
+    container_name: rode-battle-api-management-prod
     image: ${DOCKER_HUB_URL}/rode-be-api:nightly
     restart: unless-stopped
     networks:
-      - rode-battle-network-test
+      - rode-battle-network
     ports:
       - ${PORT}:${PORT}
     environment:
@@ -41,6 +41,5 @@ services:
       MAIL_SENDER_EMAIL: ${MAIL_SENDER_EMAIL}
 
 networks:
-  rode-battle-network-test:
-    name: rode-battle-network-test
+  rode-battle-network:
     external: true
