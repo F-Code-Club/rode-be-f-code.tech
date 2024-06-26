@@ -1,3 +1,4 @@
+name: CD Deploy Production
 on:
   push:
     branches: ["develop", "main"]
