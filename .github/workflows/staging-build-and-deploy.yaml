@@ -1,3 +1,4 @@
+name: CI/CD Deploy R.ODE Battle In 2 ENV
 on:
   push:
     branches: ["develop", "main"]
@@ -67,3 +68,52 @@ jobs:
       run: docker compose -f docker-compose.test.yaml -p rode-battle-be-api-test down --rmi all -v
     - name: Deploy API
       run: docker compose -f docker-compose.test.yaml -p rode-battle-be-api-test up -d
+
+  prod-api-deploy:
+    name: Deploy Staging API Manager To F-Code Server For Testing
+    runs-on: fcode-japao-runner
+    needs: staging-api-deploy
+    env:
+      PORT: ${{secrets.PROD_PORT}}
+      ORIGIN_DOMAIN: ${{secrets.PROD_ORIGIN_DOMAIN}}
+      ORIGIN_DOMAIN_LOCAL: ${{secrets.ORIGIN_DOMAIN_LOCAL}}
+
+      DB_HOST: ${{secrets.PROD_DB_HOST}}
+      DB_PORT: ${{secrets.PROD_DB_PORT}}
+      DB_USERNAME: ${{secrets.PROD_DB_USERNAME}}
+      DB_PASSWORD: ${{secrets.PROD_DB_PASSWORD}}
+      DB_DATABASE: ${{secrets.PROD_DB_DATABASE}}
+
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      JWT_EXPIRES_IN: ${{secrets.JWT_EXPIRES_IN}}
+      JWT_REFRESH_SECRET: ${{secrets.JWT_REFRESH_SECRET}}
+      JWT_REFRESH_EXPIRES_IN: ${{secrets.JWT_REFRESH_EXPIRES_IN}}
+      
+      ADMIN_EMAIL: ${{secrets.ADMIN_EMAIL}}
+      ADMIN_DEFAULT_PASSWORD: ${{secrets.ADMIN_DEFAULT_PASSWORD}}
+
+      SERVICE_PRIVATE_KEY: ${{secrets.F_CODE_GOOGLE_PRIVATE_KEY}}
+      SERVICE_PRIVATE_KEY_ID: ${{secrets.F_CODE_GOOGLE_PRIVATE_KEY_ID}}
+      SERVICE_ACCOUNT_EMAIL: ${{secrets.F_CODE_GOOGLE_CLIENT_EMAIL}}
+
+      MAIL_USER: ${{secrets.MAIL_USER}}
+      MAIL_SENDER: ${{secrets.MAIL_SENDER}}
+      MAIL_APP_PASSWORD: ${{secrets.MAIL_APP_PASSWORD}}
+      MAIL_SENDER_EMAIL: ${{secrets.MAIL_SENDER_EMAIL}}
+
+      FOLDER_TEMPLATE_ID: ${{secrets.PROD_FOLDER_TEMPLATE_ID}}
+
+      SALT_ROUND: ${{secrets.SALT_ROUND}}
+      DOCKER_HUB_URL: ${{ secrets.F_CODE_DOCKER_REGISTRY_URL }}
+      
+      TEMPLATE_LOCAL_PATH: ${{secrets.PROD_TEMPLATE_LOCAL_PATH}}
+      
+    steps:
+    - name: Checkout Develop
+      uses: actions/checkout@v3
+    - name: DockerHub Login
+      run: echo ${{ secrets.F_CODE_DOCKER_PASS }} | docker login -u ${{ secrets.F_CODE_DOCKER_USER }} --password-stdin ${{secrets.F_CODE_DOCKER_REGISTRY_URL}}
+    - name: Clean Container, Image And Prepare For Deploy
+      run: docker compose -f docker-compose.prod.yaml -p rode-battle-be-api-prod down --rmi all -v
+    - name: Deploy API
+      run: docker compose -f docker-compose.prod.yaml -p rode-battle-be-api-prod up -d
