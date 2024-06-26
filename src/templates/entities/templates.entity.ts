@@ -23,6 +23,6 @@ export class Template {
   @Column({ name: 'url', type: 'varchar', length: 128 })
   url: string;
 
-  @Column({ name: 'color_code', type: 'varchar', length: 64, nullable: true })
+  @Column({ name: 'color_code', type: 'varchar', length: 128, nullable: true })
   colorCode: string;
 }
