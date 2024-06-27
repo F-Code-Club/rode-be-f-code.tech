@@ -28,3 +28,15 @@ export class UpdateTestCaseDto {
   @IsNotEmpty()
   isVisible: boolean;
 }
+
+export class CreateTestCaseByFileDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+  inpFile: Express.Multer.File;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  outFile: Express.Multer.File;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  isVisible: boolean;
+}

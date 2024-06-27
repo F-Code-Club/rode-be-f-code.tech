@@ -323,6 +323,34 @@ export class QuestionController {
   }
 
   @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
+  @Post('test-cases/send-files/:question_id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async createTestCaseByFile(
+    @Param('question_id') questionId: string,
+
+    @Body() dto: CreateTestCaseDto,
+  ) {
+    const [data, err] = await this.questionService.createTestCase(
+      questionId,
+      dto,
+    );
+    if (!data)
+      return new ResponseObject(
+        HttpStatus.BAD_REQUEST,
+        'Create Test Case Fail',
+        data,
+        err,
+      );
+    return new ResponseObject(
+      HttpStatus.OK,
+      'Create Test Case Successful',
+      data,
+      err,
+    );
+  }
+
+  @Roles(RoleEnum.MANAGER, RoleEnum.ADMIN)
   @Patch('test-cases/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
