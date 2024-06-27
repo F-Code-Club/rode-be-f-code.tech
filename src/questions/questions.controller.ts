@@ -8,10 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { QuestionService } from './questions.service';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 import Roles from '@decorators/roles.decorator';
 import { QuestionStackStatus, RoleEnum } from '@etc/enums';
@@ -22,7 +24,13 @@ import {
 } from './dtos/question-stack.dto';
 import ResponseObject from '@etc/response-object';
 import { CreateQuestionDto, UpdateQuestionDto } from './dtos/question.dto';
-import { CreateTestCaseDto, UpdateTestCaseDto } from './dtos/test-case.dto';
+import {
+  CreateTestCaseByFileDto,
+  CreateTestCaseDto,
+  UpdateTestCaseDto,
+} from './dtos/test-case.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { TestCaseFileValidationPipe } from './pipes/upload-test-case.pipe';
 
 @Controller('question-stacks')
 @ApiTags('Questions')
@@ -326,25 +334,38 @@ export class QuestionController {
   @Post('test-cases/send-files/:question_id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Template File',
+    type: CreateTestCaseByFileDto,
+  })
   async createTestCaseByFile(
     @Param('question_id') questionId: string,
-
-    @Body() dto: CreateTestCaseDto,
+    @UploadedFile(TestCaseFileValidationPipe) inpFile: Express.Multer.File,
+    @UploadedFile(TestCaseFileValidationPipe) outFile: Express.Multer.File,
+    @Body() dto: CreateTestCaseByFileDto,
   ) {
+    let createTestCaseDto: CreateTestCaseDto = {
+      input: inpFile.buffer.toString(),
+      output: outFile.buffer.toString(),
+      isVisible: dto.isVisible,
+    };
+
     const [data, err] = await this.questionService.createTestCase(
       questionId,
-      dto,
+      createTestCaseDto,
     );
     if (!data)
       return new ResponseObject(
         HttpStatus.BAD_REQUEST,
-        'Create Test Case Fail',
+        'Create Test Case With File Fail',
         data,
         err,
       );
     return new ResponseObject(
       HttpStatus.OK,
-      'Create Test Case Successful',
+      'Create Test Case With File Successful',
       data,
       err,
     );
