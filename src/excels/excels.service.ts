@@ -121,9 +121,9 @@ export class ExcelService {
         errorList.push(
           'TEAM[' + teamTemp.groupName + '] has validation errors.',
         );
-      else if (teamTemp.member.length < 2 || teamTemp.member.length > 4) {
+      else if (teamTemp.member.length < 1 || teamTemp.member.length > 4) {
         errorList.push(
-          'TEAM[' + teamTemp.groupName + '] must have from 2 to 4 members.',
+          'TEAM[' + teamTemp.groupName + '] must have from 1 to 4 members.',
         );
       } else data.push(teamTemp);
     }

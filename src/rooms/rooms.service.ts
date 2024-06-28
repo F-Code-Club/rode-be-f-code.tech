@@ -97,7 +97,7 @@ export class RoomsService {
       });
     const checkCode = await this.roomRepository.findOne({
       where: {
-        code: info.code,
+        code: info.code.toUpperCase(),
       },
     });
     if (checkCode) {
@@ -118,7 +118,7 @@ export class RoomsService {
     try {
       const result = await this.dataSource.transaction(async (manager) => {
         const newRoom: Room = await manager.save(Room, {
-          code: info.code,
+          code: info.code.toUpperCase(),
           closeTime: info.closeTime,
           openTime: info.openTime,
           type: info.type,
@@ -273,11 +273,14 @@ export class RoomsService {
     if (!roomTeam?.roomCode) return [null, 'Enter room code and try again'];
     const roomEntity: Room | undefined = await this.roomRepository.findOne({
       where: {
-        code: roomTeam.roomCode,
+        code: roomTeam.roomCode.toUpperCase(),
       },
     });
     if (!roomEntity)
-      return [null, `Not found room with code ${roomTeam.roomCode}`];
+      return [
+        null,
+        `Not found room with code ${roomTeam.roomCode.toUpperCase()}`,
+      ];
     if (roomTeam.teamIds.length == 0) return ['Adding team successfully', null];
     const teamList = await this.dataSource
       .getRepository(Team)

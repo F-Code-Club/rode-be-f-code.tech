@@ -12,10 +12,10 @@ export class QuestionTestCase {
   @PrimaryGeneratedColumn('identity', { name: 'id' })
   id: number;
 
-  @Column()
+  @Column({ type: 'text' })
   input: string;
 
-  @Column()
+  @Column({ type: 'text' })
   output: string;
 
   @Column({ default: false, name: 'is_visible' })
